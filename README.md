@@ -1,15 +1,18 @@
 # MTG Autoproxy
 Use Photoshop scripting to easily create custom high-quality Magic proxies for casual play.
 
+# Examples
+[Here's a selection of cards I proxied using this method as an example of its capabilities](https://imgur.com/a/kG2UM).
+
 # What You'll Need
 * A copy of Photoshop CS5
 * The following fonts:
-  * (Beleren, Beleren Smallcaps, and MPlantin)[https://github.com/magarena/magarena/tree/master/resources/cardbuilder/fonts], for most text
-  * (MagicSymbols)[http://www.fontsner.com/font/Magic_Symbols_2008-78839.html], for most mana symbols.
+  * [Beleren, Beleren Smallcaps, and MPlantin](https://github.com/magarena/magarena/tree/master/resources/cardbuilder/fonts), for most text
+  * [MagicSymbols](http://www.fontsner.com/font/Magic_Symbols_2008-78839.html), for most mana symbols.
   * MTG2016, for generating colourless mana symbols and other modern symbols. I couldn't locate the original source for this font so I'm reuploading it here, but I take no credit for it. 
-  * (Keyrune)[https://andrewgioia.github.io/Keyrune/index.html], for the expansion symbol and expansion symbol watermarks.
+  * [Keyrune](https://andrewgioia.github.io/Keyrune/index.html), for the expansion symbol and expansion symbol watermarks.
  * symbols.json, a Keyrune JSON database for local symbols. I copied and edited Keyrune's cheat sheet page into this database to streamline how the script works, but I take no credit for the font or symbols themselves.
- * (json2.js)[https://github.com/douglascrockford/JSON-js], for reading JSON files in local JavaScript.
+ * [json2.js](https://github.com/douglascrockford/JSON-js), for reading JSON files in local JavaScript.
  * The included Photoshop templates.
  * The included JavaScript files.
 
