@@ -107,7 +107,8 @@ var originalexpansionlowercase = originalExpansion.toLowerCase();
 var myGlyph = jsonGlyphs[originalexpansionlowercase];
 
 // Also retrieve the flavour text for the oldest printing with flavour text
-var flavourText = " "; // GOD TIER LINE
+//var flavourText = " "; // GOD TIER LINE
+var flavourText = "";
 if(jsonString.lastIndexOf("\"flavor\": ") >= 0){
   var jsonParsed = JSON.parse(jsonString);
   flavourText = jsonParsed.flavor;
@@ -232,10 +233,7 @@ docRef.activeLayer.textItem.contents = myGlyph;
 
 // ---------- Rules Text ----------
 var myLayer = docRef.layers.getByName("Text and Icons");
-var textLayerUsed = "Rules Text - Left";
-var myNewLayer = myLayer.layers.getByName("Rules Text - Centred");
-myNewLayer.visible = false;
-var myNewLayer = myLayer.layers.getByName(textLayerUsed);
+var myNewLayer = myLayer.layers.getByName("Rules Text");
 docRef.activeLayer = myNewLayer;
 cardText = cardText.replace(/\n/g,"\r");
 docRef.activeLayer.textItem.contents = cardText;
@@ -260,8 +258,9 @@ while(reminderTextBool == 1){
 // Also attach the ability word Threshold and the cards' flavour text
 // to the italics array.
 italicText.push("Threshold");
-italicText.push(flavourText);
-
+if(flavourText.length > 1){
+  italicText.push(flavourText);
+}
 // Jam the rules text and flavour text together
 if(flavourText.length > 0){
   var completeString = cardText + "\r" + flavourText;
@@ -269,12 +268,21 @@ if(flavourText.length > 0){
 else{
   var completeString = cardText;
 }
-if(completeString.indexOf("{") < 0){
-  italiciseText(completeString, italicText);
-}
-else{
+//if(completeString.indexOf("{") < 0){
+//  italiciseText(completeString, italicText);
+//}
+//else{
   insertManaAndItaliciseText(completeString, italicText);
+//}
+
+// Maybe centre justify the text box
+if(flavourText.length <= 1 && cardText.length <= 70){
+  // Here we go boys
+  docRef.activeLayer.textItem.justification = Justification.CENTER;
 }
+
+
+
 
 // Scale the text to fit in the text box
 scaleTextToFitBox(myNewLayer);
