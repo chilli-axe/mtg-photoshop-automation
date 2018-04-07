@@ -33,7 +33,7 @@ Use Photoshop scripting to easily create custom high-quality Magic proxies for c
 The script will generate proxies that use the following rules:
 * A watermark of the expansion symbol they were originally printed in.
 * Flavour text of the oldest printing with flavour text. 
-* The card's most modern Oracle text for typeline and rules text, as of 06/04/18 (post-*Rivals of Ixalan* and pre-*Dominaria*).
+* The card's most modern Oracle text for typeline and rules text.
 
 # Limitations
 As of the first release, the script can't handle:
