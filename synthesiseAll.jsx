@@ -42,277 +42,276 @@ for(var n=0;n<files_array.length;n++){
    backFile.close(SaveOptions.DONOTSAVECHANGES);
    docRef.paste();
 
-  // Retrieve the card's name and artist
-  var openIndex  = fullCardName.lastIndexOf(" (");
-  var closeIndex = fullCardName.lastIndexOf(")");
-  var cardArtist = fullCardName.slice(openIndex+2,closeIndex);
-  var cardName   = fullCardName.slice(0,openIndex);
+   // Retrieve the card's name and artist
+   var openIndex  = fullCardName.lastIndexOf(" (");
+   var closeIndex = fullCardName.lastIndexOf(")");
+   var cardArtist = fullCardName.slice(openIndex+2,closeIndex);
+   var cardName   = fullCardName.slice(0,openIndex);
+   var scriptFile = new File(filePath + "AllSets.json");
+   scriptFile.open('r');
+   var content = scriptFile.read();
+   scriptFile.close();
 
-  var scriptFile = new File(filePath + "AllSets.json");
-  scriptFile.open('r');
-  var content = scriptFile.read();
-  scriptFile.close();
+   // Find our card name in the database
+   var namePrefix = "\"name\": \"";
+   var nameConcat = namePrefix.concat(cardName);
+   var indicesOfName = getAllIndexes(content, nameConcat.concat("\","));
 
-  // Find our card name in the database
-  var namePrefix = "\"name\": \"";
-  var nameConcat = namePrefix.concat(cardName);
-  var indicesOfName = getAllIndexes(content, nameConcat.concat("\","));
+   // Grab the oldest printing of the card I think?
+   var indexesOfID = [];
+   var multiverseIDs = [];
+   for(var i=0;i<indicesOfName.length;i++){
+     indexesOfID[i] = content.lastIndexOf("\"multiverseid\": ", indicesOfName[i]);
+     var indexOfComma = content.indexOf(",",indexesOfID[i]);
+     multiverseIDs[i] = content.slice(indexesOfID[i]+16,indexOfComma);
+   }
 
-  // Grab the oldest printing of the card
-  var indexesOfID = [];
-  var multiverseIDs = [];
-  for(var i=0;i<indicesOfName.length;i++){
-    indexesOfID[i] = content.lastIndexOf("\"multiverseid\": ", indicesOfName[i]);
-    var indexOfComma = content.indexOf(",",indexesOfID[i]);
-    multiverseIDs[i] = content.slice(indexesOfID[i]+16,indexOfComma);
-  }
+   // Create a copy of the multiverse ID array
+   var multiverseIDsCopy = multiverseIDs.slice(0);
 
-  // Create a copy of the multiverse ID array
-  var multiverseIDsCopy = multiverseIDs.slice(0);
+   // Sort the copy into ascending order (oldest to newest in terms of printing
+   // age) and store that as smallestID
+   var smallestID = multiverseIDsCopy.sort(function (a,b) {return a-b;});
 
-  // Sort the copy into ascending order (oldest to newest in terms of printing
-  // age) and store that as smallestID
-  var smallestID = multiverseIDsCopy.sort(function (a,b) {return a-b;});
+   // Store the multiverse ID of the oldest printing as CompletelyNew
+   var CompletelyNew = smallestID[0];
 
-  // Store the multiverse ID of the oldest printing as CompletelyNew
-  var CompletelyNew = smallestID[0];
+   // Store the index in multiverseIDs of that ID as SecondCompletelyNew
+   var SecondCompletelyNew = arrayIndexOf2(multiverseIDs,CompletelyNew,0);
 
-  // Store the index in multiverseIDs of that ID as SecondCompletelyNew
-  var SecondCompletelyNew = arrayIndexOf2(multiverseIDs,CompletelyNew,0);
+   // originalExpansionIndex is the index of the 3 letter code used to represent
+   // the expansion that the card originally hails from
+   var originalExpansionIndex = content.lastIndexOf("\"code\": \"",indicesOfName[SecondCompletelyNew]);
+   var indexOfComma = content.indexOf(",",originalExpansionIndex);
 
-  // originalExpansionIndex is the index of the 3 letter code used to represent
-  // the expansion that the card originally hails from
-  var originalExpansionIndex = content.lastIndexOf("\"code\": \"",indicesOfName[SecondCompletelyNew]);
-  var indexOfComma = content.indexOf(",",originalExpansionIndex);
+   // Slice and dice to get the 3 letter expansion code
+   var originalExpansion = content.slice(originalExpansionIndex + 9, indexOfComma - 1);
 
-  // Slice and dice to get the 3 letter expansion code
-  var originalExpansion = content.slice(originalExpansionIndex + 9, indexOfComma - 1);
+   // Find where the JSON for the card's entry in this set begins and ends
+   var manaCostIndex = content.lastIndexOf("cmc",indicesOfName[SecondCompletelyNew]);
+   var typeIndex = content.indexOf("\"types\": ",indicesOfName[SecondCompletelyNew]);
+   var startingIndexOfCard = content.lastIndexOf("{",manaCostIndex);
+   var endingIndexOfCard = content.indexOf("}",typeIndex);
 
-  // Find where the JSON for the card's entry in this set begins and ends
-  var manaCostIndex = content.lastIndexOf("cmc",indicesOfName[SecondCompletelyNew]);
-  var typeIndex = content.indexOf("\"types\": ",indicesOfName[SecondCompletelyNew]);
-  var startingIndexOfCard = content.lastIndexOf("{",manaCostIndex);
-  var endingIndexOfCard = content.indexOf("}",typeIndex);
+   // Slice and dice, then parse the result, for the complete JSON.
+   var jsonString = content.slice(startingIndexOfCard,endingIndexOfCard+1);
 
-  // Slice and dice, then parse the result, for the complete JSON
-  var jsonString = content.slice(startingIndexOfCard,endingIndexOfCard+1);
+   // Grab the watermark glyph pls
+   var scriptFile = new File(filePath + "symbols.json");
+   scriptFile.open('r');
+   var contentGlyphs = scriptFile.read();
+   scriptFile.close();
+   var jsonGlyphs = JSON.parse(contentGlyphs);
+   var originalexpansionlowercase = originalExpansion.toLowerCase();
+   var myGlyph = jsonGlyphs[originalexpansionlowercase];
 
-  // Grab the watermark glyph pls
-  var scriptFile = new File(filePath + "symbols.json");
-  scriptFile.open('r');
-  var contentGlyphs = scriptFile.read();
-  scriptFile.close();
-  var jsonGlyphs = JSON.parse(contentGlyphs);
+   // Also retrieve the flavour text for the oldest printing with flavour text
+   //var flavourText = " "; // GOD TIER LINE
+   var flavourText = "";
+   if(jsonString.lastIndexOf("\"flavor\": ") >= 0){
+     var jsonParsed = JSON.parse(jsonString);
+     flavourText = jsonParsed.flavor;
+   }
+   else{
+     for(var i=1;i<multiverseIDs.length;i++){
+       // Grab the current multiverse ID
+       var multiverseThing = arrayIndexOf2(multiverseIDs,smallestID[i],0);
 
-  var originalexpansionlowercase = originalExpansion.toLowerCase();
-  var myGlyph = jsonGlyphs[originalexpansionlowercase];
+       // Slice and dice, my dudes
+       var manaCostIndex = content.lastIndexOf("cmc",indicesOfName[multiverseThing]);
+       var typeIndex = content.indexOf("\"types\": ",indicesOfName[multiverseThing]);
+       var startingIndexOfCard = content.lastIndexOf("{",manaCostIndex);
+       var endingIndexOfCard = content.indexOf("}",typeIndex);
+       var jsonString = content.slice(startingIndexOfCard,endingIndexOfCard+1);
 
-  // Also retrieve the flavour text for the oldest printing with flavour text
-  // Default the flavour text to a hard space (necessary for the italics and
-  // mana symbol function to not break when given a card with no flavour text)
-  var flavourText = " ";
-  if(jsonString.lastIndexOf("\"flavor\": ") >= 0){
-    var jsonParsed = JSON.parse(jsonString);
-    flavourText = jsonParsed.flavor;
-  }
-  else{
-    for(var i=1;i<multiverseIDs.length;i++){
-      // Grab the current multiverse ID
-      var multiverseThing = arrayIndexOf2(multiverseIDs,smallestID[i],0);
+       // Check if this fella has flavour text at all
+       if(jsonString.lastIndexOf("\"flavor\": ") >= 0){
+         var jsonParsed = JSON.parse(jsonString);
+         flavourText = jsonParsed.flavor;
+         break;
+       }
+     }
+   }
+   var jsonParsed = JSON.parse(jsonString);
 
-      // Slice and dice, my dudes
-      var manaCostIndex = content.lastIndexOf("cmc",indicesOfName[multiverseThing]);
-      var typeIndex = content.indexOf("\"types\": ",indicesOfName[multiverseThing]);
-      var startingIndexOfCard = content.lastIndexOf("{",manaCostIndex);
-      var endingIndexOfCard = content.indexOf("}",typeIndex);
-      var jsonString = content.slice(startingIndexOfCard,endingIndexOfCard+1);
+   // Retrieve some more info about the card.
+   var typeLine = jsonParsed.type;
+   var cardPower = jsonParsed.power;
+   var cardTough = jsonParsed.toughness;
+   var cardText = jsonParsed.text;
+   var cardManaCost = jsonParsed.manaCost;
+   if(jsonString.indexOf("colorIdentity") >= 0 && typeLine.indexOf("Artifact") < 0){
+     var str = String(jsonParsed.colorIdentity);
+     var regex = /[.,\s]/g;
+     var colourIdentity = String(str.replace(regex,''));
+   }
+   else{
+     var colourIdentity = "";
+   }
 
-      // Check if this fella has flavour text at all
-      if(jsonString.lastIndexOf("\"flavor\": ") >= 0){
-        var jsonParsed = JSON.parse(jsonString);
-        flavourText = jsonParsed.flavor;
-        break;
-      }
-    }
-  }
-  var jsonParsed = JSON.parse(jsonString);
+   //---------- Card Name ----------
+   // Select the name layer
+   var myLayer = docRef.layers.getByName("Text and Icons");
+   var mySubLayer = myLayer.layers.getByName("Card Name");
+   docRef.activeLayer = mySubLayer;
+   docRef.activeLayer.textItem.contents = cardName;
 
-  // Retrieve some more info about the card.
-  var typeLine = jsonParsed.type;
-  var cardPower = jsonParsed.power;
-  var cardTough = jsonParsed.toughness;
-  var cardText = jsonParsed.text;
-  var cardManaCost = jsonParsed.manaCost;
+   // ---------- Typeline ----------
+   // Select the typeline layer
+   var myLayer = docRef.layers.getByName("Text and Icons");
+   var mySubLayer = myLayer.layers.getByName("Typeline");
+   docRef.activeLayer = mySubLayer;
+   docRef.activeLayer.textItem.contents = typeLine;
 
-  // Retrieve the card's colour identity and take into account the fact that
-  // it could be an artifact with mana symbols
-  if(jsonString.indexOf("colorIdentity") >= 0 && typeLine.indexOf("Artifact") < 0){
-    var str = String(jsonParsed.colorIdentity);
-    var regex = /[.,\s]/g;
-    var colourIdentity = String(str.replace(regex,''));
-  }
-  else{
-    var colourIdentity = "";
-  }
+   // ---------- P / T ----------
+   var myLayer = docRef.layers.getByName("Text and Icons");
+   var mySubLayer = myLayer.layers.getByName("Power / Toughness");
+   docRef.activeLayer = mySubLayer;
+   if(typeLine.indexOf("Creature") >= 0){
+     docRef.activeLayer.textItem.contents = cardPower + "/" + cardTough;
+   }
+   else{
+     docRef.activeLayer.visible = false;
+   }
 
-  //---------- Card Name ----------
-  // Select the name layer
-  var myLayer = docRef.layers.getByName("Text and Icons");
-  var mySubLayer = myLayer.layers.getByName("Card Name");
-  docRef.activeLayer = mySubLayer;
-  docRef.activeLayer.textItem.contents = cardName;
+   // ---------- Artist ----------
+   replaceText("Artist", cardArtist);
 
-  // ---------- Typeline ----------
-  // Select the typeline layer
-  var myLayer = docRef.layers.getByName("Text and Icons");
-  var mySubLayer = myLayer.layers.getByName("Typeline");
-  docRef.activeLayer = mySubLayer;
-  docRef.activeLayer.textItem.contents = typeLine;
+   // ---------- Card Frame ----------
+   // First see if the card is land or nonland
+   if(typeLine.indexOf("Land") >= 0){
+     // Hide the mana cost while we're at it
+     var myLayer = docRef.layers.getByName("Text and Icons");
+     var mySubLayer = myLayer.layers.getByName("Mana Cost");
+     docRef.activeLayer = mySubLayer;
+     docRef.activeLayer.visible = false;
+     // Choose the land folder
+     var myLayer = docRef.layers.getByName("Land");
+   }
+   else{
+     // ---------- Mana Cost ----------
+     myManaLayer = docRef.layers.getByName("Text and Icons");
+     manaCostLayer = myManaLayer.layers.getByName("Mana Cost");
+     manaCostLayer.textItem.contents = cardManaCost;
+     insertManaCost(cardManaCost);
 
-  // ---------- P / T ----------
-  var myLayer = docRef.layers.getByName("Text and Icons");
-  var mySubLayer = myLayer.layers.getByName("Power / Toughness");
-  docRef.activeLayer = mySubLayer;
-  if(typeLine.indexOf("Creature") >= 0){
-    docRef.activeLayer.textItem.contents = cardPower + "/" + cardTough;
-  }
-  else{
-    docRef.activeLayer.visible = false;
-  }
+     var myLayer = docRef.layers.getByName("Nonland");
+     if(colourIdentity.valueOf() == "B"){
+       // Change the text colour of the artist, legal and P/T layers to white
+       var myTextLayer = docRef.layers.getByName("Legal");
+       var myNewTextLayer = myTextLayer.layers.getByName("Artist");
+       textColour = new SolidColor();
+       textColour.rgb.red = 255;
+       textColour.rgb.blue = 255;
+       textColour.rgb.green = 255;
+       myNewTextLayer.textItem.color = textColour;
+       myNewTextLayer = myTextLayer.layers.getByName("Legal");
+       myNewTextLayer.textItem.color = textColour;
+       myTextLayer = docRef.layers.getByName("Text and Icons");
+       myNewTextLayer = myTextLayer.layers.getByName("Power / Toughness");
+       myNewTextLayer.textItem.color = textColour;
+     }
+   }
+   if(colourIdentity.length > 2){
+     var mySubLayer = myLayer.layers.getByName("WUBRG");
+   }
+   else if(colourIdentity.length <= 0){
+     var mySubLayer = myLayer.layers.getByName("C");
+   }
+   else{
+     var mySubLayer = myLayer.layers.getByName(colourIdentity);
+   }
+   docRef.activeLayer = mySubLayer;
+   docRef.activeLayer.visible = true;
 
-  // ---------- Artist ----------
-  replaceText("Artist", cardArtist);
+   // ---------- Watermark ----------
+   var watermarkLayer = mySubLayer.layers.getByName("Watermark");
+   docRef.activeLayer = watermarkLayer;
+   docRef.activeLayer.visible = true;
+   docRef.activeLayer.textItem.contents = myGlyph;
 
-  // ---------- Card Frame ----------
-  // First see if the card is land or nonland
-  if(typeLine.indexOf("Land") >= 0){
-    // Hide the mana cost while we're at it
-    var myLayer = docRef.layers.getByName("Text and Icons");
-    var mySubLayer = myLayer.layers.getByName("Mana Cost");
-    docRef.activeLayer = mySubLayer;
-    docRef.activeLayer.visible = false;
-    // Choose the land folder
-    var myLayer = docRef.layers.getByName("Land");
-  }
-  else{
-    // ---------- Mana Cost ----------
-    myManaLayer = docRef.layers.getByName("Text and Icons");
-    manaCostLayer = myManaLayer.layers.getByName("Mana Cost");
-    manaCostLayer.textItem.contents = cardManaCost;
-    insertManaCost(cardManaCost);
-    var myLayer = docRef.layers.getByName("Nonland");
-    if(colourIdentity.valueOf() == "B"){
-      // Change the text colour of the artist, legal and P/T layers to white
-      var myTextLayer = docRef.layers.getByName("Legal");
-      var myNewTextLayer = myTextLayer.layers.getByName("Artist");
-      textColour = new SolidColor();
-      textColour.rgb.red = 255;
-      textColour.rgb.blue = 255;
-      textColour.rgb.green = 255;
-      myNewTextLayer.textItem.color = textColour;
-      myNewTextLayer = myTextLayer.layers.getByName("Legal");
-      myNewTextLayer.textItem.color = textColour;
-      myTextLayer = docRef.layers.getByName("Text and Icons");
-      myNewTextLayer = myTextLayer.layers.getByName("Power / Toughness");
-      myNewTextLayer.textItem.color = textColour;
-    }
-  }
-  if(colourIdentity.length > 2){
-    var mySubLayer = myLayer.layers.getByName("WUBRG");
-  }
-  else if(colourIdentity.length <= 0){
-    var mySubLayer = myLayer.layers.getByName("C");
-  }
-  else{
-    var mySubLayer = myLayer.layers.getByName(colourIdentity);
-  }
-  docRef.activeLayer = mySubLayer;
-  docRef.activeLayer.visible = true;
+   // ---------- Rules Text ----------
+   var myLayer = docRef.layers.getByName("Text and Icons");
+   var myNewLayer = myLayer.layers.getByName("Rules Text");
+   docRef.activeLayer = myNewLayer;
+   cardText = cardText.replace(/\n/g,"\r");
+   docRef.activeLayer.textItem.contents = cardText;
 
-  // ---------- Watermark ----------
-  var watermarkLayer = mySubLayer.layers.getByName("Watermark");
-  docRef.activeLayer = watermarkLayer;
-  docRef.activeLayer.visible = true;
-  docRef.activeLayer.textItem.contents = myGlyph;
+   // ---------- Italics Text ----------
+   // Build an array of italics text, starting with identifying any
+   // reminder text in the card's text body (anything in brackets).
+   var reminderTextBool = 1;
 
-  // ---------- Rules Text ----------
-  var myLayer = docRef.layers.getByName("Text and Icons");
-  var textLayerUsed = "Rules Text - Left";
-  var myNewLayer = myLayer.layers.getByName("Rules Text - Centred");
-  myNewLayer.visible = false;
-  var myNewLayer = myLayer.layers.getByName(textLayerUsed);
-  docRef.activeLayer = myNewLayer;
-  cardText = cardText.replace(/\n/g,"\r");
-  docRef.activeLayer.textItem.contents = cardText;
+   var italicText = []; var endIndex = 0;
+   while(reminderTextBool == 1){
+     var startIndex = cardText.indexOf("(",endIndex);
+     if(startIndex >= 0){
+       endIndex = cardText.indexOf(")",startIndex+1);
+       italicText.push( cardText.slice(startIndex, endIndex+1) );
+     }
+     else{
+       reminderTextBool = 0;
+     }
+   }
 
-  // ---------- Italics Text ----------
-  // Build an array of italics text, starting with identifying any
-  // reminder text in the card's text body (anything in brackets).
-  var reminderTextBool = 1;
+   // Also attach the ability word Threshold and the cards' flavour text
+   // to the italics array.
+   italicText.push("Threshold");
+   if(flavourText.length > 1){
+     italicText.push(flavourText);
+   }
+   // Jam the rules text and flavour text together
+   if(flavourText.length > 0){
+     var completeString = cardText + "\r" + flavourText;
+   }
+   else{
+     var completeString = cardText;
+   }
+   //if(completeString.indexOf("{") < 0){
+   //  italiciseText(completeString, italicText);
+   //}
+   //else{
+     insertManaAndItaliciseText(completeString, italicText);
+   //}
 
-  var italicText = []; var endIndex = 0;
-  while(reminderTextBool == 1){
-    var startIndex = cardText.indexOf("(",endIndex);
-    if(startIndex >= 0){
-      endIndex = cardText.indexOf(")",startIndex+1);
-      italicText.push( cardText.slice(startIndex, endIndex+1) );
-    }
-    else{
-      reminderTextBool = 0;
-    }
-  }
+   // Maybe centre justify the text box
+   if(flavourText.length <= 1 && cardText.length <= 70){
+     // Here we go boys
+     docRef.activeLayer.textItem.justification = Justification.CENTER;
+   }
 
-  // Also attach the ability word Threshold and the cards' flavour text
-  // to the italics array.
-  italicText.push("Threshold");
-  italicText.push(flavourText);
 
-  // Jam the rules text and flavour text together
-  if(flavourText.length > 0){
-    var completeString = cardText + "\r" + flavourText;
-  }
-  else{
-    var completeString = cardText;
-  }
-  if(completeString.indexOf("{") < 0){
-    italiciseText(completeString, italicText);
-  }
-  else{
-    insertManaAndItaliciseText(completeString, italicText);
-  }
 
-  // Scale the text to fit in the text box
-  scaleTextToFitBox(myNewLayer);
 
-  // Vertically align text — Pulled from script listener
-  verticallyAlignText();
+   // Scale the text to fit in the text box
+   scaleTextToFitBox(myNewLayer);
 
-  // ----------Save as PNG in the out folder ----------
-  var idsave = charIDToTypeID( "save" );
-      var desc3 = new ActionDescriptor();
-      var idAs = charIDToTypeID( "As  " );
-          var desc4 = new ActionDescriptor();
-          var idPGIT = charIDToTypeID( "PGIT" );
-          var idPGIT = charIDToTypeID( "PGIT" );
-          var idPGIN = charIDToTypeID( "PGIN" );
-          desc4.putEnumerated( idPGIT, idPGIT, idPGIN );
-          var idPNGf = charIDToTypeID( "PNGf" );
-          var idPNGf = charIDToTypeID( "PNGf" );
-          var idPGAd = charIDToTypeID( "PGAd" );
-          desc4.putEnumerated( idPNGf, idPNGf, idPGAd );
-      var idPNGF = charIDToTypeID( "PNGF" );
-      desc3.putObject( idAs, idPNGF, desc4 );
-      var idIn = charIDToTypeID( "In  " );
-      var filename = filePath + '/out/' + cardName + '.png';
-      desc3.putPath( idIn, new File( filename ) );
-      var idCpy = charIDToTypeID( "Cpy " );
-      desc3.putBoolean( idCpy, true );
-  executeAction( idsave, desc3, DialogModes.NO );
+   // Vertically align text — Pulled from script listener
+   verticallyAlignText();
 
-  // Close the thing without saving
-  docRef.close(SaveOptions.DONOTSAVECHANGES);
+   // ----------Save as PNG in the out folder ----------
+   var idsave = charIDToTypeID( "save" );
+       var desc3 = new ActionDescriptor();
+       var idAs = charIDToTypeID( "As  " );
+           var desc4 = new ActionDescriptor();
+           var idPGIT = charIDToTypeID( "PGIT" );
+           var idPGIT = charIDToTypeID( "PGIT" );
+           var idPGIN = charIDToTypeID( "PGIN" );
+           desc4.putEnumerated( idPGIT, idPGIT, idPGIN );
+           var idPNGf = charIDToTypeID( "PNGf" );
+           var idPNGf = charIDToTypeID( "PNGf" );
+           var idPGAd = charIDToTypeID( "PGAd" );
+           desc4.putEnumerated( idPNGf, idPNGf, idPGAd );
+       var idPNGF = charIDToTypeID( "PNGF" );
+       desc3.putObject( idAs, idPNGF, desc4 );
+       var idIn = charIDToTypeID( "In  " );
+       var filename = filePath + '/out/' + cardName + '.png';
+       desc3.putPath( idIn, new File( filename ) );
+       var idCpy = charIDToTypeID( "Cpy " );
+       desc3.putBoolean( idCpy, true );
+   executeAction( idsave, desc3, DialogModes.NO );
 
-  // Also save a production-ready version with thickened borders to the
-  // borders folder
-  $.evalFile(filePath + "borderify.jsx");
+   // Close the thing without saving
+   docRef.close(SaveOptions.DONOTSAVECHANGES);
+   $.evalFile(filePath + "borderify.jsx");
 }
