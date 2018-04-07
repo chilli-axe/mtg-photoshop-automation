@@ -95,7 +95,7 @@ function verticallyAlignText(){
       var idnull = charIDToTypeID( "null" );
           var ref1 = new ActionReference();
           var idLyr = charIDToTypeID( "Lyr " );
-          ref1.putName( idLyr, textLayerUsed );
+          ref1.putName( idLyr, "Rules Text" );
       desc2.putReference( idnull, ref1 );
       var idMkVs = charIDToTypeID( "MkVs" );
       desc2.putBoolean( idMkVs, false );
@@ -165,7 +165,7 @@ function verticallyAlignText(){
       var idnull = charIDToTypeID( "null" );
           var ref7 = new ActionReference();
           var idLyr = charIDToTypeID( "Lyr " );
-          ref7.putName( idLyr, textLayerUsed );
+          ref7.putName( idLyr, "Rules Text" );
       desc7.putReference( idnull, ref7 );
       var idMkVs = charIDToTypeID( "MkVs" );
       desc7.putBoolean( idMkVs, false );
