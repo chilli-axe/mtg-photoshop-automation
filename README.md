@@ -6,6 +6,7 @@ Use Photoshop scripting to easily create custom high-quality Magic proxies for c
 
 # What You'll Need
 * A copy of Photoshop CS5
+* [The Photoshop template](https://drive.google.com/file/d/1h9Xm2j-dd-kHm0gNlP_APIlA25X40DsR/view)
 * The following fonts:
   * [Beleren, Beleren Smallcaps, and MPlantin](https://github.com/magarena/magarena/tree/master/resources/cardbuilder/fonts), for most text
   * [MagicSymbols](http://www.fontsner.com/font/Magic_Symbols_2008-78839.html), for most mana symbols.
