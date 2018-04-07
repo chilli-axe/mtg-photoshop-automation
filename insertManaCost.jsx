@@ -8,7 +8,6 @@ var rgbG = [155, 209, 177];
 
 var symbolsList = ["{T}","{X}","{0}","{1}","{2}","{3}","{4}","{5}","{6}","{7}","{8}","{9}","{W}","{U}","{B}","{R}","{G}","{C}"];
 var newSymbols  = ["ot", "ox", "o0", "o1", "o2", "o3", "o4", "o5", "o6", "o7", "o8", "o9", "ow", "ou", "ob", "or", "og", "OC" ]
-var inputStringCopy = inputString;
 var symbolIndices = [];
 
 // Find all instances of mana symbols in the text and replace them
