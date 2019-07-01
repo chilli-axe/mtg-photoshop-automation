@@ -16,6 +16,11 @@ Use Photoshop scripting to easily create custom high-quality Magic proxies for c
  * [json2.js](https://github.com/douglascrockford/JSON-js), for reading JSON files in local JavaScript.
  * The included Photoshop templates.
  * The included JavaScript files.
+ 
+ For the artwork gathering script, the Python packages:
+ * Selenium
+ * Scrython
+ * urllib
 
 # How to Use It
 * Download and expand all files to a folder of your choice.
