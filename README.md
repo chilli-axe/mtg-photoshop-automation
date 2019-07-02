@@ -4,6 +4,8 @@ Use Photoshop scripting to easily create custom high-quality Magic proxies for c
 # Examples
 [Here's a selection of cards I proxied using this method as an example of its capabilities](https://imgur.com/a/kG2UM).
 
+![text](https://github.com/ndepaola/mtg-autoproxy/blob/master/Scalding%20Tarn.png?raw=true)
+
 # What You'll Need
 * A copy of Photoshop CS5
 * [The Photoshop template](https://drive.google.com/file/d/1h9Xm2j-dd-kHm0gNlP_APIlA25X40DsR/view)
