@@ -30,6 +30,7 @@ Use Photoshop scripting to easily create custom high-quality Magic proxies for c
 As of this release, the script can't handle:
 * Non-standard card layouts, such as planeswalkers and Kamigawa flip cards. 
 * Occasionally the information on Scryfall's API is formatted slightly incorrectly, meaning that some mistakes are possible. These are rare, and so far are limited to things like not colouring a Phyrexian mana symbol in rules text, or not inserting a new line in flavour text where it's quoting a character.
+* Ability keywords, like `Morbid` and `Fateful Hour` are hardcoded, and any instances of these keywords in the rules text are italicised. Not all keywords have been listed, but adding additional ones is easy. Just haven't gotten around to it yet.  
 
 # Customisation
 Feel free to replace the rasterised card frames in the template with whichever frames you want, and move text layers to suit - your only restriction is that you can't really adjust the structure of the template much without causing the script to throw errors at you. 
