@@ -2,7 +2,7 @@
 Use Photoshop scripting to easily create custom high-quality Magic proxies for casual play.
 
 # Examples
-[Video demonstration](https://www.youtube.com/watch?v=cV5SU0xIjWw)
+[Video demonstration](https://www.youtube.com/watch?v=jSuH7CY8HIM)
 
 Original digital render example
 ![img1](https://github.com/ndepaola/mtg-autoproxy/blob/master/Scalding%20Tarn.png?raw=true)
