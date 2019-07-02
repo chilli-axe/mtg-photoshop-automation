@@ -24,7 +24,8 @@ Use Photoshop scripting to easily create custom high-quality Magic proxies for c
 * Move all of your card artwork to the `art` folder. File names should be structured as `<CARDNAME> (<ARTIST NAME>).jpg`.
 * Run the script `Frame All` to position each art piece in the art window, and store the results in the `crop` folder. `Frame Target` does the same but only for a specific art image.
 * Run the script `Proxy All` to render each card in the `crop` folder, and store the results in the `out` folder. `Proxy Target` does the same but only for a specific framed image.
-* Run the script `Borderify All` to pad each card render with a black border, such that it's ready to order through sites like makeplayingcards.com. `Borderify Target` does the same but only for a specific render.
+* Run the script `Borderify All` to pad each card render with a black border, such that it's ready to order through sites like makeplayingcards.com, and store the results in the `border` folder inside the `out` folder. `Borderify Target` does the same but only for a specific render.
+I included sample files in the `art`, `crop`, `out`, and `border` folders to show how the process works. 
 
 # Limitations
 As of this release, the script can't handle:
