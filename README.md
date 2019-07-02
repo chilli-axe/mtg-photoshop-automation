@@ -2,7 +2,8 @@
 Use Photoshop scripting to easily create custom high-quality Magic proxies for casual play.
 
 # Example
-![Here's a card I proxied using this method as an example of its capabilities](https://github.com/ndepaola/mtg-autoproxy/blob/master/Scalding%20Tarn.png?raw=true)
+![img1](https://github.com/ndepaola/mtg-autoproxy/blob/master/Scalding%20Tarn.png?raw=true)
+![img2](https://github.com/ndepaola/mtg-autoproxy/blob/master/IMG_1927.JPG)
 
 # What You'll Need
 * A copy of Photoshop. I tested the system using CS5, but other versions may work as well.
