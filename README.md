@@ -10,7 +10,7 @@ Example printed through makeplayingcards.com
 
 # What You'll Need
 * A copy of Photoshop. I tested the system using CS5, but other versions may work as well.
-* [The Photoshop template](https://drive.google.com/file/d/1h9Xm2j-dd-kHm0gNlP_APIlA25X40DsR/view)
+* [The Photoshop template](https://drive.google.com/open?id=1LZ_OE7h4uFK2w89bAMGn16-z53yiO60H)
 * The following fonts:
   * [Beleren, Beleren Smallcaps, MPlantin and MPlantin-Italics](https://github.com/magarena/magarena/tree/master/resources/cardbuilder/fonts), for most text
   * My custom Magic symbols font NDPMTG, included in the repo.
