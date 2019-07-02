@@ -3,7 +3,7 @@ Use Photoshop scripting to easily create custom high-quality Magic proxies for c
 
 # Example
 ![img1](https://github.com/ndepaola/mtg-autoproxy/blob/master/Scalding%20Tarn.png?raw=true)
-![img2](https://github.com/ndepaola/mtg-autoproxy/blob/master/IMG_1927.JPG)
+![img2](https://github.com/ndepaola/mtg-autoproxy/blob/master/IMG_1927.jpg)
 
 # What You'll Need
 * A copy of Photoshop. I tested the system using CS5, but other versions may work as well.
