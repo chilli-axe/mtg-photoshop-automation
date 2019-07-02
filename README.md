@@ -1,8 +1,11 @@
 # MTG Autoproxy
 Use Photoshop scripting to easily create custom high-quality Magic proxies for casual play.
 
-# Example
+# Examples
+Original digital render example
 ![img1](https://github.com/ndepaola/mtg-autoproxy/blob/master/Scalding%20Tarn.png?raw=true)
+
+Example printed through makeplayingcards.com
 ![img2](https://github.com/ndepaola/mtg-autoproxy/blob/master/IMG_1927.jpg)
 
 # What You'll Need
