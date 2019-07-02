@@ -16,6 +16,7 @@ Use Photoshop scripting to easily create custom high-quality Magic proxies for c
  As well as the Python packages:
  * json
  * Scrython
+ I tested the script using Python 3.6.3.
 
 # How to Use It
 * Clone to a folder of your choice.
