@@ -27,7 +27,7 @@ Use Photoshop scripting to easily create custom high-quality Magic proxies for c
 * Run the script `Borderify All` to pad each card render with a black border, such that it's ready to order through sites like makeplayingcards.com. `Borderify Target` does the same but only for a specific render.
 
 # Limitations
-As of the first release, the script can't handle:
+As of this release, the script can't handle:
 * Non-standard card layouts, such as planeswalkers and Kamigawa flip cards. 
 * Occasionally the information on Scryfall's API is formatted slightly incorrectly, meaning that some mistakes are possible. These are rare, and so far are limited to things like not colouring a Phyrexian mana symbol in rules text, or not inserting a new line in flavour text where it's quoting a character.
 
