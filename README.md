@@ -15,7 +15,7 @@ Example printed through makeplayingcards.com
 * [The Photoshop template](https://drive.google.com/open?id=1LZ_OE7h4uFK2w89bAMGn16-z53yiO60H)
 * The following fonts:
   * [Beleren, Beleren Smallcaps, MPlantin and MPlantin-Italics](https://github.com/magarena/magarena/tree/master/resources/cardbuilder/fonts), for most text
-  * My custom Magic symbols font NDPMTG, included in the repo.
+  * My custom Magic symbols font NDPMTG, as well as MTG2016, both included in the repo.
   * [Keyrune](https://andrewgioia.github.io/Keyrune/index.html), for the expansion symbol.
  * [json2.js](https://github.com/douglascrockford/JSON-js), included but you may need to download a more recent version.
  
