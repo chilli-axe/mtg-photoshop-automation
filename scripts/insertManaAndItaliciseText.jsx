@@ -1,4 +1,4 @@
-function insertManaAndItaliciseText(inputString, italicStrings, flavourIndex, textLayerName, centredText, transformed) {
+function insertManaAndItaliciseText(inputString, italicStrings, flavourIndex, textLayerName, centredText) {
   var myFontSize = 68.000000; // Default to 64.000000, 110.000000 for split cards
   var textColour = 0.000000;
   const selectedFont = "NDPMTG";
@@ -370,6 +370,9 @@ function insertManaAndItaliciseText(inputString, italicStrings, flavourIndex, te
         desc713.putString(idfontPostScriptName, selectedFont);
         idFntN = charIDToTypeID("FntN");
         desc713.putString(idFntN, selectedFont);
+        idSz = charIDToTypeID("Sz  ");
+        idPnt = charIDToTypeID("#Pnt");
+        desc713.putUnitDouble(idSz, idPnt, myFontSize);
         idautoLeading = stringIDToTypeID("autoLeading");
         desc713.putBoolean(idautoLeading, false);
         idClr = charIDToTypeID("Clr ");
@@ -399,6 +402,9 @@ function insertManaAndItaliciseText(inputString, italicStrings, flavourIndex, te
         desc717.putString(idfontPostScriptName, selectedFont);
         idFntN = charIDToTypeID("FntN");
         desc717.putString(idFntN, selectedFont);
+        idSz = charIDToTypeID("Sz  ");
+        idPnt = charIDToTypeID("#Pnt");
+        desc717.putUnitDouble(idSz, idPnt, myFontSize);
         idautoLeading = stringIDToTypeID("autoLeading");
         desc717.putBoolean(idautoLeading, false);
         idClr = charIDToTypeID("Clr ");
@@ -428,6 +434,9 @@ function insertManaAndItaliciseText(inputString, italicStrings, flavourIndex, te
         desc721.putString(idfontPostScriptName, selectedFont);
         idFntN = charIDToTypeID("FntN");
         desc721.putString(idFntN, selectedFont);
+        idSz = charIDToTypeID("Sz  ");
+        idPnt = charIDToTypeID("#Pnt");
+        desc721.putUnitDouble(idSz, idPnt, myFontSize);
         idautoLeading = stringIDToTypeID("autoLeading");
         desc721.putBoolean(idautoLeading, false);
         idClr = charIDToTypeID("Clr ");
@@ -455,6 +464,9 @@ function insertManaAndItaliciseText(inputString, italicStrings, flavourIndex, te
         desc725.putString(idfontPostScriptName, selectedFont);
         idFntN = charIDToTypeID("FntN");
         desc725.putString(idFntN, selectedFont);
+        idSz = charIDToTypeID("Sz  ");
+        idPnt = charIDToTypeID("#Pnt");
+        desc725.putUnitDouble(idSz, idPnt, myFontSize);
         idautoLeading = stringIDToTypeID("autoLeading");
         desc725.putBoolean(idautoLeading, false);
         idClr = charIDToTypeID("Clr ");
