@@ -2,7 +2,7 @@
 var filePath = File($.filename).parent.parent.fsName;
 
 // Get an array of each file in the source folder
-folder = new Folder( filePath + "\\crop" );
+folder = new Folder( filePath + "\\art" );
 files_array = folder.getFiles();
 
 $.evalFile(filePath + "\\scripts\\proxy.jsx");
