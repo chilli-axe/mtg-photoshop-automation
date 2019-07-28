@@ -11,7 +11,7 @@ Example printed through makeplayingcards.com
 ![img2](https://github.com/ndepaola/mtg-autoproxy/blob/master/IMG_1927.jpg)
 
 # What You'll Need
-* A copy of Photoshop. I tested the system using CS5, but other versions may work as well.
+* A copy of Photoshop. I tested the system using CS5 and CC 2018, but other versions may work as well.
 * [The Photoshop template](https://drive.google.com/open?id=1LZ_OE7h4uFK2w89bAMGn16-z53yiO60H)
 * The following fonts:
   * [Beleren, Beleren Smallcaps, MPlantin and MPlantin-Italics](https://github.com/magarena/magarena/tree/master/resources/cardbuilder/fonts), for most text
@@ -35,9 +35,8 @@ I included sample files in the `art`, `crop`, `out`, and `border` folders to sho
 
 # Limitations
 As of this release, the script can't handle:
-* Non-standard card layouts, such as planeswalkers and Kamigawa flip cards. 
-* Occasionally the information on Scryfall's API is formatted slightly incorrectly, meaning that some mistakes are possible. These are rare, and so far are limited to things like not colouring a Phyrexian mana symbol in rules text, or not inserting a new line in flavour text where it's quoting a character.
-* Ability keywords, like `Threshold` and `Fateful Hour` are hardcoded, and any instances of these keywords in the rules text are italicised. Not all keywords have been listed, but adding additional ones is easy. Just haven't gotten around to it yet.  
+* Non-standard card layouts, such as planeswalkers, transforming cards, and Kamigawa flip cards. 
+* Quoting something in a card's flavour text without italics. See: Yarok the Desecrated, Phyrexian Altar.
 
 # Customisation
 Feel free to replace the rasterised card frames in the template with whichever frames you want, and move text layers to suit - your only restriction is that you can't really adjust the structure of the template much without causing the script to throw errors at you. 
