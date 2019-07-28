@@ -1,6 +1,6 @@
 function positionArt(docRef) {
   var topPix = 212;
-  var bottomPix = 1039;
+  var bottomPix = 1066;
   var leftPix = 104;
   var rightPix = 1240;
 
