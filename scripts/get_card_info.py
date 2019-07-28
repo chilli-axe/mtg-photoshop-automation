@@ -9,14 +9,16 @@ import json
 # print(sys.argv[1:])
 
 # cardname = " ".join(sys.argv[1:])
-cardname = sys.argv[1]
-print("Asking Scryfall for information for: " + cardname)
-# Use Scryfall to search for this card
-time.sleep(0.05)
-card = scrython.cards.Named(fuzzy=cardname)
+
 # If the card is on Scryfall with that exact name:
-if card.name() == cardname:
+#print(card.name())
+#print(card.card_faces()[0]["name"])
+#print(card.scryfallJson)
+
+
+def get_dict(card):
     # As per Scryfall documentation, insert a delay between each request
+    time.sleep(0.01)
 
     print("Found information for: " + card.name())
 
@@ -41,7 +43,8 @@ if card.name() == cardname:
     except KeyError:
         flavourText = ""
 
-    print(card.prints_search_uri())
+    # Account for Scryfall sometimes not inserting a new line for flavour text that quotes someone
+    flavourText = flavourText.replace("\" —", "\"\n—")
 
     card_json = {
         "name": card.name(),
@@ -55,9 +58,95 @@ if card.name() == cardname:
         "layout": card.layout(),
         "colourIdentity": card.color_identity()
     }
-
     print(card_json)
+    return card_json
 
+
+def get_dict_tf(card, rarity):
+    # As per Scryfall documentation, insert a delay between each request
+    time.sleep(0.01)
+
+    print("Found information for: " + card["name"])
+
+    # art_url = card.image_uris(image_type='art_crop')
+
+    # Define a json object to store the relevant information
+
+    # Did you know that scrython is dumb and will throw an exception
+    # at you if the card doesn't have a power/toughness or flavour text,
+    # instead of just having the field be empty?
+    # Handle missing power/toughness
+    try:
+        power = card["power"]
+        toughness = card["toughness"]
+    except KeyError:
+        power = None
+        toughness = None
+
+    # Handle missing flavour text
+    try:
+        flavourText = card["flavor_text"]
+    except KeyError:
+        flavourText = ""
+
+    # Account for Scryfall sometimes not inserting a new line for flavour text that quotes someone
+    flavourText = flavourText.replace("\" —", "\"\n—")
+
+    card_json = {
+        "name": card["name"],
+        "rarity": rarity,
+        "manaCost": card["mana_cost"],
+        "type": card["type_line"],
+        "text": card["oracle_text"],
+        "flavourText": flavourText,
+        "power": power,
+        "toughness": toughness,
+        "layout": "transform",
+        "colourIdentity": card["colors"]
+    }
+    print(card_json)
+    return card_json
+
+
+def save_json(card_json):
     json_dump = json.dumps(card_json)
     with open("card.json", 'w') as f:
         json.dump(json_dump, f)
+
+
+if __name__ == "__main__":
+
+    cardname = sys.argv[1]
+    print("Asking Scryfall for information for: " + cardname)
+    # Use Scryfall to search for this card
+    time.sleep(0.05)
+    card = scrython.cards.Named(fuzzy=cardname)
+
+    if card.layout() == "normal":
+        card_json = get_dict(card)
+        save_json(card_json)
+    elif card.layout() == "transform":
+        print(card.card_faces()[1])
+        print("Double faced")
+        print(card.card_faces()[1]["name"] == cardname)
+
+
+        if card.card_faces()[0]["name"] == cardname:
+            # front face
+            print(card.card_faces()[0])
+            card_json = get_dict_tf(card.card_faces()[0], card.rarity())
+            try:
+                power = card.card_faces()[1]["power"]
+                toughness = card.card_faces()[1]["toughness"]
+                card_json["back_power"] = power
+                card_json["back_toughness"] = toughness
+            except KeyError:
+                print("Back is not a creature")
+            card_json["face"] = "front"
+            save_json(card_json)
+            # if card.card_faces()[0]
+        elif card.card_faces()[1]["name"] == cardname:
+            print("Unsupported 1")
+            # back face
+    else:
+        print("Unsupported")
