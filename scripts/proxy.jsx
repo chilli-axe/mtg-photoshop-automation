@@ -68,8 +68,6 @@ function proxy(file, ye){
   var cardRarity = jsonParsed.rarity;
   var flavourText = jsonParsed.flavourText;
 
-  var transformed = false;
-
   // Create a reference to the active document for convenience
   var docRef = app.activeDocument;
 
@@ -376,7 +374,7 @@ function proxy(file, ye){
   if(flavourText.length <= 1 && cardText.length <= 70) centredText = true;
 
   // Insert those mana symbols and italic text
-  insertManaAndItaliciseText(completeString, italicText, flavourIndex, textLayerName, centredText, transformed);
+  insertManaAndItaliciseText(completeString, italicText, flavourIndex, textLayerName, centredText);
   if(centredText){
     // Here we go boys
     docRef.activeLayer.textItem.justification = Justification.CENTER;
