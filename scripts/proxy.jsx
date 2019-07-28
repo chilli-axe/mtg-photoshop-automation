@@ -93,7 +93,7 @@ function proxyNormal(jsonParsed, templateName, ye, cardName, cardArtist, tf_fron
   mySubLayer.visible = true;
 
   // Pinlines
-  pinlinesGroup = "Pinlines & Text Box";
+  pinlinesGroup = "Pinlines & Textbox";
   if (typeLine.indexOf("Land") >= 0 && jsonParsed.layout == "normal") pinlinesGroup = "Land " + pinlinesGroup;
   myLayer = docRef.layers.getByName(pinlinesGroup);
   mySubLayer = myLayer.layers.getByName(selectedLayers[1]);
