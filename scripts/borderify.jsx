@@ -6,7 +6,7 @@ function borderify(file){
   var idOpn = charIDToTypeID( "Opn " );
       var desc21 = new ActionDescriptor();
       var idnull = charIDToTypeID( "null" );
-      desc21.putPath( idnull, new File( filePath + "\\MPCcrop.psd" ) );
+      desc21.putPath( idnull, new File( filePath + "\\scripts\\MPCcrop.psd" ) );
   executeAction( idOpn, desc21, DialogModes.NO );
 
   // =======================================================
