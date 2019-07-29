@@ -104,6 +104,15 @@ function proxyNormal(jsonParsed, templateName, ye, cardName, cardArtist, tf_fron
   mySubLayer = myLayer.layers.getByName(selectedLayers[2]);
   mySubLayer.visible = true;
 
+  // Legendary crown
+  if (typeLine.indexOf("Legendary") >= 0) {
+    myLayer = docRef.layers.getByName("Legendary Crown (Credit to barbecue)");
+    mySubLayer = myLayer.layers.getByName(selectedLayers[1]);
+    mySubLayer.visible = true;
+    mySubLayer = myLayer.layers.getByName("Effects");
+    mySubLayer.visible = true;
+  }
+
   // PT box
   if (cardPower != null && cardTough != null) {
     myLayer = docRef.layers.getByName("PT Box");
