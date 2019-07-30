@@ -19,28 +19,64 @@ function proxy(file, ye) {
   var cardArtist = fullCardName.slice(openIndex + 2, closeIndex);
   const cardName = fullCardName.slice(0, openIndex);
 
-  // Run Python script to get info from Scryfall
-  app.system("python get_card_info.py \"" + cardName + "\"");
+  if (cardName == "Plains" || cardName == "Island" || cardName == "Swamp" || cardName == "Mountain" || cardName == "Forest") {
+    proxyBasic(cardName, cardArtist, ye);
+  } else {
+    // Run Python script to get info from Scryfall
+    app.system("python get_card_info.py \"" + cardName + "\"");
 
-  var cardJSONFile = new File(filePath + "\\scripts\\card.json");
-  cardJSONFile.open('r');
-  var cardJSON = cardJSONFile.read();
-  cardJSONFile.close();
+    var cardJSONFile = new File(filePath + "\\scripts\\card.json");
+    cardJSONFile.open('r');
+    var cardJSON = cardJSONFile.read();
+    cardJSONFile.close();
 
-  // Why do we have to parse this twice? To be honest only God knows lmao
-  var jsonParsed = JSON.parse(JSON.parse(cardJSON));
+    // Why do we have to parse this twice? To be honest only God knows lmao
+    var jsonParsed = JSON.parse(JSON.parse(cardJSON));
 
-  if (jsonParsed.layout == "normal") {
-    proxyNormal(jsonParsed, "normal", ye, cardName, cardArtist, false);
-  }
-  else if (jsonParsed.layout == "transform") {
-    if (jsonParsed.face == "front") {
-      proxyNormal(jsonParsed, "transform-front", ye, cardName, cardArtist, true);
-      // TODO: Handle clipping with the back p/t box
+    if (jsonParsed.layout == "normal") {
+      proxyNormal(jsonParsed, "normal", ye, cardName, cardArtist, false);
+    }
+    else if (jsonParsed.layout == "transform") {
+      if (jsonParsed.face == "front") {
+        proxyNormal(jsonParsed, "transform-front", ye, cardName, cardArtist, true);
+        // TODO: Handle clipping with the back p/t box
 
-
+      }
     }
   }
+}
+
+function proxyBasic(cardName, cardArtist, ye) {
+  $.evalFile(filePath + "\\scripts\\frame.jsx");
+  $.evalFile(filePath + "\\scripts\\excessFunctions.jsx");
+
+  templateName = "basic";
+  var fileRef = new File(filePath + "\\templates\\" + templateName + ".psd");
+  app.open(fileRef);
+
+  var docRef = app.activeDocument;
+
+  // Place it in the template
+  if (ye == 1) app.load(file);
+  else app.load(file[0]);
+  backFile = app.activeDocument;
+  backFile.selection.selectAll();
+  backFile.selection.copy();
+  backFile.close(SaveOptions.DONOTSAVECHANGES);
+  docRef.paste();
+
+  docRef = app.activeDocument;
+
+  positionArtBasic(docRef);
+
+  var myLayer = docRef.layers.getByName(cardName);
+  myLayer.visible = true;
+
+  var myLayer = docRef.layers.getByName("Legal");
+  var mySubLayer = myLayer.layers.getByName("Artist");
+  mySubLayer.textItem.contents = cardArtist;
+
+  saveImage(docRef, cardName + " (" + cardArtist + ")");
 }
 
 function proxyNormal(jsonParsed, templateName, ye, cardName, cardArtist, tf_front) {
