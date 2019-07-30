@@ -5,10 +5,10 @@ Use Photoshop scripting to easily create custom high-quality Magic proxies for c
 [Video demonstration](https://www.youtube.com/watch?v=jSuH7CY8HIM)
 
 Original digital render example
-![img1](https://github.com/ndepaola/mtg-autoproxy/blob/master/Scalding%20Tarn.png?raw=true)
+![img1](https://i.imgur.com/UVKHOxN.jpg)
 
 Example printed through makeplayingcards.com
-![img2](https://github.com/ndepaola/mtg-autoproxy/blob/master/IMG_1927.jpg)
+![img2](https://i.imgur.com/LOBRBxe.jpg)
 
 # What You'll Need
 * A copy of Photoshop. I tested the system using CS5 and CC 2018, but other versions may work as well.
