@@ -16,7 +16,7 @@ function positionArtFull(docRef) {
 
 function positionArtBasic(docRef) {
   var topPix = 0;
-  var bottomPix = 4011;
+  var bottomPix = 4012;
   var leftPix = 0;
   var rightPix = 3287;
   frame(docRef, topPix, bottomPix, leftPix, rightPix);
