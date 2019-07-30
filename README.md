@@ -8,7 +8,7 @@ Original digital render example
 ![img1](https://i.imgur.com/UVKHOxN.jpg)
 
 Example printed through makeplayingcards.com
-![img2](https://github.com/ndepaola/mtg-autoproxy/blob/master/IMG_1927.jpg)
+![img2](https://i.imgur.com/LOBRBxe.jpg)
 
 # What You'll Need
 * A copy of Photoshop. I tested the system using CS5 and CC 2018, but other versions may work as well.
