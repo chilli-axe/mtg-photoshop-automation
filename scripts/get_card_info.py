@@ -146,7 +146,12 @@ if __name__ == "__main__":
             save_json(card_json)
             # if card.card_faces()[0]
         elif card.card_faces()[1]["name"] == cardname:
-            print("Unsupported 1")
+            # back face
+            print(card.card_faces()[1])
+            card_json = get_dict_tf(card.card_faces()[1], card.rarity())
+            card_json["face"] = "back"
+            card_json["color_indicator"] = card.card_faces()[1]["color_indicator"]
+            save_json(card_json)
             # back face
     else:
         print("Unsupported")
