@@ -1,5 +1,6 @@
-function insertManaAndItaliciseText(inputString, italicStrings, flavourIndex, textLayerName, centredText) {
-  var myFontSize = 68.000000; // Default to 64.000000, 110.000000 for split cards
+function formatText(inputString, italicStrings, flavourIndex, centredText) {
+  // Make sure to select the layer you want to insert mana symbols into before
+  // running this function
   var textColour = 0.000000;
   const selectedFont = "NDPMTG";
   const primaryFont = "MPlantin";
@@ -196,18 +197,7 @@ function insertManaAndItaliciseText(inputString, italicStrings, flavourIndex, te
     return n;
   }
 
-  // =======================================================
-  // Select the left text layer
-  var idslct = charIDToTypeID("slct");
-  var desc118 = new ActionDescriptor();
-  var idnull = charIDToTypeID("null");
-  var ref23 = new ActionReference();
-  var idLyr = charIDToTypeID("Lyr ");
-  ref23.putName(idLyr, textLayerName);
-  desc118.putReference(idnull, ref23);
-  var idMkVs = charIDToTypeID("MkVs");
-  desc118.putBoolean(idMkVs, false);
-  executeAction(idslct, desc118, DialogModes.NO);
+  var myFontSize = app.activeDocument.activeLayer.textItem.size;
 
   // Prepare action descriptor and reference variables
   var desc119 = new ActionDescriptor();

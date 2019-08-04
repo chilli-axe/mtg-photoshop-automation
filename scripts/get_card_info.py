@@ -3,6 +3,7 @@ import os
 import sys
 import scrython
 import json
+import requests
 
 # print("Argument list: " + str(sys.argv))
 # print("Card name: " + " ".join(sys.argv[1:]) + ",")
@@ -108,6 +109,41 @@ def get_dict_tf(card, rarity):
     return card_json
 
 
+def get_dict_pw(card):
+    # As per Scryfall documentation, insert a delay between each request
+    time.sleep(0.01)
+
+    print("Found information for: " + card.name())
+
+    # art_url = card.image_uris(image_type='art_crop')
+
+    # Define a json object to store the relevant information
+
+    # Split the card text into abilities
+    abilities = card.oracle_text().splitlines()
+    print(abilities)
+
+    card_json = {
+        "name": card.name(),
+        "rarity": card.rarity(),
+        "manaCost": card.mana_cost(),
+        "type": card.type_line(),
+        "text": card.oracle_text(),
+        "loyalty": card.loyalty(),
+        "layout": "planeswalker",
+        "colourIdentity": card.color_identity()
+    }
+
+    print(card.image_uris()['large'])
+
+    img_data = requests.get(card.image_uris()['large']).content
+    with open('card.jpg', 'wb') as handler:
+        handler.write(img_data)
+
+    print(card_json)
+    return card_json
+
+
 def save_json(card_json):
     json_dump = json.dumps(card_json)
     with open("card.json", 'w') as f:
@@ -122,7 +158,12 @@ if __name__ == "__main__":
     time.sleep(0.05)
     card = scrython.cards.Named(fuzzy=cardname)
 
-    if card.layout() == "normal":
+    if "Planeswalker" in card.type_line():
+        print("Planeswalker")
+
+        save_json(get_dict_pw(card))
+
+    elif card.layout() == "normal":
         card_json = get_dict(card)
         save_json(card_json)
     elif card.layout() == "transform":
