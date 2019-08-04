@@ -6,6 +6,14 @@ function positionArt(docRef) {
   frame(docRef, topPix, bottomPix, leftPix, rightPix);
 }
 
+function positionArtPW(docRef) {
+  var topPix = 370;
+  var bottomPix = 3432;
+  var leftPix = 192;
+  var rightPix = 2496;
+  frame(docRef, topPix, bottomPix, leftPix, rightPix);
+}
+
 function positionArtFull(docRef) {
   var topPix = 107;
   var bottomPix = 3468;
