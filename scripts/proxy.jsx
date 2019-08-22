@@ -204,6 +204,7 @@ function proxyPlaneswalker(jsonParsed, cardName, cardArtist, expansionSymbol, ye
     formatText(cardManaCost, [], -1, false);
   } else manaCostLayer.visible = false;
 
+
   // Insert loyalty stuff
   var loyaltyGroup = docRef.layers.getByName("Loyalty Graphics");
   myLayer = loyaltyGroup.layers.getByName("Starting Loyalty");
@@ -362,6 +363,14 @@ function proxyNormal(jsonParsed, templateName, ye, cardName, cardArtist, expansi
       selectedLayers[i] = colourIndicator;
     }
     selectedLayers[4] = false;
+  }
+
+  if (templateName.indexOf("transform") >= 0) {
+    // Enable the correct double face icon
+    myLayer = docRef.layers.getByName("Text and Icons");
+    mySubLayer = myLayer.layers.getByName("Transform");
+    var transformLayer = mySubLayer.layers.getByName(jsonParsed.frame_effect);
+    transformLayer.visible = true;
   }
 
   // Move art into position
@@ -573,8 +582,6 @@ function proxyNormal(jsonParsed, templateName, ye, cardName, cardArtist, expansi
   var layerHeight = myRefLayer.bounds[3] - myRefLayer.bounds[1] - man.as("cm");
 
   var scaled = scaleTextToFitBoxNew(myNewLayer, layerHeight);
-
-  // exit();
 
   verticallyAlignText(textLayerName);
 

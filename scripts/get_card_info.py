@@ -63,7 +63,7 @@ def get_dict(card):
     return card_json
 
 
-def get_dict_tf(card, rarity):
+def get_dict_tf(card, cardfull):
     # As per Scryfall documentation, insert a delay between each request
     time.sleep(0.01)
 
@@ -95,7 +95,7 @@ def get_dict_tf(card, rarity):
 
     card_json = {
         "name": card["name"],
-        "rarity": rarity,
+        "rarity": cardfull.rarity(),
         "manaCost": card["mana_cost"],
         "type": card["type_line"],
         "text": card["oracle_text"],
@@ -103,7 +103,8 @@ def get_dict_tf(card, rarity):
         "power": power,
         "toughness": toughness,
         "layout": "transform",
-        "colourIdentity": card["colors"]
+        "colourIdentity": card["colors"],
+        "frame_effect": cardfull.frame_effect()
     }
     print(card_json)
     return card_json
@@ -158,15 +159,9 @@ if __name__ == "__main__":
     time.sleep(0.05)
     card = scrython.cards.Named(fuzzy=cardname)
 
-    if "Planeswalker" in card.type_line():
-        print("Planeswalker")
 
-        save_json(get_dict_pw(card))
-
-    elif card.layout() == "normal":
-        card_json = get_dict(card)
-        save_json(card_json)
-    elif card.layout() == "transform":
+    if card.layout() == "transform":
+        print(card.frame_effect())
         print(card.card_faces()[1])
         print("Double faced")
         print(card.card_faces()[1]["name"] == cardname)
@@ -175,7 +170,7 @@ if __name__ == "__main__":
         if card.card_faces()[0]["name"] == cardname:
             # front face
             print(card.card_faces()[0])
-            card_json = get_dict_tf(card.card_faces()[0], card.rarity())
+            card_json = get_dict_tf(card.card_faces()[0], card)
             try:
                 power = card.card_faces()[1]["power"]
                 toughness = card.card_faces()[1]["toughness"]
@@ -189,10 +184,19 @@ if __name__ == "__main__":
         elif card.card_faces()[1]["name"] == cardname:
             # back face
             print(card.card_faces()[1])
-            card_json = get_dict_tf(card.card_faces()[1], card.rarity())
+            card_json = get_dict_tf(card.card_faces()[1], card)
             card_json["face"] = "back"
             card_json["color_indicator"] = card.card_faces()[1]["color_indicator"]
             save_json(card_json)
             # back face
+    elif "Planeswalker" in card.type_line():
+        print("Planeswalker")
+
+        save_json(get_dict_pw(card))
+
+    elif card.layout() == "normal":
+        card_json = get_dict(card)
+        save_json(card_json)
+
     else:
         print("Unsupported")

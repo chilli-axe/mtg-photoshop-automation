@@ -594,10 +594,10 @@ function gradient(colour1, colour2, colourStroke) {
   var desc615 = new ActionDescriptor();
   idHrzn = charIDToTypeID("Hrzn");
   idRlt = charIDToTypeID("#Rlt");
-  desc615.putUnitDouble(idHrzn, idRlt, myLayer.bounds[0]/2 + 20); // bottom left corner x // 1227.500000
+  desc615.putUnitDouble(idHrzn, idRlt, myLayer.bounds[0]/4 + myLayer.bounds[2]/4 - 20); // bottom left corner x // 1227.500000
   idVrtc = charIDToTypeID("Vrtc");
   idRlt = charIDToTypeID("#Rlt");
-  desc615.putUnitDouble(idVrtc, idRlt, myLayer.bounds[3]/2 - 20); // bottom left corner y // 1092.000000
+  desc615.putUnitDouble(idVrtc, idRlt, myLayer.bounds[1]/4 + myLayer.bounds[3]/4 + 20); // bottom left corner y // 1092.000000
   idPnt = charIDToTypeID("Pnt ");
   desc613.putObject(idT, idPnt, desc615);
   idType = charIDToTypeID("Type");
