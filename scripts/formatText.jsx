@@ -1,7 +1,11 @@
 function formatText(inputString, italicStrings, flavourIndex, centredText) {
   // Make sure to select the layer you want to insert mana symbols into before
   // running this function
-  var textColour = 0.000000;
+  var rgbTextColour = app.activeDocument.activeLayer.textItem.color.rgb;
+  var textColour = [];
+  textColour[0] = rgbTextColour.red;
+  textColour[1] = rgbTextColour.green;
+  textColour[2] = rgbTextColour.blue;
   const selectedFont = "NDPMTG";
   const primaryFont = "MPlantin";
 
@@ -100,15 +104,6 @@ function formatText(inputString, italicStrings, flavourIndex, centredText) {
 
     for (var symbol in symbols) {
       var numOccurrences = occurrences(tempString, symbol, false);
-      // Phyrexian colour check
-      if (numOccurrences > 0 && symbol.indexOf("/P}" >= 0)) {
-        phyrexianCard = true;
-        if (symbol == "{W/P}") phyrexianColour = rgbW;
-        else if (symbol == "{U/P}") phyrexianColour = rgbU;
-        else if (symbol == "{B/P}") phyrexianColour = rgbB;
-        else if (symbol == "{R/P}") phyrexianColour = rgbR;
-        else if (symbol == "{G/P}") phyrexianColour = rgbG;
-      }
       numLines += numOccurrences * (symbol.length - symbols[symbol].length);
     }
 
@@ -124,15 +119,6 @@ function formatText(inputString, italicStrings, flavourIndex, centredText) {
 
     for (symbol in symbols) {
       var numOccurrences = occurrences(tempString, symbol, false);
-      // Phyrexian colour check
-      if (numOccurrences > 0 && symbol.indexOf("/P}" >= 0)) {
-        phyrexianCard = true;
-        if (symbol == "{W/P}") phyrexianColour = rgbW;
-        else if (symbol == "{U/P}") phyrexianColour = rgbU;
-        else if (symbol == "{B/P}") phyrexianColour = rgbB;
-        else if (symbol == "{R/P}") phyrexianColour = rgbR;
-        else if (symbol == "{G/P}") phyrexianColour = rgbG;
-      }
       numLines += numOccurrences * (symbol.length - symbols[symbol].length);
     }
 
@@ -143,7 +129,6 @@ function formatText(inputString, italicStrings, flavourIndex, centredText) {
     }
   }
 
-  // var textColour = 255.000000;
   var symbolIndices = [];
   var currentMinimum = 0;
   var startingIndex = 0;
@@ -156,6 +141,16 @@ function formatText(inputString, italicStrings, flavourIndex, centredText) {
       break;
     } else {
       var currentSymbol = inputString.slice(braceIndex1, braceIndex2 + 1);
+
+      // Check if phyrexian real quick
+      if (currentSymbol.indexOf("/P}") >= 0) {
+        phyrexianCard = true;
+        if (currentSymbol == "{W/P}") phyrexianColour = rgbW;
+        else if (currentSymbol == "{U/P}") phyrexianColour = rgbU;
+        else if (currentSymbol == "{B/P}") phyrexianColour = rgbB;
+        else if (currentSymbol == "{R/P}") phyrexianColour = rgbR;
+        else if (currentSymbol == "{G/P}") phyrexianColour = rgbG;
+      }
 
       for (symbol in symbols) {
         if (currentSymbol.valueOf() == symbol.valueOf()) {
@@ -236,11 +231,11 @@ function formatText(inputString, italicStrings, flavourIndex, centredText) {
   var idClr = charIDToTypeID("Clr ");
   desc27 = new ActionDescriptor();
   var idRd = charIDToTypeID("Rd  ");
-  desc27.putDouble(idRd, textColour);
+  desc27.putDouble(idRd, textColour[0]);
   var idGrn = charIDToTypeID("Grn ");
-  desc27.putDouble(idGrn, textColour);
+  desc27.putDouble(idGrn, textColour[1]);
   var idBl = charIDToTypeID("Bl  ");
-  desc27.putDouble(idBl, textColour);
+  desc27.putDouble(idBl, textColour[2]);
   var idRGBC = charIDToTypeID("RGBC");
   desc26.putObject(idClr, idRGBC, desc27);
   idTxtS = charIDToTypeID("TxtS");
@@ -277,11 +272,11 @@ function formatText(inputString, italicStrings, flavourIndex, centredText) {
       idClr = charIDToTypeID("Clr ");
       desc127 = new ActionDescriptor();
       idRd = charIDToTypeID("Rd  ");
-      desc127.putDouble(idRd, textColour);
+      desc127.putDouble(idRd, textColour[0]);
       idGrn = charIDToTypeID("Grn ");
-      desc127.putDouble(idGrn, textColour);
+      desc127.putDouble(idGrn, textColour[1]);
       idBl = charIDToTypeID("Bl  ");
-      desc127.putDouble(idBl, textColour);
+      desc127.putDouble(idBl, textColour[2]);
       idRGBC = charIDToTypeID("RGBC");
       desc126.putObject(idClr, idRGBC, desc127);
       idTxtS = charIDToTypeID("TxtS");
@@ -587,11 +582,11 @@ function formatText(inputString, italicStrings, flavourIndex, centredText) {
   idClr = charIDToTypeID("Clr ");
   var desc139 = new ActionDescriptor();
   idRd = charIDToTypeID("Rd  ");
-  desc139.putDouble(idRd, textColour);
+  desc139.putDouble(idRd, textColour[0]);
   idGrn = charIDToTypeID("Grn ");
-  desc139.putDouble(idGrn, textColour);
+  desc139.putDouble(idGrn, textColour[1]);
   idBl = charIDToTypeID("Bl  ");
-  desc139.putDouble(idBl, textColour);
+  desc139.putDouble(idBl, textColour[2]);
   idTxtS = charIDToTypeID("TxtS");
   desc137.putObject(idTxtS, idTxtS, desc138);
   idTxtt = charIDToTypeID("Txtt");
@@ -648,11 +643,11 @@ function formatText(inputString, italicStrings, flavourIndex, centredText) {
   idClr = charIDToTypeID("Clr ");
   var desc144 = new ActionDescriptor();
   idRd = charIDToTypeID("Rd  ");
-  desc144.putDouble(idRd, textColour);
+  desc144.putDouble(idRd, textColour[0]);
   idGrn = charIDToTypeID("Grn ");
-  desc144.putDouble(idGrn, textColour);
+  desc144.putDouble(idGrn, textColour[1]);
   idBl = charIDToTypeID("Bl  ");
-  desc144.putDouble(idBl, textColour);
+  desc144.putDouble(idBl, textColour[2]);
   idRGBC = charIDToTypeID("RGBC");
   desc143.putObject(idClr, idRGBC, desc144);
   desc120.putList(idparagraphStyleRange, list13);
@@ -755,11 +750,11 @@ function formatText(inputString, italicStrings, flavourIndex, centredText) {
     idClr = charIDToTypeID("Clr ");
     desc144 = new ActionDescriptor();
     idRd = charIDToTypeID("Rd  ");
-    desc144.putDouble(idRd, textColour);
+    desc144.putDouble(idRd, textColour[0]);
     idGrn = charIDToTypeID("Grn ");
-    desc144.putDouble(idGrn, textColour);
+    desc144.putDouble(idGrn, textColour[1]);
     idBl = charIDToTypeID("Bl  ");
-    desc144.putDouble(idBl, textColour);
+    desc144.putDouble(idBl, textColour[2]);
     idRGBC = charIDToTypeID("RGBC");
     desc143.putObject(idClr, idRGBC, desc144);
     idTxtS = charIDToTypeID("TxtS");
@@ -878,11 +873,11 @@ function formatText(inputString, italicStrings, flavourIndex, centredText) {
     idClr = charIDToTypeID("Clr ");
     desc144 = new ActionDescriptor();
     idRd = charIDToTypeID("Rd  ");
-    desc144.putDouble(idRd, textColour);
+    desc144.putDouble(idRd, textColour[0]);
     idGrn = charIDToTypeID("Grn ");
-    desc144.putDouble(idGrn, textColour);
+    desc144.putDouble(idGrn, textColour[1]);
     idBl = charIDToTypeID("Bl  ");
-    desc144.putDouble(idBl, textColour);
+    desc144.putDouble(idBl, textColour[2]);
     idRGBC = charIDToTypeID("RGBC");
     desc143.putObject(idClr, idRGBC, desc144);
     idTxtS = charIDToTypeID("TxtS");
@@ -1004,11 +999,11 @@ function formatText(inputString, italicStrings, flavourIndex, centredText) {
     idClr = charIDToTypeID("Clr ");
     desc144 = new ActionDescriptor();
     idRd = charIDToTypeID("Rd  ");
-    desc144.putDouble(idRd, textColour);
+    desc144.putDouble(idRd, textColour[0]);
     idGrn = charIDToTypeID("Grn ");
-    desc144.putDouble(idGrn, textColour);
+    desc144.putDouble(idGrn, textColour[1]);
     idBl = charIDToTypeID("Bl  ");
-    desc144.putDouble(idBl, textColour);
+    desc144.putDouble(idBl, textColour[2]);
     idRGBC = charIDToTypeID("RGBC");
     desc143.putObject(idClr, idRGBC, desc144);
     idTxtS = charIDToTypeID("TxtS");
@@ -1024,6 +1019,7 @@ function formatText(inputString, italicStrings, flavourIndex, centredText) {
   }
 
   // Push changes to document
+  idsetd = charIDToTypeID("setd");
   idTxLr = charIDToTypeID("TxLr");
   desc119.putObject(idT, idTxLr, desc120);
   executeAction(idsetd, desc119, DialogModes.NO);
