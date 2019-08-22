@@ -606,10 +606,6 @@ function formatText(inputString, italicStrings, flavourIndex, centredText) {
   desc141.putInteger(idT, inputString.length);
   var idparagraphStyle = stringIDToTypeID("paragraphStyle");
   var desc142 = new ActionDescriptor();
-  var idAlgn = charIDToTypeID("Algn");
-  var idAlg = charIDToTypeID("Alg ");
-  var idLeft = charIDToTypeID("Left");
-  desc142.putEnumerated(idAlgn, idAlg, idLeft);
   var idfirstLineIndent = stringIDToTypeID("firstLineIndent");
   idPnt = charIDToTypeID("#Pnt");
   desc142.putUnitDouble(idfirstLineIndent, idPnt, 0.000000);
@@ -902,10 +898,6 @@ function formatText(inputString, italicStrings, flavourIndex, centredText) {
     desc141.putInteger(idT, inputString.length);
     idparagraphStyle = stringIDToTypeID("paragraphStyle");
     desc142 = new ActionDescriptor();
-    idAlgn = charIDToTypeID("Algn");
-    idAlg = charIDToTypeID("Alg ");
-    idLeft = charIDToTypeID("Left");
-    desc142.putEnumerated(idAlgn, idAlg, idLeft);
     idfirstLineIndent = stringIDToTypeID("firstLineIndent");
     idPnt = charIDToTypeID("#Pnt");
     desc142.putUnitDouble(idfirstLineIndent, idPnt, 0.000000);
