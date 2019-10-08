@@ -239,7 +239,10 @@ function proxyPlaneswalker(jsonParsed, cardName, cardArtist, expansionSymbol, ye
       // abilityTextLayer.textItem.contents = abilityText;
       docRef.activeLayer = abilityTextLayer;
       formatText(abilityText, [], -1, false);
-      var loyaltyNumberGroup = myLayer.layers.getByName(loyaltyType);
+
+      if (loyaltyType == "") var loyaltyNumberGroup = myLayer.layers.getByName("0");
+      else var loyaltyNumberGroup = myLayer.layers.getByName(loyaltyType);
+
       loyaltyNumberGroup.visible = true;
       var loyaltyText = loyaltyNumberGroup.layers.getByName("Cost");
       loyaltyText.textItem.contents = loyaltyType + loyaltyNumber;
@@ -373,6 +376,9 @@ function proxyNormal(jsonParsed, templateName, ye, cardName, cardArtist, expansi
     transformLayer.visible = true;
   }
 
+  // Nyx layer
+  if(selectedLayers[3]) docRef.layers.getByName("Nyx").visible = true;
+
   // Move art into position
   if (selectedLayers[4]) positionArtFull(docRef);
   else positionArt(docRef);
@@ -406,6 +412,7 @@ function proxyNormal(jsonParsed, templateName, ye, cardName, cardArtist, expansi
   // PT box
   if (cardPower != null && cardTough != null) {
     myLayer = docRef.layers.getByName("PT Box");
+    if(selectedLayers[2] == "Land") selectedLayers[2] = "Eldrazi";
     mySubLayer = myLayer.layers.getByName(selectedLayers[2]);
     mySubLayer.visible = true;
   }
@@ -503,6 +510,7 @@ function proxyNormal(jsonParsed, templateName, ye, cardName, cardArtist, expansi
   // to the italics array.
   var flavourIndex = -1;
   const abilityWords = [
+    "Adamant",
     "Addendum",
     "Battalion",
     "Bloodrush",
@@ -596,7 +604,6 @@ function proxyNormal(jsonParsed, templateName, ye, cardName, cardArtist, expansi
       docRef.activeLayer.textItem.contents = jsonParsed.back_power + "/" + jsonParsed.back_toughness;
     } else docRef.activeLayer.visible = false;
   }
-
   saveImage(docRef, cardName);
 }
 
@@ -825,6 +832,22 @@ function selectFrameLayers(typeLine, cardText, cardManaCost) {
     selectedNamebox = "Gold";
   }
   if (selectedNamebox == "") selectedNamebox = "Gold";
+
+  // Check for a hybrid frame
+  const splitSymbols = cardManaCost.split("}");
+  var colouredSymbols = 0; var hybridSymbols = 0;
+  for(i = 0; i<splitSymbols.length; i++){
+    if(splitSymbols[i].indexOf("W") > 0 || splitSymbols[i].indexOf("U") > 0 || splitSymbols[i].indexOf("B") > 0 || splitSymbols[i].indexOf("R") > 0 || splitSymbols[i].indexOf("G") > 0) {
+      colouredSymbols++;
+      if(splitSymbols[i].indexOf("/") > 0) {
+        hybridSymbols++;
+      }
+    }
+  }
+  if(hybridSymbols == colouredSymbols && hybridSymbols > 0) {
+    // card is hybrid, adjust the output accordingly
+    selectedBackground = selectedPinlines; selectedNamebox = "Land";
+  }
 
   return [selectedBackground, selectedPinlines, selectedNamebox, isNyx, eldrazi];
 }
