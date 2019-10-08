@@ -1,11 +1,20 @@
 function formatText(inputString, italicStrings, flavourIndex, centredText) {
   // Make sure to select the layer you want to insert mana symbols into before
   // running this function
-  var rgbTextColour = app.activeDocument.activeLayer.textItem.color.rgb;
-  var textColour = [];
-  textColour[0] = rgbTextColour.red;
-  textColour[1] = rgbTextColour.green;
-  textColour[2] = rgbTextColour.blue;
+  try {
+    var rgbTextColour = app.activeDocument.activeLayer.textItem.color.rgb;
+    var textColour = [];
+    textColour[0] = rgbTextColour.red;
+    textColour[1] = rgbTextColour.green;
+    textColour[2] = rgbTextColour.blue;
+  }
+  catch(err) {
+    var textColour = [];
+    textColour[0] = 0;
+    textColour[1] = 0; 
+    textColour[2] = 0;
+  }
+
   const selectedFont = "NDPMTG";
   const primaryFont = "MPlantin";
 
