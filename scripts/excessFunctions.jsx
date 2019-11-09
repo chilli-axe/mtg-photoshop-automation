@@ -131,78 +131,6 @@ function arrayIndexOf2(inputArray, reqValue, startingIndex) {
 // In an effort to keep the source code readable, any functions derived
 // from photoshop's script listener have been included here
 
-function verticallyFixText(textLayer) {
-
-  // Pulled from script listener - make a selection of the text layer that's
-  // above the P/T box, then ctrl-j the selection from the card text layer
-  // =======================================================
-  idsetd = charIDToTypeID("setd");
-  var desc3 = new ActionDescriptor();
-  idnull = charIDToTypeID("null");
-  var ref3 = new ActionReference();
-  idChnl = charIDToTypeID("Chnl");
-  var idfsel = charIDToTypeID("fsel");
-  ref3.putProperty(idChnl, idfsel);
-  desc3.putReference(idnull, ref3);
-  idT = charIDToTypeID("T   ");
-  var desc4 = new ActionDescriptor();
-  idTop = charIDToTypeID("Top ");
-  idRlt = charIDToTypeID("#Rlt");
-  desc4.putUnitDouble(idTop, idRlt, 1159.500000);
-  var idLeft = charIDToTypeID("Left");
-  idRlt = charIDToTypeID("#Rlt");
-  desc4.putUnitDouble(idLeft, idRlt, 1046.500000);
-  var idBtom = charIDToTypeID("Btom");
-  idRlt = charIDToTypeID("#Rlt");
-  desc4.putUnitDouble(idBtom, idRlt, 1776.500000);
-  var idRght = charIDToTypeID("Rght");
-  idRlt = charIDToTypeID("#Rlt");
-  desc4.putUnitDouble(idRght, idRlt, 1256.500000);
-  var idRctn = charIDToTypeID("Rctn");
-  desc3.putObject(idT, idRctn, desc4);
-  executeAction(idsetd, desc3, DialogModes.NO);
-
-  // =======================================================
-  var idCpTL = charIDToTypeID("CpTL");
-  executeAction(idCpTL, undefined, DialogModes.NO);
-
-  // =======================================================
-  idsetd = charIDToTypeID("setd");
-  var desc5 = new ActionDescriptor();
-  idnull = charIDToTypeID("null");
-  var ref4 = new ActionReference();
-  idLyr = charIDToTypeID("Lyr ");
-  idOrdn = charIDToTypeID("Ordn");
-  idTrgt = charIDToTypeID("Trgt");
-  ref4.putEnumerated(idLyr, idOrdn, idTrgt);
-  desc5.putReference(idnull, ref4);
-  idT = charIDToTypeID("T   ");
-  var desc6 = new ActionDescriptor();
-  var idNm = charIDToTypeID("Nm  ");
-  desc6.putString(idNm, "Extra Bit");
-  idLyr = charIDToTypeID("Lyr ");
-  desc5.putObject(idT, idLyr, desc6);
-  executeAction(idsetd, desc5, DialogModes.NO);
-
-  // Get the bounding box of the new layer
-  // bounds:
-  // left: 0, right: 2
-  // top: 3, bottom: 1
-
-  var myLayer = docRef.layers.getByName("Text and Icons");
-  var mySubLayer = myLayer.layers.getByName("Extra Bit");
-  //docRef.activeLayer = mySubLayer;
-  var bottomPos = mySubLayer.bounds[3];
-  bottomPos = bottomPos.as('px');
-  //alert(3744 - bottomPos.as('px'));
-  var pixelOverlap = bottomPos - 3310;
-  var pixelOverlapUnit = new UnitValue(-1 * pixelOverlap, "px");
-  //alert(pixelOverlap);
-  mySubLayer.visible = false;
-  mySubLayer = myLayer.layers.getByName("Rules Text - Creature");
-  if (pixelOverlap > 0) mySubLayer.applyOffset(0, pixelOverlapUnit, OffsetUndefinedAreas.SETTOBACKGROUND);
-}
-
 // Replace text function from an adobe forum thread I lost the link to
 function replaceText(replaceThis, replaceWith) {
   var idreplace = stringIDToTypeID("replace");
@@ -364,6 +292,55 @@ function verticallyAlignText(textLayerName) {
   desc10.putList(idnull, list2);
   executeAction(idHd, desc10, DialogModes.NO);
   // =======================================================
+}
+
+function verticallyFixText(textLayer) {
+  // Make a selection of the text layer that's above the P/T box, then ctrl-j
+  // the selection from the card text layer
+
+  // Make selection from the reference layer
+  var textAndIcons = app.activeDocument.layers.getByName("Text and Icons");
+  var ptAdjustmentReference = textAndIcons.layers.getByName("PT Adjustment Reference");
+
+  var left = ptAdjustmentReference.bounds[0];
+  var top = ptAdjustmentReference.bounds[1];
+  var right = ptAdjustmentReference.bounds[2];
+  var bottom = ptAdjustmentReference.bounds[3];
+  app.activeDocument.selection.select([[left, top], [right, top],
+                                       [right, bottom], [left, bottom]]);
+
+  // get PT Top Reference layer
+  var ptTopReference = textAndIcons.layers.getByName("PT Top Reference");
+
+  // ctrl-j the selection on the rasterised text to a new layer
+  var idCpTL = charIDToTypeID("CpTL");
+  executeAction(idCpTL, undefined, DialogModes.NO);
+  idsetd = charIDToTypeID("setd");
+  var desc5 = new ActionDescriptor();
+  idnull = charIDToTypeID("null");
+  var ref4 = new ActionReference();
+  idLyr = charIDToTypeID("Lyr ");
+  idOrdn = charIDToTypeID("Ordn");
+  idTrgt = charIDToTypeID("Trgt");
+  ref4.putEnumerated(idLyr, idOrdn, idTrgt);
+  desc5.putReference(idnull, ref4);
+  idT = charIDToTypeID("T   ");
+  var desc6 = new ActionDescriptor();
+  var idNm = charIDToTypeID("Nm  ");
+  desc6.putString(idNm, "Extra Bit");
+  idLyr = charIDToTypeID("Lyr ");
+  desc5.putObject(idT, idLyr, desc6);
+  executeAction(idsetd, desc5, DialogModes.NO);
+
+  // Find how much the rules text overlaps the PT box by
+  var extraBit = textAndIcons.layers.getByName("Extra Bit");
+  var pixelOverlap = extraBit.bounds[3].as("px") - ptTopReference.bounds[3].as("px");
+  var pixelOverlapUnit = new UnitValue(-1 * pixelOverlap, "px");
+  extraBit.visible = false;
+
+  // Shift the rules text up by the appropriate amount so there's no overlap
+  var rulesText = textAndIcons.layers.getByName("Rules Text - Creature");
+  if (pixelOverlap > 0) rulesText.applyOffset(0, pixelOverlapUnit, OffsetUndefinedAreas.SETTOBACKGROUND);
 }
 
 function gradientCommon() {
@@ -718,4 +695,80 @@ function arrayIndexOf2(inputArray, reqValue, startingIndex) {
     }
   }
   return index;
+}
+
+function frame(leftPix, topPix, rightPix, bottomPix) {
+  var docRef = app.activeDocument;
+  // Get width and height of art window
+  var windowHeight = bottomPix - topPix;
+  var windowWidth = rightPix - leftPix;
+
+  // Get current size of art in layer
+  var myLayer = docRef.layers.getByName("Layer 1");
+  var imageHeight = myLayer.bounds[3] - myLayer.bounds[1];
+  var imageWidth = myLayer.bounds[2] - myLayer.bounds[0];
+
+  // Determine how much to scale the art by, such that it fits into the art window
+  var percentageToScale = 100 * (Math.max(windowWidth / imageWidth.as('px'), windowHeight / imageHeight.as('px')));
+  myLayer.resize(percentageToScale, percentageToScale, AnchorPosition.TOPLEFT);
+  myLayer.move(activeDocument, ElementPlacement.PLACEATEND);
+
+  // Select the art window
+  var idsetd = charIDToTypeID("setd");
+  var desc96 = new ActionDescriptor();
+  var idnull = charIDToTypeID("null");
+  var ref49 = new ActionReference();
+  var idChnl = charIDToTypeID("Chnl");
+  var idfsel = charIDToTypeID("fsel");
+  ref49.putProperty(idChnl, idfsel);
+  desc96.putReference(idnull, ref49);
+  var idT = charIDToTypeID("T   ");
+  var desc97 = new ActionDescriptor();
+  var idTop = charIDToTypeID("Top ");
+  var idPxl = charIDToTypeID("#Pxl");
+  desc97.putUnitDouble(idTop, idPxl, topPix);
+  var idLeft = charIDToTypeID("Left");
+  var idPxl = charIDToTypeID("#Pxl");
+  desc97.putUnitDouble(idLeft, idPxl, leftPix);
+  var idBtom = charIDToTypeID("Btom");
+  var idPxl = charIDToTypeID("#Pxl");
+  desc97.putUnitDouble(idBtom, idPxl, bottomPix);
+  var idRght = charIDToTypeID("Rght");
+  var idPxl = charIDToTypeID("#Pxl");
+  desc97.putUnitDouble(idRght, idPxl, rightPix);
+  var idRctn = charIDToTypeID("Rctn");
+  desc96.putObject(idT, idRctn, desc97);
+  executeAction(idsetd, desc96, DialogModes.NO);
+
+  // Align vertically to selection
+  var idAlgn = charIDToTypeID("Algn");
+  var desc100 = new ActionDescriptor();
+  var idnull = charIDToTypeID("null");
+  var ref51 = new ActionReference();
+  var idLyr = charIDToTypeID("Lyr ");
+  var idOrdn = charIDToTypeID("Ordn");
+  var idTrgt = charIDToTypeID("Trgt");
+  ref51.putEnumerated(idLyr, idOrdn, idTrgt);
+  desc100.putReference(idnull, ref51);
+  var idUsng = charIDToTypeID("Usng");
+  var idADSt = charIDToTypeID("ADSt");
+  var idAdCV = charIDToTypeID("AdCV");
+  desc100.putEnumerated(idUsng, idADSt, idAdCV);
+  executeAction(idAlgn, desc100, DialogModes.NO);
+
+  // Align horizontally to selection
+  var idAlgn = charIDToTypeID("Algn");
+  var desc102 = new ActionDescriptor();
+  var idnull = charIDToTypeID("null");
+  var ref52 = new ActionReference();
+  var idLyr = charIDToTypeID("Lyr ");
+  var idOrdn = charIDToTypeID("Ordn");
+  var idTrgt = charIDToTypeID("Trgt");
+  ref52.putEnumerated(idLyr, idOrdn, idTrgt);
+  desc102.putReference(idnull, ref52);
+  var idUsng = charIDToTypeID("Usng");
+  var idADSt = charIDToTypeID("ADSt");
+  var idAdCH = charIDToTypeID("AdCH");
+  desc102.putEnumerated(idUsng, idADSt, idAdCH);
+  executeAction(idAlgn, desc102, DialogModes.NO);
 }

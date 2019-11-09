@@ -1,3 +1,7 @@
+// Toggle between these two lines to use the normal frame or box topper frame
+// boxtopper = "-boxtopper";
+boxtopper = "";
+
 function proxy(file, ye) {
 
   // var expansionSymbol = ""; // Dominaria
@@ -39,24 +43,21 @@ function proxy(file, ye) {
     var jsonParsed = JSON.parse(JSON.parse(cardJSON));
 
     if (jsonParsed.layout == "normal") {
-      proxyNormal(jsonParsed, "normal", ye, cardName, cardArtist, expansionSymbol, false);
+      proxyNormal(jsonParsed, "normal" + boxtopper, ye, cardName, cardArtist, expansionSymbol, false);
+    } else if (jsonParsed.layout == "planeswalker" || jsonParsed.type.indexOf("Planeswalker") > 0) {
+      // Planeswalker yo
+      proxyPlaneswalker(jsonParsed, cardName, cardArtist, expansionSymbol, ye);
     } else if (jsonParsed.layout == "transform") {
       if (jsonParsed.face == "front") {
         proxyNormal(jsonParsed, "transform-front", ye, cardName, cardArtist, expansionSymbol, true);
-        // TODO: Handle clipping with the back p/t box
-
       } else if (jsonParsed.face == "back") {
         proxyNormal(jsonParsed, "transform-back", ye, cardName, cardArtist, expansionSymbol, false);
       }
-    } else if (jsonParsed.layout == "planeswalker") {
-      // Planeswalker yo
-      proxyPlaneswalker(jsonParsed, cardName, cardArtist, expansionSymbol, ye);
     }
   }
 }
 
 function proxyBasic(cardName, cardArtist, ye) {
-  $.evalFile(filePath + "\\scripts\\frame.jsx");
   $.evalFile(filePath + "\\scripts\\excessFunctions.jsx");
 
   templateName = "basic";
@@ -76,12 +77,18 @@ function proxyBasic(cardName, cardArtist, ye) {
 
   docRef = app.activeDocument;
 
-  positionArtBasic(docRef);
+  // Move art into position
+  var artLayerFrameName = "Basic Art Frame";
+  var artLayerFrame = docRef.layers.getByName(artLayerFrameName);
+  frame(artLayerFrame.bounds[0].as("px"),
+    artLayerFrame.bounds[1].as("px"),
+    artLayerFrame.bounds[2].as("px"),
+    artLayerFrame.bounds[3].as("px"))
 
   var myLayer = docRef.layers.getByName(cardName);
   myLayer.visible = true;
 
-  var myLayer = docRef.layers.getByName("Legal");
+  myLayer = docRef.layers.getByName("Legal");
   var mySubLayer = myLayer.layers.getByName("Artist");
   mySubLayer.textItem.contents = cardArtist;
 
@@ -92,15 +99,14 @@ function proxyPlaneswalker(jsonParsed, cardName, cardArtist, expansionSymbol, ye
   // Load in json2.js and some function files
   $.evalFile(filePath + "\\scripts\\json2.js");
   $.evalFile(filePath + "\\scripts\\formatText.jsx");
-  // $.evalFile(filePath + "\\scripts\\insertManaCost.jsx");
   $.evalFile(filePath + "\\scripts\\excessFunctions.jsx");
-  $.evalFile(filePath + "\\scripts\\frame.jsx");
+  $.evalFile(filePath + "\\scripts\\framelogic.jsx");
 
   var abilities = jsonParsed.text.split("\n");
   var templateName = "pw-3";
   if (abilities.length > 3) templateName = "pw-4";
+  if (jsonParsed.layout == "transform") templateName = templateName + "-transform";
 
-  // TODO: Extend to more templates
   var fileRef = new File(filePath + "\\templates\\" + templateName + ".psd");
   app.open(fileRef);
 
@@ -131,10 +137,13 @@ function proxyPlaneswalker(jsonParsed, cardName, cardArtist, expansionSymbol, ye
   selectedLayers = selectFrameLayers(typeLine, cardText, cardManaCost);
 
   // Move art into position
-  if (selectedLayers[4]) positionArtFull(docRef);
-  else positionArtPW(docRef);
-
-  // alert(selectedLayers);
+  var artLayerFrameName = "Planeswalker Art Frame";
+  if (selectedLayers[4]) artLayerFrameName = "Full Art Frame";
+  var artLayerFrame = docRef.layers.getByName(artLayerFrameName);
+  frame(artLayerFrame.bounds[0].as("px"),
+    artLayerFrame.bounds[1].as("px"),
+    artLayerFrame.bounds[2].as("px"),
+    artLayerFrame.bounds[3].as("px"))
 
   // Background
   myLayer = docRef.layers.getByName("Background");
@@ -195,15 +204,9 @@ function proxyPlaneswalker(jsonParsed, cardName, cardArtist, expansionSymbol, ye
   myManaLayer = docRef.layers.getByName("Text and Icons");
   manaCostLayer = myManaLayer.layers.getByName("Mana Cost");
   if (cardManaCost != "") {
-    // manaCostLayer.textItem.contents = cardManaCost;
-    // insertManaCost(cardManaCost);
-    manaCostLayer.textItem.contents = cardManaCost;
-    manaCostLayer.textItem.size = new UnitValue(160, "px");
-
     docRef.activeLayer = manaCostLayer;
     formatText(cardManaCost, [], -1, false);
   } else manaCostLayer.visible = false;
-
 
   // Insert loyalty stuff
   var loyaltyGroup = docRef.layers.getByName("Loyalty Graphics");
@@ -263,7 +266,6 @@ function proxyPlaneswalker(jsonParsed, cardName, cardArtist, expansionSymbol, ye
     }
   }
 
-
   // Drop in scan from Scryfall to help line up text
   var idslct = charIDToTypeID("slct");
   var desc292 = new ActionDescriptor();
@@ -322,9 +324,8 @@ function proxyNormal(jsonParsed, templateName, ye, cardName, cardArtist, expansi
   // Load in json2.js and some function files
   $.evalFile(filePath + "\\scripts\\json2.js");
   $.evalFile(filePath + "\\scripts\\formatText.jsx");
-  // $.evalFile(filePath + "\\scripts\\insertManaCost.jsx");
   $.evalFile(filePath + "\\scripts\\excessFunctions.jsx");
-  $.evalFile(filePath + "\\scripts\\frame.jsx");
+  $.evalFile(filePath + "\\scripts\\framelogic.jsx");
 
   var fileRef = new File(filePath + "\\templates\\" + templateName + ".psd");
   app.open(fileRef);
@@ -359,29 +360,60 @@ function proxyNormal(jsonParsed, templateName, ye, cardName, cardArtist, expansi
 
   if (templateName == "transform-back") {
     colourIndicator = String(jsonParsed.color_indicator)
-    var myLayer = docRef.layers.getByName("Colour Indicator");
-    var mySubLayer = myLayer.layers.getByName(colourIndicator);
-    mySubLayer.visible = true;
-    for (var i = 0; i <= 2; i++) {
-      selectedLayers[i] = colourIndicator;
+    if (colourIndicator != 'null') {
+      // colourIndicator comes out as an array - build a string from it
+      colourIndicatorString = colourIndicator;
+      if (colourIndicator.length > 1) {
+        colourIdentities = ["WU", "UB", "BR", "RG", "GW", "WB", "BG", "GU", "UR", "RW"];
+        for (var i = 0; i < colourIdentities.length; i++) {
+          if (colourIndicator.indexOf(colourIdentities[i][0]) >= 0 && colourIndicator.indexOf(colourIdentities[i][1]) >= 0) {
+            colourIndicatorString = colourIdentities[i];
+            break;
+          }
+        }
+      }
+
+      var myLayer = docRef.layers.getByName("Colour Indicator");
+      var mySubLayer = myLayer.layers.getByName(colourIndicatorString);
+      mySubLayer.visible = true;
+      for (var i = 0; i <= 2; i++) {
+        selectedLayers[i] = colourIndicatorString;
+      }
+      selectedLayers[4] = false;
+      if (colourIndicator.length > 1) {
+        selectedLayers[0] = "Gold";
+        selectedLayers[2] = "Gold";
+      }
+
     }
-    selectedLayers[4] = false;
+    // TODO: Eldrazi flip card 
+    // else {
+    //   // eldrazi flip card
+    //
+    // }
+
+
   }
 
   if (templateName.indexOf("transform") >= 0) {
     // Enable the correct double face icon
     myLayer = docRef.layers.getByName("Text and Icons");
     mySubLayer = myLayer.layers.getByName("Transform");
-    var transformLayer = mySubLayer.layers.getByName(jsonParsed.frame_effect);
+    var transformLayer = mySubLayer.layers.getByName(String(jsonParsed.frame_effect[0]));
     transformLayer.visible = true;
   }
 
   // Nyx layer
-  if(selectedLayers[3]) docRef.layers.getByName("Nyx").visible = true;
+  if (selectedLayers[3]) docRef.layers.getByName("Nyx").visible = true;
 
   // Move art into position
-  if (selectedLayers[4]) positionArtFull(docRef);
-  else positionArt(docRef);
+  var artLayerFrameName = "Art Frame";
+  if (selectedLayers[4]) artLayerFrameName = "Full Art Frame";
+  var artLayerFrame = docRef.layers.getByName(artLayerFrameName);
+  frame(artLayerFrame.bounds[0].as("px"),
+    artLayerFrame.bounds[1].as("px"),
+    artLayerFrame.bounds[2].as("px"),
+    artLayerFrame.bounds[3].as("px"))
 
   // Background
   myLayer = docRef.layers.getByName("Background");
@@ -412,7 +444,7 @@ function proxyNormal(jsonParsed, templateName, ye, cardName, cardArtist, expansi
   // PT box
   if (cardPower != null && cardTough != null) {
     myLayer = docRef.layers.getByName("PT Box");
-    if(selectedLayers[2] == "Land") selectedLayers[2] = "Eldrazi";
+    if (selectedLayers[2] == "Land") selectedLayers[2] = "Eldrazi";
     mySubLayer = myLayer.layers.getByName(selectedLayers[2]);
     mySubLayer.visible = true;
   }
@@ -468,12 +500,8 @@ function proxyNormal(jsonParsed, templateName, ye, cardName, cardArtist, expansi
   myManaLayer = docRef.layers.getByName("Text and Icons");
   manaCostLayer = myManaLayer.layers.getByName("Mana Cost");
   if (cardManaCost != "") {
-    manaCostLayer.textItem.contents = cardManaCost;
-    manaCostLayer.textItem.size = new UnitValue(160, "px");
-
     docRef.activeLayer = manaCostLayer;
     formatText(cardManaCost, [], -1, false);
-    // insertManaCost(cardManaCost);
   } else manaCostLayer.visible = false;
 
   // ---------- Rules Text ----------
@@ -482,7 +510,7 @@ function proxyNormal(jsonParsed, templateName, ye, cardName, cardArtist, expansi
   if (typeLine.indexOf("Creature") >= 0) {
     textLayerName = "Rules Text - Creature";
   }
-  if (tf_front) textLayerName = textLayerName + " Flip";
+  if (tf_front && jsonParsed.back_power != null && jsonParsed.back_toughness != null) textLayerName = textLayerName + " Flip";
   var myNewLayer = myLayer.layers.getByName(textLayerName);
   docRef.activeLayer = myNewLayer;
   if (cardText !== undefined) cardText = cardText.replace(/\n/g, "\r");
@@ -631,223 +659,4 @@ function saveImage(docRef, cardName) {
 
   // Close the thing without saving
   docRef.close(SaveOptions.DONOTSAVECHANGES);
-}
-
-function selectFrameLayers(typeLine, cardText, cardManaCost) {
-  // return in the format: [background, pinlines, twins, ptbox, nyx(bool)?]
-
-  // Build the colour identity
-  var colourIdentity = "";
-
-  if (typeLine.indexOf("Land") >= 0) {
-    var breaks = cardText.split('\n');
-    for (var i = 0; i < breaks.length; i++) {
-      if ((breaks[i].indexOf("add") >= 0 || breaks[i].indexOf("Add") >= 0) && breaks[i].indexOf(":") >= 0) {
-        if ((breaks[i].indexOf("{W") >= 0 || breaks[i].indexOf("W}") >= 0) && colourIdentity.indexOf("W") < 0) {
-          colourIdentity = colourIdentity + "W";
-        }
-        if ((breaks[i].indexOf("{U") >= 0 || breaks[i].indexOf("U}") >= 0) && colourIdentity.indexOf("U") < 0) {
-          colourIdentity = colourIdentity + "U";
-        }
-        if ((breaks[i].indexOf("{B") >= 0 || breaks[i].indexOf("B}") >= 0) && colourIdentity.indexOf("B") < 0) {
-          colourIdentity = colourIdentity + "B";
-        }
-        if ((breaks[i].indexOf("{R") >= 0 || breaks[i].indexOf("R}") >= 0) && colourIdentity.indexOf("R") < 0) {
-          colourIdentity = colourIdentity + "R";
-        }
-        if ((breaks[i].indexOf("{G") >= 0 || breaks[i].indexOf("G}") >= 0) && colourIdentity.indexOf("G") < 0) {
-          colourIdentity = colourIdentity + "G";
-        }
-        if (breaks[i].indexOf("any") >= 0) {
-          colourIdentity = "WUBRG";
-          break;
-        }
-      } else {
-        var stringToSearch = breaks[i];
-        if (stringToSearch.indexOf("Plains") >= 0) {
-          colourIdentity = colourIdentity + "W";
-        }
-        if (stringToSearch.indexOf("Island") >= 0) {
-          colourIdentity = colourIdentity + "U";
-        }
-        if (stringToSearch.indexOf("Swamp") >= 0) {
-          colourIdentity = colourIdentity + "B";
-        }
-        if (stringToSearch.indexOf("Mountain") >= 0) {
-          colourIdentity = colourIdentity + "R";
-        }
-        if (stringToSearch.indexOf("Forest") >= 0) {
-          colourIdentity = colourIdentity + "G";
-        }
-      }
-    }
-
-    if (colourIdentity.length <= 0 || colourIdentity.length == 2) {
-      selectedNamebox = "Land";
-    } else if (colourIdentity.length == 1) {
-      selectedNamebox = colourIdentity;
-    } else if (colourIdentity.length > 2) {
-      selectedNamebox = "Gold";
-    }
-
-  } else {
-    var stringToSearch = cardManaCost;
-
-    if (stringToSearch.indexOf("{W") >= 0 || stringToSearch.indexOf("W}") >= 0 || (stringToSearch.indexOf("Plains") >= 0 && typeLine.indexOf("Land") >= 0)) {
-      colourIdentity = colourIdentity + "W";
-    }
-    if (stringToSearch.indexOf("{U") >= 0 || stringToSearch.indexOf("U}") >= 0 || (stringToSearch.indexOf("Island") >= 0 && typeLine.indexOf("Land") >= 0)) {
-      colourIdentity = colourIdentity + "U";
-    }
-    if (stringToSearch.indexOf("{B") >= 0 || stringToSearch.indexOf("B}") >= 0 || (stringToSearch.indexOf("Swamp") >= 0 && typeLine.indexOf("Land") >= 0)) {
-      colourIdentity = colourIdentity + "B";
-    }
-    if (stringToSearch.indexOf("{R") >= 0 || stringToSearch.indexOf("R}") >= 0 || (stringToSearch.indexOf("Mountain") >= 0 && typeLine.indexOf("Land") >= 0)) {
-      colourIdentity = colourIdentity + "R";
-    }
-    if (stringToSearch.indexOf("{G") >= 0 || stringToSearch.indexOf("G}") >= 0 || (stringToSearch.indexOf("Forest") >= 0 && typeLine.indexOf("Land") >= 0)) {
-      colourIdentity = colourIdentity + "G";
-    }
-  }
-
-  // ---------- Card Frame ----------
-  // Determine if we have an eldrazi-style card here
-  var eldrazi = false;
-  if (colourIdentity.length <= 0 && typeLine.indexOf("Artifact") < 0 && typeLine.indexOf("Land") < 0) eldrazi = true;
-
-  // Determine if we have a creature or not.
-  var isCreature = false;
-  if (typeLine.indexOf("Creature") >= 0) {
-    isCreature = true;
-  }
-
-  // Nyx man
-  var isNyx = false;
-  if (typeLine.indexOf("Enchantment") >= 0 && (typeLine.indexOf("Creature") >= 0 || typeLine.indexOf("Artifact") >= 0)) {
-    // docRef.layers.getByName("Nyx").visible = true;
-    isNyx = true;
-  }
-
-  if (eldrazi) return ["Eldrazi", "Eldrazi", "Eldrazi", isNyx, eldrazi];
-
-  // Set the background.
-  var selectedBackground = "";
-
-  // Check what's on our typeline.
-  if (typeLine.indexOf("Artifact") >= 0) {
-    selectedBackground = "Artifact";
-  } else if (typeLine.indexOf("Land") >= 0) {
-    selectedBackground = "Land";
-    if (cardText.indexOf(" any ") >= 0) {
-      colourIdentity = "WUBRG";
-    }
-  } else if (colourIdentity.length >= 2) {
-    selectedBackground = "Gold";
-  } else {
-    selectedBackground = colourIdentity;
-  }
-  if (eldrazi) selectedBackground = "Art Border";
-
-  // Select the correct pinlines.
-  var selectedPinlines = "Gold";
-  if (colourIdentity.length == 1) {
-    selectedPinlines = colourIdentity;
-  } else if (colourIdentity.length <= 0) {
-    if (typeLine.indexOf("Land") >= 0) selectedPinlines = "Land";
-    else selectedPinlines = "Artifact";
-  } else if (colourIdentity.length == 2) {
-    if (colourIdentity == "WU" || colourIdentity == "UW") {
-      selectedPinlines = "WU";
-    } else if (colourIdentity == "UB" || colourIdentity == "BU") {
-      selectedPinlines = "UB";
-    } else if (colourIdentity == "BR" || colourIdentity == "RB") {
-      selectedPinlines = "BR";
-    } else if (colourIdentity == "RG" || colourIdentity == "GR") {
-      selectedPinlines = "RG";
-    } else if (colourIdentity == "GW" || colourIdentity == "WG") {
-      selectedPinlines = "GW";
-    } else if (colourIdentity == "WB" || colourIdentity == "BW") {
-      selectedPinlines = "WB";
-    } else if (colourIdentity == "BG" || colourIdentity == "GB") {
-      selectedPinlines = "BG";
-    } else if (colourIdentity == "GU" || colourIdentity == "UG") {
-      selectedPinlines = "GU";
-    } else if (colourIdentity == "UR" || colourIdentity == "RU") {
-      selectedPinlines = "UR";
-    } else if (colourIdentity == "RW" || colourIdentity == "WR") {
-      selectedPinlines = "RW";
-    }
-  } else if (colourIdentity.length > 2) {
-    selectedPinlines = "Gold";
-  }
-  if (eldrazi) selectedPinlines = "Artifact";
-
-  var pinlinesName = "Pinlines & Text Box";
-
-  // Select the correct name box and P/T box.
-  var selectedNamebox = "";
-
-  var manaAdded = "";
-  if (typeLine.indexOf("Land") >= 0) {
-    var breaks = cardText.split('\n');
-    for (var i = 0; i < breaks.length; i++) {
-      if ((breaks[i].indexOf("add") >= 0 || breaks[i].indexOf("Add") >= 0) && breaks[i].indexOf(":") >= 0) {
-        if ((breaks[i].indexOf("{W") >= 0 || breaks[i].indexOf("W}") >= 0) && manaAdded.indexOf("W") < 0) {
-          manaAdded = manaAdded + "W";
-        }
-        if ((breaks[i].indexOf("{U") >= 0 || breaks[i].indexOf("U}") >= 0) && manaAdded.indexOf("U") < 0) {
-          manaAdded = manaAdded + "U";
-        }
-        if ((breaks[i].indexOf("{B") >= 0 || breaks[i].indexOf("B}") >= 0) && manaAdded.indexOf("B") < 0) {
-          manaAdded = manaAdded + "B";
-        }
-        if ((breaks[i].indexOf("{R") >= 0 || breaks[i].indexOf("R}") >= 0) && manaAdded.indexOf("R") < 0) {
-          manaAdded = manaAdded + "R";
-        }
-        if ((breaks[i].indexOf("{G") >= 0 || breaks[i].indexOf("G}") >= 0) && manaAdded.indexOf("G") < 0) {
-          manaAdded = manaAdded + "G";
-        }
-        if (breaks[i].indexOf("any") >= 0) {
-          manaAdded = "WUBRG";
-          break;
-        }
-      }
-    }
-  }
-
-  if (typeLine.indexOf("Land") >= 0) {
-    // no colour case
-    if (manaAdded.length <= 0 || manaAdded.length == 2) {
-      selectedNamebox = "Land";
-    } else if (manaAdded.length == 1) {
-      selectedNamebox = manaAdded;
-    } else if (manaAdded.length == 5) {
-      selectedNamebox = "Gold";
-    }
-  } else if (colourIdentity.length == 0) {
-    selectedNamebox = "Artifact";
-  } else if (colourIdentity.length == 1) {
-    selectedNamebox = colourIdentity;
-  } else if (colourIdentity.length >= 2) {
-    selectedNamebox = "Gold";
-  }
-  if (selectedNamebox == "") selectedNamebox = "Gold";
-
-  // Check for a hybrid frame
-  const splitSymbols = cardManaCost.split("}");
-  var colouredSymbols = 0; var hybridSymbols = 0;
-  for(i = 0; i<splitSymbols.length; i++){
-    if(splitSymbols[i].indexOf("W") > 0 || splitSymbols[i].indexOf("U") > 0 || splitSymbols[i].indexOf("B") > 0 || splitSymbols[i].indexOf("R") > 0 || splitSymbols[i].indexOf("G") > 0) {
-      colouredSymbols++;
-      if(splitSymbols[i].indexOf("/") > 0) {
-        hybridSymbols++;
-      }
-    }
-  }
-  if(hybridSymbols == colouredSymbols && hybridSymbols > 0) {
-    // card is hybrid, adjust the output accordingly
-    selectedBackground = selectedPinlines; selectedNamebox = "Land";
-  }
-
-  return [selectedBackground, selectedPinlines, selectedNamebox, isNyx, eldrazi];
 }
