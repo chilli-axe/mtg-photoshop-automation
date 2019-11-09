@@ -7,11 +7,10 @@ function formatText(inputString, italicStrings, flavourIndex, centredText) {
     textColour[0] = rgbTextColour.red;
     textColour[1] = rgbTextColour.green;
     textColour[2] = rgbTextColour.blue;
-  }
-  catch(err) {
+  } catch (err) {
     var textColour = [];
     textColour[0] = 0;
-    textColour[1] = 0; 
+    textColour[1] = 0;
     textColour[2] = 0;
   }
 

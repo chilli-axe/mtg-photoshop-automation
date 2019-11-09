@@ -91,6 +91,9 @@ function borderify(file) {
   desc34.putObject(idUsng, idAdjL, desc35);
   executeAction(idMk, desc34, DialogModes.NO);
 
+  // You can toggle comments here to do some minor brightness/gamma adjusting
+  // I don't think it's necessary but if you want your cards a touch lighter
+  // then you might use it 
   // =======================================================
   var idsetd = charIDToTypeID("setd");
   var desc37 = new ActionDescriptor();

@@ -104,7 +104,8 @@ def get_dict_tf(card, cardfull):
         "toughness": toughness,
         "layout": "transform",
         "colourIdentity": card["colors"],
-        "frame_effect": cardfull.frame_effect()
+        # "frame_effect": cardfull.frame_effect()
+        "frame_effect": cardfull.scryfallJson['frame_effects']
     }
     print(card_json)
     return card_json
@@ -161,7 +162,7 @@ if __name__ == "__main__":
 
 
     if card.layout() == "transform":
-        print(card.frame_effect())
+        # print(card.frame_effect())
         print(card.card_faces()[1])
         print("Double faced")
         print(card.card_faces()[1]["name"] == cardname)
@@ -169,6 +170,8 @@ if __name__ == "__main__":
 
         if card.card_faces()[0]["name"] == cardname:
             # front face
+            # print("Printing frame effect")
+            # print(card.scryfallJson['frame_effects'])
             print(card.card_faces()[0])
             card_json = get_dict_tf(card.card_faces()[0], card)
             try:
@@ -186,7 +189,11 @@ if __name__ == "__main__":
             print(card.card_faces()[1])
             card_json = get_dict_tf(card.card_faces()[1], card)
             card_json["face"] = "back"
-            card_json["color_indicator"] = card.card_faces()[1]["color_indicator"]
+            try:
+                card_json["color_indicator"] = card.card_faces()[1]["color_indicator"]
+            except KeyError:
+                card_json["color_indicator"] = None
+
             save_json(card_json)
             # back face
     elif "Planeswalker" in card.type_line():
