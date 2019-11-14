@@ -1,92 +1,7 @@
 // Resize text to fit text box
-// Credit to https://stackoverflow.com/questions/28900505/extendscript-how-to-check-whether-text-content-overflows-the-containing-rectang
-function scaleTextToFitBox(textLayer) {
-
-  var fitInsideBoxDimensions = getLayerDimensions(textLayer);
-  while (fitInsideBoxDimensions.height < getRealTextLayerDimensions(textLayer).height) {
-
-    var fontSize = parseInt(textLayer.textItem.size);
-    var leadSize = parseInt(textLayer.textItem.leading);
-    textLayer.textItem.size = new UnitValue(fontSize - 1, "px");
-    textLayer.textItem.leading = new UnitValue(leadSize - 1, "px");
-  }
-
-}
-
-function getRealTextLayerDimensions(textLayer) {
-  var textLayerCopy = textLayer.duplicate(activeDocument, ElementPlacement.INSIDE);
-  textLayerCopy.rasterize(RasterizeType.TEXTCONTENTS);
-  var dimensions = getLayerDimensions(textLayerCopy);
-
-  textLayerCopy.remove();
-
-  return dimensions;
-}
-
-function getLayerDimensions(layer) {
-  return {
-    width: layer.bounds[2] - layer.bounds[0],
-    height: layer.bounds[3] - layer.bounds[1]
-  };
-}
-
-function scaleTextToFitBoxNew(textLayer, referenceHeight) {
-  // Default values: 68.5, 137
-  startingFontSize = 66.5;
-  stepSize = 1;
-
-  var fontSize = startingFontSize;
-  var leadSize = 2 * startingFontSize;
-
-  var scaled = false;
-  var inputWidth = new UnitValue(textLayer.textItem.width, "px");
-  var number = textLayer.textItem.height;
-  var inputHeight = new UnitValue(2 * (number), "px");
-
-  while (referenceHeight < getRealTextLayerDimensions(textLayer).height) {
-    scaled = true;
-    textLayer.textItem.size = new UnitValue(fontSize - stepSize, "px");// Resize text to fit text box
-    fontSize = fontSize - stepSize;
-    textLayer.textItem.leading = new UnitValue(leadSize - 2 * stepSize, "px");
-    leadSize = leadSize - 2 * stepSize;
-  }
-  return scaled;
-}
-
-// Credit to https://stackoverflow.com/questions/28900505/extendscript-how-to-check-whether-text-content-overflows-the-containing-rectang
-function scaleTextToFitBox(textLayer) {
-
-  var fitInsideBoxDimensions = getLayerDimensions(textLayer);
-  while (fitInsideBoxDimensions.height < getRealTextLayerDimensions(textLayer).height) {
-
-    var fontSize = parseInt(textLayer.textItem.size);
-    var leadSize = parseInt(textLayer.textItem.leading);
-    textLayer.textItem.size = new UnitValue(fontSize - 1, "px");
-    textLayer.textItem.leading = new UnitValue(leadSize - 1, "px");
-  }
-
-}
-
-function getRealTextLayerDimensions(textLayer) {
-  var textLayerCopy = textLayer.duplicate(activeDocument, ElementPlacement.INSIDE);
-  textLayerCopy.rasterize(RasterizeType.TEXTCONTENTS);
-  var dimensions = getLayerDimensions(textLayerCopy);
-
-  textLayerCopy.remove();
-
-  return dimensions;
-}
-
-function getLayerDimensions(layer) {
-  return {
-    width: layer.bounds[2] - layer.bounds[0],
-    height: layer.bounds[3] - layer.bounds[1]
-  };
-}
-
-function scaleTextToFitBoxNew(textLayer, referenceHeight) {
-  // Default values: 68.5, 137
-  startingFontSize = 66.5;
+function scaleTextToFitBox(textLayer, referenceHeight) {
+  // Step down font size until text fits within the text box
+  startingFontSize = textLayer.textItem.size;
   stepSize = 1;
 
   var fontSize = startingFontSize;
@@ -107,25 +22,21 @@ function scaleTextToFitBoxNew(textLayer, referenceHeight) {
   return scaled;
 }
 
-function getAllIndexes(arr, val) {
-  var indexes = [],
-    i = -1;
-  while ((i = arr.indexOf(val, i + 1)) != -1) {
-    indexes.push(i);
-  }
-  return indexes;
+function getRealTextLayerDimensions(textLayer) {
+  var textLayerCopy = textLayer.duplicate(activeDocument, ElementPlacement.INSIDE);
+  textLayerCopy.rasterize(RasterizeType.TEXTCONTENTS);
+  var dimensions = getLayerDimensions(textLayerCopy);
+
+  textLayerCopy.remove();
+
+  return dimensions;
 }
 
-function arrayIndexOf2(inputArray, reqValue, startingIndex) {
-  var index = -1;
-  startingIndex = typeof startingIndex !== 'undefined' ? startingIndex : 0;
-  for (var i = startingIndex; i < inputArray.length; i++) {
-    if (inputArray[i] == reqValue) {
-      index = i;
-      break;
-    }
-  }
-  return index;
+function getLayerDimensions(layer) {
+  return {
+    width: layer.bounds[2] - layer.bounds[0],
+    height: layer.bounds[3] - layer.bounds[1]
+  };
 }
 
 // In an effort to keep the source code readable, any functions derived
@@ -306,13 +217,18 @@ function verticallyFixText(textLayer) {
   var top = ptAdjustmentReference.bounds[1];
   var right = ptAdjustmentReference.bounds[2];
   var bottom = ptAdjustmentReference.bounds[3];
-  app.activeDocument.selection.select([[left, top], [right, top],
-                                       [right, bottom], [left, bottom]]);
+  app.activeDocument.selection.select([
+    [left, top],
+    [right, top],
+    [right, bottom],
+    [left, bottom]
+  ]);
 
   // get PT Top Reference layer
   var ptTopReference = textAndIcons.layers.getByName("PT Top Reference");
 
   // ctrl-j the selection on the rasterised text to a new layer
+  // TODO: Ensure there are pixels in the selection before running this block
   var idCpTL = charIDToTypeID("CpTL");
   executeAction(idCpTL, undefined, DialogModes.NO);
   idsetd = charIDToTypeID("setd");
@@ -552,29 +468,37 @@ function gradient(colour1, colour2, colourStroke) {
   desc612.putReference(idT, ref151);
   executeAction(idsetd, desc612, DialogModes.NO);
 
+  // will buy whoever figures out how to fix this a drink
   var myLayer = app.activeDocument.activeLayer;
+  var leftPix = myLayer.bounds[0];
+  var topPix = myLayer.bounds[1];
+  var rightPix = myLayer.bounds[2];
+  var bottomPix = myLayer.bounds[3];
 
-  // =======================================================
+  var centre_x = (leftPix + rightPix) / 4;
+  var centre_y = (topPix + bottomPix) / 4;
+
   var idGrdn = charIDToTypeID("Grdn");
   var desc613 = new ActionDescriptor();
   var idFrom = charIDToTypeID("From");
   var desc614 = new ActionDescriptor();
   idHrzn = charIDToTypeID("Hrzn");
   idRlt = charIDToTypeID("#Rlt");
-  desc614.putUnitDouble(idHrzn, idRlt, myLayer.bounds[0]/4 + myLayer.bounds[2]/4); // centre x // 1205.000000
+  desc614.putUnitDouble(idHrzn, idRlt, centre_x);
   idVrtc = charIDToTypeID("Vrtc");
   idRlt = charIDToTypeID("#Rlt");
-  desc614.putUnitDouble(idVrtc, idRlt, myLayer.bounds[1]/4 + myLayer.bounds[3]/4); // centre y // 1108.500000
+  desc614.putUnitDouble(idVrtc, idRlt, centre_y);
   idPnt = charIDToTypeID("Pnt ");
   desc613.putObject(idFrom, idPnt, desc614);
   idT = charIDToTypeID("T   ");
   var desc615 = new ActionDescriptor();
   idHrzn = charIDToTypeID("Hrzn");
   idRlt = charIDToTypeID("#Rlt");
-  desc615.putUnitDouble(idHrzn, idRlt, myLayer.bounds[0]/4 + myLayer.bounds[2]/4 - 20); // bottom left corner x // 1227.500000
+  desc615.putUnitDouble(idHrzn, idRlt, centre_x - 20);
   idVrtc = charIDToTypeID("Vrtc");
   idRlt = charIDToTypeID("#Rlt");
-  desc615.putUnitDouble(idVrtc, idRlt, myLayer.bounds[1]/4 + myLayer.bounds[3]/4 + 20); // bottom left corner y // 1092.000000
+  desc615.putUnitDouble(idVrtc, idRlt, centre_y + 20);
+
   idPnt = charIDToTypeID("Pnt ");
   desc613.putObject(idT, idPnt, desc615);
   idType = charIDToTypeID("Type");
@@ -673,28 +597,6 @@ function gradient(colour1, colour2, colourStroke) {
   idMkVs = charIDToTypeID("MkVs");
   desc622.putBoolean(idMkVs, false);
   executeAction(idslct, desc622, DialogModes.NO);
-}
-
-
-function getAllIndexes(arr, val) {
-  var indexes = [],
-    i = -1;
-  while ((i = arr.indexOf(val, i + 1)) != -1) {
-    indexes.push(i);
-  }
-  return indexes;
-}
-
-function arrayIndexOf2(inputArray, reqValue, startingIndex) {
-  var index = -1;
-  startingIndex = typeof startingIndex !== 'undefined' ? startingIndex : 0;
-  for (var i = startingIndex; i < inputArray.length; i++) {
-    if (inputArray[i] == reqValue) {
-      index = i;
-      break;
-    }
-  }
-  return index;
 }
 
 function frame(leftPix, topPix, rightPix, bottomPix) {
