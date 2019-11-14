@@ -38,6 +38,19 @@ const testcases = {
   "Sultai Charm":     ["Gold", "Gold", "Gold", false, false],
   "Mardu Charm":      ["Gold", "Gold", "Gold", false, false],
   "Temur Charm":      ["Gold", "Gold", "Gold", false, false],
+
+  // TODO: More cases
+  // City of Brass
+  // Gemstone Cavern
+  // Castle Ardenvale, etc.
+  // Command Tower
+  // Witch's Cottage, etc.
+  // Emrakul, the Aeons Torn
+  // Baleful Strix
+  // Golgari Guildmage, etc.
+  // Spectral Procession, etc.
+  // Tolarian Academy, etc.
+  // Frontier Bivouac, etc. 
 };
 
 $.writeln("Starting testing:");
