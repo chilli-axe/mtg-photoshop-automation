@@ -12,7 +12,7 @@ for(var n=0;n<files_array.length;n++){
   var file = files_array[n];
 
   // Ensure the image can be borderify'd, then do it
-  if (file.constructor != Folder) {
+  if (file.constructor != Folder && file.name != ".DS_Store") {
     borderify(file);
   }
 }
