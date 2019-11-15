@@ -12,17 +12,19 @@ Example printed through http://makeplayingcards.com
 ![img2](https://i.imgur.com/fP9S81O.jpg)
 
 # What You'll Need
-* A copy of Photoshop. I tested the system using CS5 and CC 2018, but other versions may work as well.
-* [The Photoshop templates](https://drive.google.com/open?id=1s-mVBKkMzJMhzxrfjb8SiJms1EEVvoxq) (download `automated.zip`)
-* The following fonts:
-  * [Beleren Smallcaps, MPlantin and MPlantin-Italics](https://github.com/magarena/magarena/tree/master/resources/cardbuilder/fonts) and [Beleren2016](https://magic.wizards.com/sites/all/themes/wiz_mtg/fonts/Beleren/Beleren2016-Bold.ttf), for most text
-  * My custom Magic symbols font NDPMTG, as well as MTG2016, both included in the repo.
-  * [Keyrune](https://andrewgioia.github.io/Keyrune/index.html), for the expansion symbol.
- * [json2.js](https://github.com/douglascrockford/JSON-js), included but you may need to download a more recent version.
+  * A copy of Photoshop. I tested the system using CS5 and CC 2018, but other versions may work as well.
+  * [The Photoshop templates](https://drive.google.com/open?id=1s-mVBKkMzJMhzxrfjb8SiJms1EEVvoxq) (download `automated.zip`)
+  * The following fonts:
+    * [Beleren Smallcaps, MPlantin and MPlantin-Italics](https://github.com/magarena/magarena/tree/master/resources/cardbuilder/fonts) and [Beleren2016](https://magic.wizards.com/sites/all/themes/wiz_mtg/fonts/Beleren/Beleren2016-Bold.ttf), 
+    * My custom Magic symbols font NDPMTG, as well as MTG2016, both included in the repo,
+    * [Keyrune](https://andrewgioia.github.io/Keyrune/index.html) and [Mana](https://andrewgioia.github.io/Mana/), for the expansion symbol and transform symbols,
+    * Relay Medium and Calibri,
+  * [json2.js](https://github.com/douglascrockford/JSON-js), included but you may need to download a more recent version.
  
  As well as the Python packages (I tested the script using Python 3.6.3):
  * json
  * Scrython
+ * requests
 
 # Install / Usage Guide
 * Clone to a folder of your choice, referred to as the *working directory*.
@@ -36,9 +38,9 @@ Example printed through http://makeplayingcards.com
 
 # FAQ
 Photoshop scripting works within an outdated version of JavaScript and has more than its share of idiosyncrasies. There are unfortunately bugs that don't occur on my system and that I can't recreate, but others have found ways to fix them.
-* *When I try to run the script, I get "Error: File or folder does not exist." Line 9: $.evalFile(filePath + ...).* So far it seems like the way to fix this issue is to hardcode the path to your directory in each script, unfortunately. Dynamically finding the filepath works perfectly on my system so I'm not sure exactly how to debug it for others.
+* *When I try to run the script, I get "Error: File or folder does not exist." Line 9: $.evalFile(filePath + ...).* So far it seems like the way to fix this issue is to hardcode the path to your directory in each script, unfortunately. Dynamically finding the filepath works perfectly on my system, so I'm not sure exactly how to debug it for others. Seems like if you're on a Mac, you might need to edit the filepaths throughout the code to use / instead of \\, as well.
 * *When I render a card, the artwork is twice as big as it should be.* Hop into `frame.jsx` and scroll down to the bottom. In the `frame()` function, there's a line that looks something like `var percentageToScale = 100 * (Math.max( ... ));`. Change the number 100 to 50 here and that typically fixes it.
-* *My set symbols don't have the proper gradient to them.* I haven't found a fix for this yet, but it's in the pipeline.
+* *My set symbols don't have the proper gradient to them.* I've done my best to address this, but it seems like it still breaks for some people. In the event that it doesn't work, you can try opening `excessFunctions.jsx` and scrolling down to line 478 roughly - there should be two lines that look something like `var centre_x = (leftPix + rightPix) / 4; var centre_y = (topPix + bottomPix) / 4;`. Try changing the divide by 4 to divide by 2 here and see if that changes anything.
 * *I want to change the set symbol to something else.* Head over to https://andrewgioia.github.io/Keyrune/cheatsheet.html - you can use any of these symbols for the set symbol for your cards. Copy the text of the symbol you want on the cheatsheet, then hop into `proxy.jsx` and look about 10 lines down. Replace the square character in quotations with the character you copied.
 
 # Limitations
