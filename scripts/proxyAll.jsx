@@ -10,5 +10,5 @@ $.evalFile(filePath + "\\scripts\\proxy.jsx");
 // Loop through each image in the crop folder and produce a proxy for it
 for(var n=0;n<files_array.length;n++){
   var file = files_array[n];
-  proxy(file, 1);
+  if (file.name != ".DS_Store") proxy(file, 1);
 }
