@@ -2,6 +2,8 @@
 Use Photoshop scripting to easily create custom high-quality Magic proxies for casual play.
 *NOTE*: If you downloaded the templates prior to the 9th of October 2019, you'll need to redownload them to use the latest version of this tool.
 
+[Google Drive full of MPC ready cards](https://drive.google.com/open?id=1CUaOPDZM84dk85Kvp6fGrqZVPDo4jQJo)
+
 # Examples
 [Video demonstration](https://www.youtube.com/watch?v=jSuH7CY8HIM)
 
@@ -38,13 +40,13 @@ Example printed through http://makeplayingcards.com
 
 # FAQ
 Photoshop scripting works within an outdated version of JavaScript and has more than its share of idiosyncrasies. There are unfortunately bugs that don't occur on my system and that I can't recreate, but others have found ways to fix them.
-* *When I try to run the script, I get "Error: File or folder does not exist." Line 9: $.evalFile(filePath + ...).* So far it seems like the way to fix this issue is to hardcode the path to your directory in each script, unfortunately. Dynamically finding the filepath works perfectly on my system, so I'm not sure exactly how to debug it for others. Seems like if you're on a Mac, you might need to edit the filepaths throughout the code to use / instead of \\, as well.
-* *When I render a card, the artwork is twice as big as it should be.* Hop into `frame.jsx` and scroll down to the bottom. In the `frame()` function, there's a line that looks something like `var percentageToScale = 100 * (Math.max( ... ));`. Change the number 100 to 50 here and that typically fixes it.
-* *My set symbols don't have the proper gradient to them.* I've done my best to address this, but it seems like it still breaks for some people. In the event that it doesn't work, you can try opening `excessFunctions.jsx` and scrolling down to line 478 roughly - there should be two lines that look something like `var centre_x = (leftPix + rightPix) / 4; var centre_y = (topPix + bottomPix) / 4;`. Try changing the divide by 4 to divide by 2 here and see if that changes anything.
+* *When I render a card, the artwork is twice as big as it should be.* Hop into `excessFunctions.jsx` and scroll down to the bottom. In the `frame()` function, there's a line that looks something like `var percentageToScale = 100 * (Math.max( ... ));`. Change the number 100 to 50 here and that typically fixes it.
+* *My set symbols don't have the proper gradient to them.* I've done my best to address this, but it seems like it still breaks for some people. In the event that it doesn't work, you can try opening `excessFunctions.jsx` and scrolling down to line 478 roughly - there should be two lines that look something like `var centre_x = (leftPix + rightPix) / 4; var centre_y = (topPix + bottomPix) / 4;`. Try changing the divide by 4 to divide by 2 here and see if that changes anything. Otherwise, I'm sorry but I'm not sure what's causing this right now. Fixing it is in the pipeline.
 * *I want to change the set symbol to something else.* Head over to https://andrewgioia.github.io/Keyrune/cheatsheet.html - you can use any of these symbols for the set symbol for your cards. Copy the text of the symbol you want on the cheatsheet, then hop into `proxy.jsx` and look about 10 lines down. Replace the square character in quotations with the character you copied.
+* *I'm on a Mac, and the script doesn't seem to be saving `card.json` properly. The `get_card_info.py` script works properly from the command line.* This appears to be a permissions issue. A couple of users have had success with modifying file permissions - try `chmod 777 card.json`, or `sudo chmod a+rw .` in the root work directory. I'm still working through this on my Mac, so I'll post my solution when I find one.
 
 # Limitations
 As of this release, the script can't handle:
-* Full automation of non-standard card layouts, such as planeswalkers, transforming cards, and Kamigawa flip cards. The script is now capable of proxying planeswalkers, but requires the user to manually position the text as a final step. Transform cards are mostly finished but still a work in progress.
+* Full automation of non-standard card layouts, such as planeswalkers, transforming cards, and Kamigawa flip cards. The script is now capable of proxying planeswalkers, but requires the user to manually position the text as a final step. My typical workflow for planeswalkers is to run the script up until it errors, then position the inserted Scryfall scan to fill the canvas. From here, I resize the text layers until they line up with the real card, then reposition the art if necessary. *Save As* and saving as a PNG with the default settings is fine. Transform cards are mostly finished, but still a work in progress - transforming planeswalkers and Ixalan lands.
 * Quoting something in a card's flavour text without italics. See: Yarok the Desecrated, Phyrexian Altar.
-* Snow mana symbols - I haven't gotten around to adding it to the font yet.
+* Snow mana symbols and the untap symbol - I haven't gotten around to adding these to the font yet.
