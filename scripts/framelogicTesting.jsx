@@ -1,5 +1,5 @@
 // Read in relevant files
-var filePath = File($.filename).parent.parent.fsName;
+var filePath = File($.fileName).parent.parent.fsName;
 $.evalFile(filePath + "/scripts/json2.js");
 $.evalFile(filePath + "/scripts/proxy.jsx");
 $.evalFile(filePath + "/scripts/framelogic.jsx");

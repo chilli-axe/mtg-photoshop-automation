@@ -1,6 +1,6 @@
 function borderify(file) {
-  // File path to main working directory (modern/automation)
-  var filePath = File($.filename).parent.parent.fsName;
+  // File path to main working directory
+  var filePath = File($.fileName).parent.parent.fsName;
 
   // =======================================================
   var idOpn = charIDToTypeID("Opn ");
@@ -60,7 +60,7 @@ function borderify(file) {
   var idVrsn = charIDToTypeID("Vrsn");
   desc24.putInteger(idVrsn, 5);
   executeAction(idmove, desc24, DialogModes.NO);
-  
+
   // Flatten the image and brighten it up a little
   app.activeDocument.flatten();
   // =======================================================
