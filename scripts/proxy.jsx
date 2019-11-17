@@ -4,11 +4,13 @@ boxtopper = "";
 
 function proxy(file, ye) {
   var expansionSymbol = ""; // Cube
-  var filePath = File(file).parent.parent;
+  var filePath = File($.fileName).parent.parent.fsName;
   $.evalFile(filePath + "/scripts/json2.js");
 
   // Retrieve the card's name from the given filepath
-  filename = decodeURI(file.name);
+  var filename;
+  if (ye == 1) filename = decodeURI(file.name);
+  else filename = decodeURI(file[0].name);
   fullCardName = filename.slice(0, filename.lastIndexOf("."));
 
   // Retrieve the card's name and artist
