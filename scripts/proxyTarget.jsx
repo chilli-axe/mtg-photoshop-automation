@@ -4,7 +4,7 @@ var filePath = File($.filename).parent.parent.fsName;
 // Select image to proxy
 file = app.openDialog();
 
-$.evalFile(filePath + "\\scripts\\proxy.jsx");
+$.evalFile(filePath + "/scripts/proxy.jsx");
 
 // Proxy the selected image
 if(file[0]){

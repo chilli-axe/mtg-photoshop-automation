@@ -4,19 +4,12 @@ boxtopper = "";
 
 function proxy(file, ye) {
   var expansionSymbol = ""; // Cube
-
-  var filePath = File($.filename).parent.parent.fsName;
-
-  $.evalFile(filePath + "\\scripts\\json2.js");
-
-  // Get the card's name
-  var artPath = String(file);
+  var filePath = File(file).parent.parent;
+  $.evalFile(filePath + "/scripts/json2.js");
 
   // Retrieve the card's name from the given filepath
-  var reversedPath = artPath.split("").reverse().join("");
-  var startIndex = artPath.length - reversedPath.indexOf("/");
-  var endIndex = artPath.lastIndexOf(".");
-  fullCardName = decodeURI(artPath.slice(startIndex, endIndex));
+  filename = decodeURI(file.name);
+  fullCardName = filename.slice(0, filename.lastIndexOf("."));
 
   // Retrieve the card's name and artist
   var openIndex = fullCardName.lastIndexOf(" (");
@@ -28,9 +21,18 @@ function proxy(file, ye) {
     proxyBasic(cardName, cardArtist, ye);
   } else {
     // Run Python script to get info from Scryfall
-    app.system("python get_card_info.py \"" + cardName + "\"");
+    // Execute this with different commands, depending on operating system
+    // Assumes users are only using either Windows or macOS
+    // Thanks to jamesthe500 on stackoverflow for the OS-detecting code
+    if ($.os.search(/windows/i) != -1) {
+      // Windows
+      app.system("python get_card_info.py \"" + cardName + "\"");
+    } else {
+      // macOS
+      app.system("/usr/local/bin/python3 " + filePath + "/scripts/get_card_info.py \"" + cardName + "\" >> " + filePath + "/scripts/debug.log 2>&1");
+    }
 
-    var cardJSONFile = new File(filePath + "\\scripts\\card.json");
+    var cardJSONFile = new File(filePath + "/scripts/card.json");
     cardJSONFile.open('r');
     var cardJSON = cardJSONFile.read();
     cardJSONFile.close();
@@ -54,10 +56,10 @@ function proxy(file, ye) {
 }
 
 function proxyBasic(cardName, cardArtist, ye) {
-  $.evalFile(filePath + "\\scripts\\excessFunctions.jsx");
+  $.evalFile(filePath + "/scripts/excessFunctions.jsx");
 
   templateName = "basic";
-  var fileRef = new File(filePath + "\\templates\\" + templateName + ".psd");
+  var fileRef = new File(filePath + "/templates/" + templateName + ".psd");
   app.open(fileRef);
 
   var docRef = app.activeDocument;
@@ -77,9 +79,9 @@ function proxyBasic(cardName, cardArtist, ye) {
   var artLayerFrameName = "Basic Art Frame";
   var artLayerFrame = docRef.layers.getByName(artLayerFrameName);
   frame(artLayerFrame.bounds[0].as("px"),
-        artLayerFrame.bounds[1].as("px"),
-        artLayerFrame.bounds[2].as("px"),
-        artLayerFrame.bounds[3].as("px"))
+    artLayerFrame.bounds[1].as("px"),
+    artLayerFrame.bounds[2].as("px"),
+    artLayerFrame.bounds[3].as("px"))
 
   var myLayer = docRef.layers.getByName(cardName);
   myLayer.visible = true;
@@ -93,21 +95,23 @@ function proxyBasic(cardName, cardArtist, ye) {
 
 function proxyPlaneswalker(jsonParsed, cardName, cardArtist, expansionSymbol, ye) {
   // Load in json2.js and some function files
-  $.evalFile(filePath + "\\scripts\\json2.js");
-  $.evalFile(filePath + "\\scripts\\formatText.jsx");
-  $.evalFile(filePath + "\\scripts\\excessFunctions.jsx");
-  $.evalFile(filePath + "\\scripts\\framelogic.jsx");
+  $.evalFile(filePath + "/scripts/json2.js");
+  $.evalFile(filePath + "/scripts/formatText.jsx");
+  $.evalFile(filePath + "/scripts/excessFunctions.jsx");
+  $.evalFile(filePath + "/scripts/framelogic.jsx");
 
   var abilities = jsonParsed.text.split("\n");
   var templateName = "pw-3";
   if (abilities.length > 3) templateName = "pw-4";
   if (jsonParsed.layout == "transform") templateName = templateName + "-transform";
 
-  var fileRef = new File(filePath + "\\templates\\" + templateName + ".psd");
+  var fileRef = new File(filePath + "/templates/" + templateName + ".psd");
   app.open(fileRef);
 
   // Create a reference to the active document for convenience
-  var docRef = app.activeDocument; var myLayer; var mySubLayer;
+  var docRef = app.activeDocument;
+  var myLayer;
+  var mySubLayer;
 
   // Place it in the template
   if (ye == 1) app.load(file);
@@ -186,17 +190,18 @@ function proxyPlaneswalker(jsonParsed, cardName, cardArtist, expansionSymbol, ye
     if (colonIndex > 0 && colonIndex < 5) {
       // Loyalty ability, not a static ability
       var loyaltyType = "";
+      var loyaltyNumber;
       if (abilities[i].charAt(0) == "+") {
         // Plus abiltiy
-        var loyaltyNumber = abilities[i].slice(1, colonIndex);
+        loyaltyNumber = abilities[i].slice(1, colonIndex);
         loyaltyType = "+";
       } else if (abilities[i].charAt(0) == "\u2212" || abilities[i].charAt(0) == "-") {
         // Minus ability
-        var loyaltyNumber = abilities[i].slice(1, colonIndex);
+        loyaltyNumber = abilities[i].slice(1, colonIndex);
         loyaltyType = "-";
       } else if (abilities[i].charAt(0) == "0") {
         // Zero ability
-        var loyaltyNumber = "0";
+        loyaltyNumber = "0";
         loyaltyType = "";
       }
       var abilityText = abilities[i].slice(colonIndex + 2, abilities[i].length);
@@ -207,8 +212,9 @@ function proxyPlaneswalker(jsonParsed, cardName, cardArtist, expansionSymbol, ye
       docRef.activeLayer = abilityTextLayer;
       formatText(abilityText, [], -1, false);
 
-      if (loyaltyType == "") var loyaltyNumberGroup = myLayer.layers.getByName("0");
-      else var loyaltyNumberGroup = myLayer.layers.getByName(loyaltyType);
+      var loyaltyNumberGroup;
+      if (loyaltyType == "") loyaltyNumberGroup = myLayer.layers.getByName("0");
+      else loyaltyNumberGroup = myLayer.layers.getByName(loyaltyType);
 
       loyaltyNumberGroup.visible = true;
       var loyaltyText = loyaltyNumberGroup.layers.getByName("Cost");
@@ -251,7 +257,7 @@ function proxyPlaneswalker(jsonParsed, cardName, cardArtist, expansionSymbol, ye
   var idIdnt = charIDToTypeID("Idnt");
   desc300.putInteger(idIdnt, 8219);
   var idnull = charIDToTypeID("null");
-  desc300.putPath(idnull, new File(filePath + "\\scripts\\card.jpg"));
+  desc300.putPath(idnull, new File(filePath + "/scripts/card.jpg"));
   var idLnkd = charIDToTypeID("Lnkd");
   desc300.putBoolean(idLnkd, true);
   var idFTcs = charIDToTypeID("FTcs");
@@ -286,16 +292,18 @@ function proxyPlaneswalker(jsonParsed, cardName, cardArtist, expansionSymbol, ye
 function proxyNormal(jsonParsed, templateName, ye, cardName, cardArtist, expansionSymbol, tf_front) {
 
   // Load in json2.js and some function files
-  $.evalFile(filePath + "\\scripts\\json2.js");
-  $.evalFile(filePath + "\\scripts\\formatText.jsx");
-  $.evalFile(filePath + "\\scripts\\excessFunctions.jsx");
-  $.evalFile(filePath + "\\scripts\\framelogic.jsx");
+  $.evalFile(filePath + "/scripts/json2.js");
+  $.evalFile(filePath + "/scripts/formatText.jsx");
+  $.evalFile(filePath + "/scripts/excessFunctions.jsx");
+  $.evalFile(filePath + "/scripts/framelogic.jsx");
 
-  var fileRef = new File(filePath + "\\templates\\" + templateName + ".psd");
+  var fileRef = new File(filePath + "/templates/" + templateName + ".psd");
   app.open(fileRef);
 
   // Create a reference to the active document for convenience
-  var docRef = app.activeDocument; var myLayer; var mySubLayer;
+  var docRef = app.activeDocument;
+  var myLayer;
+  var mySubLayer;
 
   // Place it in the template
   if (ye == 1) app.load(file);
@@ -356,7 +364,6 @@ function proxyNormal(jsonParsed, templateName, ye, cardName, cardArtist, expansi
     //
     // }
 
-
   }
 
   if (templateName.indexOf("transform") >= 0) {
@@ -378,9 +385,9 @@ function proxyNormal(jsonParsed, templateName, ye, cardName, cardArtist, expansi
   if (selectedLayers[4]) artLayerFrameName = "Full Art Frame";
   var artLayerFrame = docRef.layers.getByName(artLayerFrameName);
   frame(artLayerFrame.bounds[0].as("px"),
-        artLayerFrame.bounds[1].as("px"),
-        artLayerFrame.bounds[2].as("px"),
-        artLayerFrame.bounds[3].as("px"))
+    artLayerFrame.bounds[1].as("px"),
+    artLayerFrame.bounds[2].as("px"),
+    artLayerFrame.bounds[3].as("px"))
 
   // Background
   myLayer = docRef.layers.getByName("Background");
@@ -567,7 +574,7 @@ function proxyNormal(jsonParsed, templateName, ye, cardName, cardArtist, expansi
 }
 
 function insertManaCost(cardManaCost) {
-  $.evalFile(filePath + "\\scripts\\formatText.jsx");
+  $.evalFile(filePath + "/scripts/formatText.jsx");
   var docRef = app.activeDocument;
   myManaLayer = docRef.layers.getByName("Text and Icons");
   manaCostLayer = myManaLayer.layers.getByName("Mana Cost");
@@ -636,7 +643,7 @@ function saveImage(cardName) {
   var idPNGF = charIDToTypeID("PNGF");
   desc3.putObject(idAs, idPNGF, desc4);
   var idIn = charIDToTypeID("In  ");
-  var filename = filePath + '\\out\\' + cardName + '.png';
+  var filename = filePath + '/out/' + cardName + '.png';
   desc3.putPath(idIn, new File(filename));
   var idCpy = charIDToTypeID("Cpy ");
   desc3.putBoolean(idCpy, true);
