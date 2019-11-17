@@ -6,7 +6,7 @@ function borderify(file) {
   var idOpn = charIDToTypeID("Opn ");
   var desc21 = new ActionDescriptor();
   var idnull = charIDToTypeID("null");
-  desc21.putPath(idnull, new File(filePath + "\\templates\\MPCcrop.psd"));
+  desc21.putPath(idnull, new File(filePath + "/templates/MPCcrop.psd"));
   executeAction(idOpn, desc21, DialogModes.NO);
 
   // =======================================================
@@ -60,7 +60,7 @@ function borderify(file) {
   var idVrsn = charIDToTypeID("Vrsn");
   desc24.putInteger(idVrsn, 5);
   executeAction(idmove, desc24, DialogModes.NO);
-
+  
   // Flatten the image and brighten it up a little
   app.activeDocument.flatten();
   // =======================================================
@@ -93,7 +93,7 @@ function borderify(file) {
 
   // You can toggle comments here to do some minor brightness/gamma adjusting
   // I don't think it's necessary but if you want your cards a touch lighter
-  // then you might use it 
+  // then you might use it
   // =======================================================
   var idsetd = charIDToTypeID("setd");
   var desc37 = new ActionDescriptor();
@@ -137,7 +137,7 @@ function borderify(file) {
   var idPNGF = charIDToTypeID("PNGF");
   desc25.putObject(idAs, idPNGF, desc26);
   var idIn = charIDToTypeID("In  ");
-  desc25.putPath(idIn, new File(filePath + "\\out\\border\\" + file.name));
+  desc25.putPath(idIn, new File(filePath + "/out/border/" + file.name));
   var idCpy = charIDToTypeID("Cpy ");
   desc25.putBoolean(idCpy, true);
   executeAction(idsave, desc25, DialogModes.NO);

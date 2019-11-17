@@ -1,8 +1,8 @@
 // Read in relevant files
 var filePath = File($.filename).parent.parent.fsName;
-$.evalFile(filePath + "\\scripts\\json2.js");
-$.evalFile(filePath + "\\scripts\\proxy.jsx");
-$.evalFile(filePath + "\\scripts\\framelogic.jsx");
+$.evalFile(filePath + "/scripts/json2.js");
+$.evalFile(filePath + "/scripts/proxy.jsx");
+$.evalFile(filePath + "/scripts/framelogic.jsx");
 
 // Declare the test cases
 // function selectFrameLayers(typeLine, cardText, cardManaCost)
@@ -39,6 +39,8 @@ const testcases = {
   "Mardu Charm":      ["Gold", "Gold", "Gold", false, false],
   "Temur Charm":      ["Gold", "Gold", "Gold", false, false],
 
+  "Vesuva":           ["Land", "Land", "Land", false, false],
+
   // TODO: More cases
   // City of Brass
   // Gemstone Cavern
@@ -50,7 +52,7 @@ const testcases = {
   // Golgari Guildmage, etc.
   // Spectral Procession, etc.
   // Tolarian Academy, etc.
-  // Frontier Bivouac, etc. 
+  // Frontier Bivouac, etc.
 };
 
 $.writeln("Starting testing:");
@@ -69,7 +71,7 @@ function testLogic(cardname, expectedLayers) {
   // Run Python script to get info from Scryfall
   app.system("python get_card_info.py \"" + cardname + "\"");
 
-  var cardJSONFile = new File(filePath + "\\scripts\\card.json");
+  var cardJSONFile = new File(filePath + "/scripts/card.json");
   cardJSONFile.open('r');
   var cardJSON = cardJSONFile.read();
   cardJSONFile.close();
