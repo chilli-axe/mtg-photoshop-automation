@@ -1,3 +1,6 @@
+// Change this to 50 if your art is too large when running the script
+var artScaleFactor = 100;
+
 // Resize text to fit text box
 function scaleTextToFitBox(textLayer, referenceHeight) {
   // Step down font size until text fits within the text box
@@ -472,7 +475,7 @@ function frame(leftPix, topPix, rightPix, bottomPix) {
   var imageWidth = myLayer.bounds[2] - myLayer.bounds[0];
 
   // Determine how much to scale the art by, such that it fits into the art window
-  var percentageToScale = 100 * (Math.max(windowWidth / imageWidth.as('px'), windowHeight / imageHeight.as('px')));
+  var percentageToScale = artScaleFactor * (Math.max(windowWidth / imageWidth.as('px'), windowHeight / imageHeight.as('px')));
   myLayer.resize(percentageToScale, percentageToScale, AnchorPosition.TOPLEFT);
   myLayer.move(activeDocument, ElementPlacement.PLACEATEND);
 
