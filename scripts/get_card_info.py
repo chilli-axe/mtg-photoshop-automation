@@ -148,7 +148,7 @@ def get_dict_pw(card):
 
 def save_json(card_json):
     json_dump = json.dumps(card_json)
-    with open("card.json", 'w') as f:
+    with open(sys.path[0] + "/card.json", 'w') as f:
         json.dump(json_dump, f)
 
 
