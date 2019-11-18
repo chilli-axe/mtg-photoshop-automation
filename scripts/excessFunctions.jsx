@@ -259,140 +259,149 @@ function verticallyFixText(textLayer) {
   if (pixelOverlap > 0) rulesText.applyOffset(0, pixelOverlapUnit, OffsetUndefinedAreas.SETTOBACKGROUND);
 }
 
-function gradientCommon() {
-  colour1 = [0.000000, 0.000000, 0.000000];
-  colour2 = [0.000000, 0.000000, 0.000000];
-  colourStroke = 255.000000;
-  gradient(colour1, colour2, colourStroke);
-}
+function gradient(rarity) {
+  // Select the stroke colour
+  var strokeColour = 0.000000;
+  var strokeWidth = 6.000000;
 
-function gradientUncommon() {
-  colour1 = [199.000000, 225.000000, 241.000000];
-  colour2 = [98.000000, 110.000000, 119.003891];
-  colourStroke = 0.000000;
-  gradient(colour1, colour2, colourStroke);
-}
+  if (rarity == "uncommon" | rarity == "rare" || rarity == "mythic") {
+    // Switch on gradient layer
+    var textAndIcons = app.activeDocument.layers.getByName("Text and Icons");
+    var gradientLayer = textAndIcons.layers.getByName(rarity);
+    gradientLayer.visible = true;
 
-function gradientRare() {
-  colour1 = [213.996109, 179.996109, 109.003891];
-  colour2 = [145.996109, 116.000000, 67.003891];
-  colourStroke = 0.000000;
-  gradient(colour1, colour2, colourStroke);
-}
+    // Align gradient layer to the expansion symbol
+    // =======================================================
+    var idslct = charIDToTypeID("slct");
+    var desc60 = new ActionDescriptor();
+    var idnull = charIDToTypeID("null");
+    var ref30 = new ActionReference();
+    var idLyr = charIDToTypeID("Lyr ");
+    ref30.putName(idLyr, "Expansion Symbol");
+    desc60.putReference(idnull, ref30);
+    var idMkVs = charIDToTypeID("MkVs");
+    desc60.putBoolean(idMkVs, false);
+    var idLyrI = charIDToTypeID("LyrI");
+    var list8 = new ActionList();
+    list8.putInteger(9851);
+    desc60.putList(idLyrI, list8);
+    executeAction(idslct, desc60, DialogModes.NO);
 
-function gradientMythic() {
-  colour1 = [245.000000, 149.000000, 29.003891];
-  colour2 = [191.996109, 55.003891, 38.000000];
-  colourStroke = 0.000000;
-  gradient(colour1, colour2, colourStroke);
-}
+    // =======================================================
+    var idsetd = charIDToTypeID("setd");
+    var desc62 = new ActionDescriptor();
+    var idnull = charIDToTypeID("null");
+    var ref31 = new ActionReference();
+    var idChnl = charIDToTypeID("Chnl");
+    var idfsel = charIDToTypeID("fsel");
+    ref31.putProperty(idChnl, idfsel);
+    desc62.putReference(idnull, ref31);
+    var idT = charIDToTypeID("T   ");
+    var ref32 = new ActionReference();
+    var idChnl = charIDToTypeID("Chnl");
+    var idChnl = charIDToTypeID("Chnl");
+    var idTrsp = charIDToTypeID("Trsp");
+    ref32.putEnumerated(idChnl, idChnl, idTrsp);
+    desc62.putReference(idT, ref32);
+    executeAction(idsetd, desc62, DialogModes.NO);
 
-function gradient(colour1, colour2, colourStroke) {
-  strokeWidth = 6.000000;
+    // =======================================================
+    var idslct = charIDToTypeID("slct");
+    var desc63 = new ActionDescriptor();
+    var idnull = charIDToTypeID("null");
+    var ref33 = new ActionReference();
+    var idLyr = charIDToTypeID("Lyr ");
+    ref33.putName(idLyr, rarity);
+    desc63.putReference(idnull, ref33);
+    var idMkVs = charIDToTypeID("MkVs");
+    desc63.putBoolean(idMkVs, false);
+    var idLyrI = charIDToTypeID("LyrI");
+    var list9 = new ActionList();
+    list9.putInteger(9865);
+    desc63.putList(idLyrI, list9);
+    executeAction(idslct, desc63, DialogModes.NO);
 
+    // =======================================================
+    var idslct = charIDToTypeID("slct");
+    var desc64 = new ActionDescriptor();
+    var idnull = charIDToTypeID("null");
+    var ref34 = new ActionReference();
+    var idmoveTool = stringIDToTypeID("moveTool");
+    ref34.putClass(idmoveTool);
+    desc64.putReference(idnull, ref34);
+    var iddontRecord = stringIDToTypeID("dontRecord");
+    desc64.putBoolean(iddontRecord, true);
+    var idforceNotify = stringIDToTypeID("forceNotify");
+    desc64.putBoolean(idforceNotify, true);
+    executeAction(idslct, desc64, DialogModes.NO);
+
+    // =======================================================
+    var idAlgn = charIDToTypeID("Algn");
+    var desc66 = new ActionDescriptor();
+    var idnull = charIDToTypeID("null");
+    var ref35 = new ActionReference();
+    var idLyr = charIDToTypeID("Lyr ");
+    var idOrdn = charIDToTypeID("Ordn");
+    var idTrgt = charIDToTypeID("Trgt");
+    ref35.putEnumerated(idLyr, idOrdn, idTrgt);
+    desc66.putReference(idnull, ref35);
+    var idUsng = charIDToTypeID("Usng");
+    var idADSt = charIDToTypeID("ADSt");
+    var idAdCV = charIDToTypeID("AdCV");
+    desc66.putEnumerated(idUsng, idADSt, idAdCV);
+    executeAction(idAlgn, desc66, DialogModes.NO);
+
+    // =======================================================
+    var idAlgn = charIDToTypeID("Algn");
+    var desc68 = new ActionDescriptor();
+    var idnull = charIDToTypeID("null");
+    var ref36 = new ActionReference();
+    var idLyr = charIDToTypeID("Lyr ");
+    var idOrdn = charIDToTypeID("Ordn");
+    var idTrgt = charIDToTypeID("Trgt");
+    ref36.putEnumerated(idLyr, idOrdn, idTrgt);
+    desc68.putReference(idnull, ref36);
+    var idUsng = charIDToTypeID("Usng");
+    var idADSt = charIDToTypeID("ADSt");
+    var idAdCH = charIDToTypeID("AdCH");
+    desc68.putEnumerated(idUsng, idADSt, idAdCH);
+    executeAction(idAlgn, desc68, DialogModes.NO);
+
+    // =======================================================
+    var idsetd = charIDToTypeID("setd");
+    var desc70 = new ActionDescriptor();
+    var idnull = charIDToTypeID("null");
+    var ref37 = new ActionReference();
+    var idChnl = charIDToTypeID("Chnl");
+    var idfsel = charIDToTypeID("fsel");
+    ref37.putProperty(idChnl, idfsel);
+    desc70.putReference(idnull, ref37);
+    var idT = charIDToTypeID("T   ");
+    var idOrdn = charIDToTypeID("Ordn");
+    var idNone = charIDToTypeID("None");
+    desc70.putEnumerated(idT, idOrdn, idNone);
+    executeAction(idsetd, desc70, DialogModes.NO);
+  } else {
+    // Common
+    strokeColour = 255.000000;
+  }
+
+  // Apply stroke
   // =======================================================
-  idsetd = charIDToTypeID("setd");
-  var desc1660 = new ActionDescriptor();
-  idnull = charIDToTypeID("null");
-  var ref751 = new ActionReference();
-  idClr = charIDToTypeID("Clr ");
-  idFrgC = charIDToTypeID("FrgC");
-  ref751.putProperty(idClr, idFrgC);
-  desc1660.putReference(idnull, ref751);
-  idT = charIDToTypeID("T   ");
-  var desc1661 = new ActionDescriptor();
-  idRd = charIDToTypeID("Rd  ");
-  desc1661.putDouble(idRd, colour1[0]);
-  idGrn = charIDToTypeID("Grn ");
-  desc1661.putDouble(idGrn, colour1[1]);
-  idBl = charIDToTypeID("Bl  ");
-  desc1661.putDouble(idBl, colour1[2]);
-  idRGBC = charIDToTypeID("RGBC");
-  desc1660.putObject(idT, idRGBC, desc1661);
-  executeAction(idsetd, desc1660, DialogModes.NO);
-
-  // =======================================================
-  idExch = charIDToTypeID("Exch");
-  var desc1662 = new ActionDescriptor();
-  idnull = charIDToTypeID("null");
-  var ref752 = new ActionReference();
-  idClr = charIDToTypeID("Clr ");
-  idClrs = charIDToTypeID("Clrs");
-  ref752.putProperty(idClr, idClrs);
-  desc1662.putReference(idnull, ref752);
-  executeAction(idExch, desc1662, DialogModes.NO);
-
-  // =======================================================
-  idsetd = charIDToTypeID("setd");
-  var desc1663 = new ActionDescriptor();
-  idnull = charIDToTypeID("null");
-  var ref753 = new ActionReference();
-  idClr = charIDToTypeID("Clr ");
-  idFrgC = charIDToTypeID("FrgC");
-  ref753.putProperty(idClr, idFrgC);
-  desc1663.putReference(idnull, ref753);
-  idT = charIDToTypeID("T   ");
-  var desc1664 = new ActionDescriptor();
-  idRd = charIDToTypeID("Rd  ");
-  desc1664.putDouble(idRd, colour2[0]);
-  idGrn = charIDToTypeID("Grn ");
-  desc1664.putDouble(idGrn, colour2[1]);
-  idBl = charIDToTypeID("Bl  ");
-  desc1664.putDouble(idBl, colour2[2]);
-  idRGBC = charIDToTypeID("RGBC");
-  desc1663.putObject(idT, idRGBC, desc1664);
-  executeAction(idsetd, desc1663, DialogModes.NO);
-
-  // =======================================================
-  idExch = charIDToTypeID("Exch");
-  var desc1665 = new ActionDescriptor();
-  idnull = charIDToTypeID("null");
-  var ref754 = new ActionReference();
-  idClr = charIDToTypeID("Clr ");
-  idClrs = charIDToTypeID("Clrs");
-  ref754.putProperty(idClr, idClrs);
-  desc1665.putReference(idnull, ref754);
-  executeAction(idExch, desc1665, DialogModes.NO);
-
-  // =======================================================
-  idslct = charIDToTypeID("slct");
-  var desc605 = new ActionDescriptor();
-  idnull = charIDToTypeID("null");
-  var ref146 = new ActionReference();
-  idLyr = charIDToTypeID("Lyr ");
-  ref146.putName(idLyr, "Text and Icons");
-  desc605.putReference(idnull, ref146);
-  idMkVs = charIDToTypeID("MkVs");
-  desc605.putBoolean(idMkVs, false);
-  executeAction(idslct, desc605, DialogModes.NO);
-
-  // =======================================================
-  idslct = charIDToTypeID("slct");
-  var desc606 = new ActionDescriptor();
-  idnull = charIDToTypeID("null");
-  var ref147 = new ActionReference();
-  idLyr = charIDToTypeID("Lyr ");
-  ref147.putName(idLyr, "Expansion Symbol");
-  desc606.putReference(idnull, ref147);
-  idMkVs = charIDToTypeID("MkVs");
-  desc606.putBoolean(idMkVs, false);
-  executeAction(idslct, desc606, DialogModes.NO);
-
-  // =======================================================
-  var idrasterizeLayer = stringIDToTypeID("rasterizeLayer");
-  var desc607 = new ActionDescriptor();
-  idnull = charIDToTypeID("null");
-  var ref148 = new ActionReference();
-  idLyr = charIDToTypeID("Lyr ");
-  idOrdn = charIDToTypeID("Ordn");
-  idTrgt = charIDToTypeID("Trgt");
-  ref148.putEnumerated(idLyr, idOrdn, idTrgt);
-  desc607.putReference(idnull, ref148);
-  var idWhat = charIDToTypeID("What");
-  var idrasterizeItem = stringIDToTypeID("rasterizeItem");
-  idType = charIDToTypeID("Type");
-  desc607.putEnumerated(idWhat, idrasterizeItem, idType);
-  executeAction(idrasterizeLayer, desc607, DialogModes.NO);
+  var idslct = charIDToTypeID("slct");
+  var desc60 = new ActionDescriptor();
+  var idnull = charIDToTypeID("null");
+  var ref30 = new ActionReference();
+  var idLyr = charIDToTypeID("Lyr ");
+  ref30.putName(idLyr, "Expansion Symbol");
+  desc60.putReference(idnull, ref30);
+  var idMkVs = charIDToTypeID("MkVs");
+  desc60.putBoolean(idMkVs, false);
+  var idLyrI = charIDToTypeID("LyrI");
+  var list8 = new ActionList();
+  list8.putInteger(9851);
+  desc60.putList(idLyrI, list8);
+  executeAction(idslct, desc60, DialogModes.NO);
 
   // =======================================================
   idsetd = charIDToTypeID("setd");
@@ -437,11 +446,11 @@ function gradient(colour1, colour2, colourStroke) {
   idClr = charIDToTypeID("Clr ");
   var desc611 = new ActionDescriptor();
   idRd = charIDToTypeID("Rd  ");
-  desc611.putDouble(idRd, colourStroke);
+  desc611.putDouble(idRd, strokeColour);
   idGrn = charIDToTypeID("Grn ");
-  desc611.putDouble(idGrn, colourStroke);
+  desc611.putDouble(idGrn, strokeColour);
   idBl = charIDToTypeID("Bl  ");
-  desc611.putDouble(idBl, colourStroke);
+  desc611.putDouble(idBl, strokeColour);
   idRGBC = charIDToTypeID("RGBC");
   desc610.putObject(idClr, idRGBC, desc611);
   idFrFX = charIDToTypeID("FrFX");
@@ -449,154 +458,6 @@ function gradient(colour1, colour2, colourStroke) {
   idLefx = charIDToTypeID("Lefx");
   desc608.putObject(idT, idLefx, desc609);
   executeAction(idsetd, desc608, DialogModes.NO);
-
-  // =======================================================
-  idsetd = charIDToTypeID("setd");
-  var desc612 = new ActionDescriptor();
-  idnull = charIDToTypeID("null");
-  var ref150 = new ActionReference();
-  idChnl = charIDToTypeID("Chnl");
-  var idfsel = charIDToTypeID("fsel");
-  ref150.putProperty(idChnl, idfsel);
-  desc612.putReference(idnull, ref150);
-  idT = charIDToTypeID("T   ");
-  var ref151 = new ActionReference();
-  idChnl = charIDToTypeID("Chnl");
-  idChnl = charIDToTypeID("Chnl");
-  idTrsp = charIDToTypeID("Trsp");
-  ref151.putEnumerated(idChnl, idChnl, idTrsp);
-  desc612.putReference(idT, ref151);
-  executeAction(idsetd, desc612, DialogModes.NO);
-
-  // will buy whoever figures out how to fix this a drink
-  var myLayer = app.activeDocument.activeLayer;
-  var leftPix = myLayer.bounds[0];
-  var topPix = myLayer.bounds[1];
-  var rightPix = myLayer.bounds[2];
-  var bottomPix = myLayer.bounds[3];
-
-  var centre_x = (leftPix + rightPix) / 4;
-  var centre_y = (topPix + bottomPix) / 4;
-
-  var idGrdn = charIDToTypeID("Grdn");
-  var desc613 = new ActionDescriptor();
-  var idFrom = charIDToTypeID("From");
-  var desc614 = new ActionDescriptor();
-  idHrzn = charIDToTypeID("Hrzn");
-  idRlt = charIDToTypeID("#Rlt");
-  desc614.putUnitDouble(idHrzn, idRlt, centre_x);
-  idVrtc = charIDToTypeID("Vrtc");
-  idRlt = charIDToTypeID("#Rlt");
-  desc614.putUnitDouble(idVrtc, idRlt, centre_y);
-  idPnt = charIDToTypeID("Pnt ");
-  desc613.putObject(idFrom, idPnt, desc614);
-  idT = charIDToTypeID("T   ");
-  var desc615 = new ActionDescriptor();
-  idHrzn = charIDToTypeID("Hrzn");
-  idRlt = charIDToTypeID("#Rlt");
-  desc615.putUnitDouble(idHrzn, idRlt, centre_x - 20);
-  idVrtc = charIDToTypeID("Vrtc");
-  idRlt = charIDToTypeID("#Rlt");
-  desc615.putUnitDouble(idVrtc, idRlt, centre_y + 20);
-
-  idPnt = charIDToTypeID("Pnt ");
-  desc613.putObject(idT, idPnt, desc615);
-  idType = charIDToTypeID("Type");
-  var idGrdT = charIDToTypeID("GrdT");
-  var idRflc = charIDToTypeID("Rflc");
-  desc613.putEnumerated(idType, idGrdT, idRflc);
-  var idDthr = charIDToTypeID("Dthr");
-  desc613.putBoolean(idDthr, true);
-  var idUsMs = charIDToTypeID("UsMs");
-  desc613.putBoolean(idUsMs, true);
-  var idGrad = charIDToTypeID("Grad");
-  var desc616 = new ActionDescriptor();
-  var idNm = charIDToTypeID("Nm  ");
-  desc616.putString(idNm, "$$$/DefaultGradient/ForegroundToBackground=Foreground to Background");
-  idGrdF = charIDToTypeID("GrdF");
-  idGrdF = charIDToTypeID("GrdF");
-  var idCstS = charIDToTypeID("CstS");
-  desc616.putEnumerated(idGrdF, idGrdF, idCstS);
-  var idIntr = charIDToTypeID("Intr");
-  desc616.putDouble(idIntr, 4096.000000);
-  idClrs = charIDToTypeID("Clrs");
-  var list86 = new ActionList();
-  var desc617 = new ActionDescriptor();
-  idType = charIDToTypeID("Type");
-  idClry = charIDToTypeID("Clry");
-  idFrgC = charIDToTypeID("FrgC");
-  desc617.putEnumerated(idType, idClry, idFrgC);
-  idLctn = charIDToTypeID("Lctn");
-  desc617.putInteger(idLctn, 0);
-  idMdpn = charIDToTypeID("Mdpn");
-  desc617.putInteger(idMdpn, 50);
-  idClrt = charIDToTypeID("Clrt");
-  list86.putObject(idClrt, desc617);
-  var desc618 = new ActionDescriptor();
-  idType = charIDToTypeID("Type");
-  idClry = charIDToTypeID("Clry");
-  var idBckC = charIDToTypeID("BckC");
-  desc618.putEnumerated(idType, idClry, idBckC);
-  idLctn = charIDToTypeID("Lctn");
-  desc618.putInteger(idLctn, 4096);
-  idMdpn = charIDToTypeID("Mdpn");
-  desc618.putInteger(idMdpn, 50);
-  idClrt = charIDToTypeID("Clrt");
-  list86.putObject(idClrt, desc618);
-  desc616.putList(idClrs, list86);
-  idTrns = charIDToTypeID("Trns");
-  var list87 = new ActionList();
-  var desc619 = new ActionDescriptor();
-  idOpct = charIDToTypeID("Opct");
-  idPrc = charIDToTypeID("#Prc");
-  desc619.putUnitDouble(idOpct, idPrc, 100.000000);
-  idLctn = charIDToTypeID("Lctn");
-  desc619.putInteger(idLctn, 0);
-  idMdpn = charIDToTypeID("Mdpn");
-  desc619.putInteger(idMdpn, 50);
-  idTrnS = charIDToTypeID("TrnS");
-  list87.putObject(idTrnS, desc619);
-  var desc620 = new ActionDescriptor();
-  idOpct = charIDToTypeID("Opct");
-  idPrc = charIDToTypeID("#Prc");
-  desc620.putUnitDouble(idOpct, idPrc, 100.000000);
-  idLctn = charIDToTypeID("Lctn");
-  desc620.putInteger(idLctn, 4096);
-  idMdpn = charIDToTypeID("Mdpn");
-  desc620.putInteger(idMdpn, 50);
-  idTrnS = charIDToTypeID("TrnS");
-  list87.putObject(idTrnS, desc620);
-  desc616.putList(idTrns, list87);
-  idGrdn = charIDToTypeID("Grdn");
-  desc613.putObject(idGrad, idGrdn, desc616);
-  executeAction(idGrdn, desc613, DialogModes.NO);
-
-  // =======================================================
-  idsetd = charIDToTypeID("setd");
-  var desc621 = new ActionDescriptor();
-  idnull = charIDToTypeID("null");
-  var ref152 = new ActionReference();
-  idChnl = charIDToTypeID("Chnl");
-  idfsel = charIDToTypeID("fsel");
-  ref152.putProperty(idChnl, idfsel);
-  desc621.putReference(idnull, ref152);
-  idT = charIDToTypeID("T   ");
-  idOrdn = charIDToTypeID("Ordn");
-  var idNone = charIDToTypeID("None");
-  desc621.putEnumerated(idT, idOrdn, idNone);
-  executeAction(idsetd, desc621, DialogModes.NO);
-
-  // =======================================================
-  idslct = charIDToTypeID("slct");
-  var desc622 = new ActionDescriptor();
-  idnull = charIDToTypeID("null");
-  var ref153 = new ActionReference();
-  idLyr = charIDToTypeID("Lyr ");
-  ref153.putName(idLyr, "Legal");
-  desc622.putReference(idnull, ref153);
-  idMkVs = charIDToTypeID("MkVs");
-  desc622.putBoolean(idMkVs, false);
-  executeAction(idslct, desc622, DialogModes.NO);
 }
 
 function frame(leftPix, topPix, rightPix, bottomPix) {

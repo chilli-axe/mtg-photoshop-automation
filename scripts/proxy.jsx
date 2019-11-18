@@ -167,10 +167,7 @@ function proxyPlaneswalker(jsonParsed, cardName, cardArtist, expansionSymbol, ye
   myLayer = docRef.layers.getByName("Text and Icons");
   mySubLayer = myLayer.layers.getByName("Expansion Symbol");
   mySubLayer.textItem.contents = expansionSymbol;
-  if (cardRarity == "mythic") gradientMythic();
-  else if (cardRarity == "rare") gradientRare();
-  else if (cardRarity == "uncommon") gradientUncommon();
-  else gradientCommon();
+  gradient(cardRarity);
 
   // Insert basic text fields
   replaceText("Artist", cardArtist);
@@ -429,10 +426,7 @@ function proxyNormal(jsonParsed, templateName, ye, cardName, cardArtist, expansi
   myLayer = docRef.layers.getByName("Text and Icons");
   mySubLayer = myLayer.layers.getByName("Expansion Symbol");
   mySubLayer.textItem.contents = expansionSymbol;
-  if (cardRarity == "mythic") gradientMythic();
-  else if (cardRarity == "rare") gradientRare();
-  else if (cardRarity == "uncommon") gradientUncommon();
-  else gradientCommon();
+  gradient(cardRarity);
 
   // Insert basic text fields
   replaceText("Artist", cardArtist);
@@ -601,7 +595,7 @@ function insertName(cardName) {
   mySubLayer = myLayer.layers.getByName("Card Name");
   var typelineRightBound = mySubLayer.bounds[2];
   var nameFontSize = mySubLayer.textItem.size;
-  while (typelineRightBound > symbolLeftBound - 16) { // minimum 16 px gap
+  while (typelineRightBound > symbolLeftBound - new UnitValue(16, "px")) { // minimum 16 px gap
     mySubLayer.textItem.size = new UnitValue(nameFontSize - 1, "px");
     nameFontSize = nameFontSize - 1;
     typelineRightBound = mySubLayer.bounds[2];
