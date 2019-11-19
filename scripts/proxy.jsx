@@ -136,7 +136,7 @@ function proxyPlaneswalker(jsonParsed, cardName, cardArtist, expansionSymbol, ye
   docRef = app.activeDocument;
 
   // Select the correct layers
-  selectedLayers = selectFrameLayers(typeLine, cardText, cardManaCost);
+  selectedLayers = selectFrameLayers(jsonParsed);
 
   // Move art into position
   var artLayerFrameName = "Planeswalker Art Frame";
@@ -327,7 +327,7 @@ function proxyNormal(jsonParsed, templateName, ye, cardName, cardArtist, expansi
   docRef = app.activeDocument;
 
   // Select the correct layers
-  selectedLayers = selectFrameLayers(typeLine, cardText, cardManaCost);
+  selectedLayers = selectFrameLayers(jsonParsed);
 
   if (templateName == "transform-back") {
     colourIndicator = String(jsonParsed.color_indicator)

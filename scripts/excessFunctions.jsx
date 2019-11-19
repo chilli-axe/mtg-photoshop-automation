@@ -29,9 +29,7 @@ function getRealTextLayerDimensions(textLayer) {
   var textLayerCopy = textLayer.duplicate(activeDocument, ElementPlacement.INSIDE);
   textLayerCopy.rasterize(RasterizeType.TEXTCONTENTS);
   var dimensions = getLayerDimensions(textLayerCopy);
-
   textLayerCopy.remove();
-
   return dimensions;
 }
 
@@ -41,9 +39,6 @@ function getLayerDimensions(layer) {
     height: layer.bounds[3] - layer.bounds[1]
   };
 }
-
-// In an effort to keep the source code readable, any functions derived
-// from photoshop's script listener have been included here
 
 // Replace text function from an adobe forum thread I lost the link to
 function replaceText(replaceThis, replaceWith) {
