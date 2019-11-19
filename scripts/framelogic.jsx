@@ -1,222 +1,257 @@
-function selectFrameLayers(typeLine, cardText, cardManaCost) {
-  // TODO: Rewrite this from the ground up because good lord it's awful 
+function fixColourPair(input) {
+  // Utility function to turn strings like "UW" into "WU" - it can be uncertain which
+  // way it's ordered
+  const colourPairs = ["WU", "UB", "BR", "RG", "GW", "WB", "BG", "GU", "UR", "RW"];
+  for (var colourPair in colourPairs) {
+    if (input.indexOf(colourPairs[colourPair].charAt(0)) >= 0
+     && input.indexOf(colourPairs[colourPair].charAt(1)) >= 0 ) {
+      return colourPairs[colourPair];
+    }
+  }
+}
 
-  // return in the format: [background, pinlines, twins, ptbox, nyx(bool)?]
+function selectFrameLayers(cardjson) {
+  // return [selectedBackground, selectedPinlines, selectedNamebox, isNyx, eldrazi];
+  var colourIdentityArray = cardjson.colourIdentity;
+  var typeline = cardjson.type;
+  var cardtext = cardjson.text;
+  var manacost = cardjson.manaCost;
 
-  // Build the colour identity
-  var colourIdentity = "";
+  const colours = ["W", "U", "B", "R", "G"];
+  const basicColours = {"Plains": "W", "Island": "U", "Swamp": "B", "Mountain": "R", "Forest": "G"};
+  const hybridSymbols = ["W/U", "U/B", "B/R", "R/G", "G/W", "W/B", "B/G", "G/U", "U/R", "R/W"];
 
-  if (typeLine.indexOf("Land") >= 0) {
-    var breaks = cardText.split('\n');
-    for (var i = 0; i < breaks.length; i++) {
-      if ((breaks[i].indexOf("add") >= 0 || breaks[i].indexOf("Add") >= 0) && breaks[i].indexOf(":") >= 0) {
-        if ((breaks[i].indexOf("{W") >= 0 || breaks[i].indexOf("W}") >= 0) && colourIdentity.indexOf("W") < 0) {
-          colourIdentity = colourIdentity + "W";
+  // Declare output variables
+  var selectedBackground; var selectedPinlines; var selectedNamebox;
+
+  if (typeline.indexOf("Land") >= 0) {
+    // Land card
+    selectedNamebox = "";
+
+    // Check if it has a basic land subtype
+    var basicIdentity = "";
+    for(var basic in basicColours) {
+      if (typeline.indexOf(basic) >= 0) {
+        // The land has this basic type on its typeline
+        basicIdentity = basicIdentity + basicColours[basic];
+      }
+    }
+
+    if (basicIdentity.length == 1) {
+      // The land has exactly one basic land type. We still need to get the pinlines from the total colours the card
+      // can add though (cornercase: Murmuring Bosk)
+      selectedNamebox = basicIdentity;
+    } else if (basicIdentity.length == 2) {
+      // The land has exactly two basic land types. Ensure they follow the correct naming convention, then
+      // return the corresponding frame elements
+      basicIdentity = fixColourPair(basicIdentity);
+      return ["Land", basicIdentity, "Land", false, false];
+    }
+
+    // Array of rules text lines in the card
+    var rulesLines = cardtext.split('\n');
+    var coloursTapped = "";
+
+    // Iterate over rules text lines
+    for (var i in rulesLines) {
+      var line = rulesLines[i];
+
+      // Identify if the card is a fetchland of some kind
+      if (line.toLowerCase().indexOf("search your library") >= 0
+       && line.toLowerCase().indexOf("cycling") < 0) {
+        // Card is a fetchland of some kind
+        // Find how many basic land types the ability mentions
+        basicIdentity = "";
+        for(var basic in basicColours) {
+          if (line.indexOf(basic) >= 0) {
+            // The land has this basic type in the line of rules text where it fetches
+            basicIdentity = basicIdentity + basicColours[basic];
+          }
         }
-        if ((breaks[i].indexOf("{U") >= 0 || breaks[i].indexOf("U}") >= 0) && colourIdentity.indexOf("U") < 0) {
-          colourIdentity = colourIdentity + "U";
+
+        // Set the name box & pinlines based on how many basics the ability mentions
+        if (basicIdentity.length == 1) {
+          // One basic mentioned - the land should just be this colour
+          return ["Land", basicIdentity, basicIdentity, false, false];
+        } else if (basicIdentity.length == 2) {
+          // Two basics mentioned - the land should use the land name box and those pinlines
+          basicIdentity = fixColourPair(basicIdentity);
+          return ["Land", basicIdentity, "Land", false, false];
+        } else if (basicIdentity.length == 3) {
+          // Three basic mentioned - panorama land
+          return ["Land", "Land", "Land", false, false];
+        } else if (line.indexOf("land") >= 0) {
+          // Assume we get here when the land fetches for any basic
+          if (line.indexOf("tapped") < 0 || line.indexOf("untap") >= 0) {
+            // Gold fetchland
+            return ["Land", "Gold", "Gold", false, false];
+          } else {
+            // Colourless fetchland
+            return ["Land", "Land", "Land", false, false];
+          }
         }
-        if ((breaks[i].indexOf("{B") >= 0 || breaks[i].indexOf("B}") >= 0) && colourIdentity.indexOf("B") < 0) {
-          colourIdentity = colourIdentity + "B";
-        }
-        if ((breaks[i].indexOf("{R") >= 0 || breaks[i].indexOf("R}") >= 0) && colourIdentity.indexOf("R") < 0) {
-          colourIdentity = colourIdentity + "R";
-        }
-        if ((breaks[i].indexOf("{G") >= 0 || breaks[i].indexOf("G}") >= 0) && colourIdentity.indexOf("G") < 0) {
-          colourIdentity = colourIdentity + "G";
-        }
-        if (breaks[i].indexOf("any") >= 0) {
-          colourIdentity = "WUBRG";
-          break;
-        }
-      } else {
-        var stringToSearch = breaks[i] + " " + typeLine;
-        if (stringToSearch.indexOf("Plains") >= 0) {
-          colourIdentity = colourIdentity + "W";
-        }
-        if (stringToSearch.indexOf("Island") >= 0) {
-          colourIdentity = colourIdentity + "U";
-        }
-        if (stringToSearch.indexOf("Swamp") >= 0) {
-          colourIdentity = colourIdentity + "B";
-        }
-        if (stringToSearch.indexOf("Mountain") >= 0) {
-          colourIdentity = colourIdentity + "R";
-        }
-        if (stringToSearch.indexOf("Forest") >= 0) {
-          colourIdentity = colourIdentity + "G";
+      }
+
+      // Check if the line adds one mana of any colour
+      if ((line.toLowerCase().indexOf("add") >= 0 && line.indexOf("mana") >= 0)
+       && (line.indexOf("color ") > 0 || line.indexOf("colors ") > 0
+        || line.indexOf("color.") > 0 || line.indexOf("colors.") > 0)) {
+        // Identified an ability of a potentially gold land
+        // If the ability doesn't include the phrases "enters the battlefield", "Remove a charge
+        // counter", and "luck counter", and doesn't include the word "Sacrifice", then it's
+        // considered a gold land
+        if (line.indexOf("enters the battlefield") < 0 && line.indexOf("Remove a charge counter") < 0
+         && line.indexOf("Sacrifice") < 0 && line.indexOf("luck counter") < 0) {
+            // This is a gold land - use gold twins and pinlines
+            return ["Land", "Gold", "Gold", false, false];
+          }
+      }
+
+      // Count how many colours of mana the card can explicitly tap to add
+      var tapIndex = line.indexOf("{T}");
+      var colonIndex = line.indexOf(":");
+      if (tapIndex < colonIndex && line.toLowerCase().indexOf("add") >= 0) {
+        // This line taps to add mana of some colour
+        // Count how many colours the line can tap for, and add them all to coloursTapped
+        for(var colour in colours) {
+          if (line.indexOf("{" + colours[colour] + "}") >= 0 && coloursTapped.indexOf(colours[colour]) < 0) {
+            // Add this colour to coloursTapped
+            coloursTapped = coloursTapped + colours[colour];
+          }
         }
       }
     }
 
-    if (colourIdentity.length <= 0 || colourIdentity.length == 2) {
-      selectedNamebox = "Land";
+    // Evaluate coloursTapped and make decisions from here
+    if (coloursTapped.length == 1) {
+      selectedPinlines = coloursTapped;
+      if (selectedNamebox == "") selectedNamebox = coloursTapped;
+    } else if (coloursTapped.length == 2) {
+      coloursTapped = fixColourPair(coloursTapped);
+      selectedPinlines = coloursTapped;
+      if (selectedNamebox == "") selectedNamebox = "Land";
+    } else if (coloursTapped.length > 2) {
+      selectedPinlines = "Gold";
+      if (selectedNamebox == "") selectedNamebox = "Gold";
+    } else {
+      selectedPinlines = "Land";
+      if (selectedNamebox == "") selectedNamebox = "Land";
+    }
+
+    // Final return statement
+    return ["Land", selectedPinlines, selectedNamebox, false, false];
+  }
+  else {
+    // Nonland card
+
+    // Decide on the colour identity of the card, as far as the frame is concerned
+    // e.g. Noble Hierarch's colour identity is [W, U, G], but the card is considered green, frame-wise
+    var colourIdentity = "";
+    if (manacost == "") {
+      // Card with no mana cost
+      // Assume that all nonland cards with no mana cost are mono-coloured
+      if (colourIdentityArray === undefined || colourIdentityArray.length == 0) colourIdentity = "";
+      // else colourIdentity = colourIdentityArray[0];
+      else {
+        colourIdentity = colourIdentityArray.join("");
+        if (colourIdentity.length == 2) colourIdentity = fixColourPair(colourIdentity);
+      }
+    } else {
+      // The card has a non-empty mana cost
+      // Loop over each colour of mana, and add it to the colour identity if it's in the mana cost
+      for (var colour in colours) {
+        if (manacost.indexOf("{" + colours[colour]) >= 0 || manacost.indexOf(colours[colour] + "}") >= 0) {
+          colourIdentity = colourIdentity + colours[colour];
+        }
+      }
+    }
+
+    // If the colour identity is exactly two colours, ensure it fits into the proper naming convention
+    // e.g. "WU" instead of "UW"
+    if (colourIdentity.length == 2) {
+      colourIdentity = fixColourPair(colourIdentity);
+    }
+
+    // Handle Transguild Courier case - cards that explicitly state that they're all colours
+    if (cardtext.indexOf(" is all colors.") > 0) colourIdentity = "WUBRG";
+
+    // Identify if the card is a full-art colourless card, e.g. Eldrazi
+    // Assume all non-land cards with the word "Devoid" in their rules text use the BFZ Eldrazi frame
+    var devoid = cardtext.indexOf("Devoid") >= 0 && colourIdentity.length > 0;
+    if ((colourIdentity.length <= 0 && typeline.indexOf("Artifact") < 0) || devoid) {
+      // Eldrazi-style card identified
+      selectedBackground = "Eldrazi";
+      selectedPinlines = "Eldrazi";
+      selectedNamebox = "Eldrazi";
+
+      // Handle devoid frame
+      if (devoid) {
+        // Select the name box and devoid-style background based on the colour identity
+        if (colourIdentity.length > 1) {
+          // Use gold namebox and devoid-style background
+          selectedNamebox = "Gold"; selectedBackground = "Gold";
+        } else {
+          // Use mono coloured namebox and devoid-style background
+          selectedNamebox = colourIdentity; selectedBackground = colourIdentity;
+        }
+      }
+
+      // Return the selected elements
+      return [selectedBackground, selectedPinlines, selectedNamebox, false, true];
+    }
+
+    // Identify if the card is a two-colour hybrid card
+    var hybrid = false;
+    if (colourIdentity.length == 2) {
+      for (hybridSymbol in hybridSymbols) {
+        if (manacost.indexOf(hybridSymbols[hybridSymbol]) >= 0) {
+          // The card is two colours and has a hybrid symbol in its mana cost
+          hybrid = true; break;
+        }
+      }
+    }
+
+    // Select background
+    if (typeline.indexOf("Artifact") >= 0) {
+      selectedBackground = "Artifact";
+    } else if (hybrid) {
+      selectedBackground = colourIdentity;
+    } else if (colourIdentity.length >= 2) {
+      selectedBackground = "Gold";
+    } else {
+      selectedBackground = colourIdentity;
+    }
+
+    // Identify if the card is a vehicle, and override the selected background if necessary
+    if (typeline.indexOf("Vehicle") >= 0) {
+      selectedBackground = "Vehicle";
+   }
+
+    // Select pinlines
+    if (colourIdentity.length <= 0) {
+      selectedPinlines = "Artifact";
+    } else if (colourIdentity.length <= 2) {
+      selectedPinlines = colourIdentity;
+    } else selectedPinlines = "Gold";
+
+    // Select name box
+    if (colourIdentity.length <= 0) {
+      selectedNamebox = "Artifact";
     } else if (colourIdentity.length == 1) {
       selectedNamebox = colourIdentity;
-    } else if (colourIdentity.length > 2) {
-      selectedNamebox = "Gold";
-    }
-
-  } else {
-    var stringToSearch = cardManaCost;
-
-    if (stringToSearch.indexOf("{W") >= 0 || stringToSearch.indexOf("W}") >= 0 || (stringToSearch.indexOf("Plains") >= 0 && typeLine.indexOf("Land") >= 0)) {
-      colourIdentity = colourIdentity + "W";
-    }
-    if (stringToSearch.indexOf("{U") >= 0 || stringToSearch.indexOf("U}") >= 0 || (stringToSearch.indexOf("Island") >= 0 && typeLine.indexOf("Land") >= 0)) {
-      colourIdentity = colourIdentity + "U";
-    }
-    if (stringToSearch.indexOf("{B") >= 0 || stringToSearch.indexOf("B}") >= 0 || (stringToSearch.indexOf("Swamp") >= 0 && typeLine.indexOf("Land") >= 0)) {
-      colourIdentity = colourIdentity + "B";
-    }
-    if (stringToSearch.indexOf("{R") >= 0 || stringToSearch.indexOf("R}") >= 0 || (stringToSearch.indexOf("Mountain") >= 0 && typeLine.indexOf("Land") >= 0)) {
-      colourIdentity = colourIdentity + "R";
-    }
-    if (stringToSearch.indexOf("{G") >= 0 || stringToSearch.indexOf("G}") >= 0 || (stringToSearch.indexOf("Forest") >= 0 && typeLine.indexOf("Land") >= 0)) {
-      colourIdentity = colourIdentity + "G";
-    }
-  }
-
-  // ---------- Card Frame ----------
-  // Determine if we have an eldrazi-style card here
-  var eldrazi = false;
-  if (colourIdentity.length <= 0 && typeLine.indexOf("Artifact") < 0 && typeLine.indexOf("Land") < 0) eldrazi = true;
-
-  // Determine if we have a creature or not.
-  var isCreature = false;
-  if (typeLine.indexOf("Creature") >= 0) {
-    isCreature = true;
-  }
-
-  // Nyx man
-  var isNyx = false;
-  if (typeLine.indexOf("Enchantment") >= 0 && (typeLine.indexOf("Creature") >= 0 || typeLine.indexOf("Artifact") >= 0)) {
-    // docRef.layers.getByName("Nyx").visible = true;
-    isNyx = true;
-  }
-
-  if (eldrazi) return ["Eldrazi", "Eldrazi", "Eldrazi", isNyx, eldrazi];
-
-  // Set the background.
-  var selectedBackground = "";
-
-  // Check what's on our typeline.
-  if (typeLine.indexOf("Artifact") >= 0) {
-    selectedBackground = "Artifact";
-  } else if (typeLine.indexOf("Land") >= 0) {
-    selectedBackground = "Land";
-    if (cardText.indexOf(" any ") >= 0) {
-      colourIdentity = "WUBRG";
-    }
-  } else if (colourIdentity.length >= 2) {
-    selectedBackground = "Gold";
-  } else {
-    selectedBackground = colourIdentity;
-  }
-  if (eldrazi) selectedBackground = "Art Border";
-
-  // Select the correct pinlines.
-  var selectedPinlines = "Gold";
-  if (colourIdentity.length == 1) {
-    selectedPinlines = colourIdentity;
-  } else if (colourIdentity.length <= 0) {
-    if (typeLine.indexOf("Land") >= 0) selectedPinlines = "Land";
-    else selectedPinlines = "Artifact";
-  } else if (colourIdentity.length == 2) {
-    if (colourIdentity == "WU" || colourIdentity == "UW") {
-      selectedPinlines = "WU";
-    } else if (colourIdentity == "UB" || colourIdentity == "BU") {
-      selectedPinlines = "UB";
-    } else if (colourIdentity == "BR" || colourIdentity == "RB") {
-      selectedPinlines = "BR";
-    } else if (colourIdentity == "RG" || colourIdentity == "GR") {
-      selectedPinlines = "RG";
-    } else if (colourIdentity == "GW" || colourIdentity == "WG") {
-      selectedPinlines = "GW";
-    } else if (colourIdentity == "WB" || colourIdentity == "BW") {
-      selectedPinlines = "WB";
-    } else if (colourIdentity == "BG" || colourIdentity == "GB") {
-      selectedPinlines = "BG";
-    } else if (colourIdentity == "GU" || colourIdentity == "UG") {
-      selectedPinlines = "GU";
-    } else if (colourIdentity == "UR" || colourIdentity == "RU") {
-      selectedPinlines = "UR";
-    } else if (colourIdentity == "RW" || colourIdentity == "WR") {
-      selectedPinlines = "RW";
-    }
-  } else if (colourIdentity.length > 2) {
-    selectedPinlines = "Gold";
-  }
-  if (eldrazi) selectedPinlines = "Artifact";
-
-  var pinlinesName = "Pinlines & Text Box";
-
-  // Select the correct name box and P/T box.
-  var selectedNamebox = "";
-
-  var manaAdded = "";
-  if (typeLine.indexOf("Land") >= 0) {
-    var breaks = cardText.split('\n');
-    for (var i = 0; i < breaks.length; i++) {
-      if ((breaks[i].indexOf("add") >= 0 || breaks[i].indexOf("Add") >= 0) && breaks[i].indexOf(":") >= 0) {
-        if ((breaks[i].indexOf("{W") >= 0 || breaks[i].indexOf("W}") >= 0) && manaAdded.indexOf("W") < 0) {
-          manaAdded = manaAdded + "W";
-        }
-        if ((breaks[i].indexOf("{U") >= 0 || breaks[i].indexOf("U}") >= 0) && manaAdded.indexOf("U") < 0) {
-          manaAdded = manaAdded + "U";
-        }
-        if ((breaks[i].indexOf("{B") >= 0 || breaks[i].indexOf("B}") >= 0) && manaAdded.indexOf("B") < 0) {
-          manaAdded = manaAdded + "B";
-        }
-        if ((breaks[i].indexOf("{R") >= 0 || breaks[i].indexOf("R}") >= 0) && manaAdded.indexOf("R") < 0) {
-          manaAdded = manaAdded + "R";
-        }
-        if ((breaks[i].indexOf("{G") >= 0 || breaks[i].indexOf("G}") >= 0) && manaAdded.indexOf("G") < 0) {
-          manaAdded = manaAdded + "G";
-        }
-        if (breaks[i].indexOf("any") >= 0) {
-          manaAdded = "WUBRG";
-          break;
-        }
-      }
-    }
-  }
-
-  if (typeLine.indexOf("Land") >= 0) {
-    // no colour case
-    if (manaAdded.length <= 0 || manaAdded.length == 2) {
+    } else if (hybrid) {
       selectedNamebox = "Land";
-    } else if (manaAdded.length == 1) {
-      selectedNamebox = manaAdded;
-    } else if (manaAdded.length == 5) {
+    } else if (colourIdentity.length >= 2) {
       selectedNamebox = "Gold";
     }
-  } else if (colourIdentity.length == 0) {
-    selectedNamebox = "Artifact";
-  } else if (colourIdentity.length == 1) {
-    selectedNamebox = colourIdentity;
-  } else if (colourIdentity.length >= 2) {
-    selectedNamebox = "Gold";
-  }
-  if (selectedNamebox == "") selectedNamebox = "Gold";
 
-  // Check for a hybrid frame
-  const splitSymbols = cardManaCost.split("}");
-  var colouredSymbols = 0;
-  var hybridSymbols = 0;
-  for (i = 0; i < splitSymbols.length; i++) {
-    if (splitSymbols[i].indexOf("W") > 0 || splitSymbols[i].indexOf("U") > 0 || splitSymbols[i].indexOf("B") > 0 || splitSymbols[i].indexOf("R") > 0 || splitSymbols[i].indexOf("G") > 0) {
-      colouredSymbols++;
-      if (splitSymbols[i].indexOf("/") > 0) {
-        hybridSymbols++;
-      }
+    // Identify if the card is nyx-touched
+    var isNyx = false;
+    if (typeline.indexOf("Enchantment") >= 0 && (typeline.indexOf("Creature") >= 0 || typeline.indexOf("Artifact") >= 0)) {
+      isNyx = true;
     }
-  }
-  if (hybridSymbols == colouredSymbols && hybridSymbols > 0 && cardManaCost.indexOf("/P}") < 0) {
-    // card is hybrid, adjust the output accordingly
-    selectedBackground = selectedPinlines;
-    selectedNamebox = "Land";
-  }
 
-  return [selectedBackground, selectedPinlines, selectedNamebox, isNyx, eldrazi];
+    // Finally, return the selected layers
+    return [selectedBackground, selectedPinlines, selectedNamebox, isNyx, false];
+  }
 }
