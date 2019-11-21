@@ -22,6 +22,13 @@ const testcases = {
   "Flame Javelin":               ["R", "R", "R", false, false],
   "Tower Above":                 ["G", "G", "G", false, false],
 
+  // Pacts
+  "Intervention Pact":           ["W", "W", "W", false, false],
+  "Pact of Negation":            ["U", "U", "U", false, false],
+  "Slaughter Pact":              ["B", "B", "B", false, false],
+  "Pact of the Titan":           ["R", "R", "R", false, false],
+  "Summoner's Pact":             ["G", "G", "G", false, false],
+
   // Enchantment creatures
   "Heliod, God of the Sun":      ["W", "W", "W", true ,false],
   "Thassa, God of the Sea":      ["U", "U", "U", true ,false],
@@ -84,6 +91,12 @@ const testcases = {
 
   // Colourless artifacts
   "Herald's Horn":               ["Artifact", "Artifact", "Artifact", false, false],
+  "Black Lotus":                 ["Artifact", "Artifact", "Artifact", false, false],
+  "Mox Pearl":                   ["Artifact", "Artifact", "Artifact", false, false],
+  "Mox Sapphire":                ["Artifact", "Artifact", "Artifact", false, false],
+  "Mox Jet":                     ["Artifact", "Artifact", "Artifact", false, false],
+  "Mox Ruby":                    ["Artifact", "Artifact", "Artifact", false, false],
+  "Mox Emerald":                 ["Artifact", "Artifact", "Artifact", false, false],
 
   // Mono coloured artifacts
   "The Circle of Loyalty":       ["Artifact", "W", "W", false, false],
@@ -202,6 +215,7 @@ const testcases = {
   // Other wildcards
   "Krosan Verge":                ["Land", "GW", "Land", false, false],
   "Murmuring Bosk":              ["Land", "Gold", "G", false, false],
+  "Dryad Arbor":                 ["Land", "G", "G", false, false],
 
   // Tri colour lands
   "Arcane Sanctum":              ["Land", "Gold", "Gold", false, false],

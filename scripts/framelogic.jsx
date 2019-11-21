@@ -147,7 +147,7 @@ function selectFrameLayers(cardjson) {
     // Decide on the colour identity of the card, as far as the frame is concerned
     // e.g. Noble Hierarch's colour identity is [W, U, G], but the card is considered green, frame-wise
     var colourIdentity = "";
-    if (manacost == "") {
+    if (manacost == "" || (manacost  == "{0}" && typeline.indexOf("Artifact") < 0)) {
       // Card with no mana cost
       // Assume that all nonland cards with no mana cost are mono-coloured
       if (colourIdentityArray === undefined || colourIdentityArray.length == 0) colourIdentity = "";
