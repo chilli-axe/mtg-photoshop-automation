@@ -1,20 +1,8 @@
 import time
-import os
 import sys
 import scrython
 import json
 import requests
-
-# print("Argument list: " + str(sys.argv))
-# print("Card name: " + " ".join(sys.argv[1:]) + ",")
-# print(sys.argv[1:])
-
-# cardname = " ".join(sys.argv[1:])
-
-# If the card is on Scryfall with that exact name:
-#print(card.name())
-#print(card.card_faces()[0]["name"])
-#print(card.scryfallJson)
 
 
 def get_dict(card):
@@ -22,14 +10,6 @@ def get_dict(card):
     time.sleep(0.01)
 
     print("Found information for: " + card.name())
-
-    # art_url = card.image_uris(image_type='art_crop')
-
-    # Define a json object to store the relevant information
-
-    # Did you know that scrython is dumb and will throw an exception
-    # at you if the card doesn't have a power/toughness or flavour text,
-    # instead of just having the field be empty?
     # Handle missing power/toughness
     try:
         power = card.power()
@@ -46,6 +26,7 @@ def get_dict(card):
 
     # Account for Scryfall sometimes not inserting a new line for flavour text that quotes someone
     flavourText = flavourText.replace("\" —", "\"\n—")
+    # TODO: Make this more robust. This still sometimes misses and hecks up the formatting on cards.
 
     card_json = {
         "name": card.name(),
@@ -57,9 +38,9 @@ def get_dict(card):
         "power": power,
         "toughness": toughness,
         "layout": card.layout(),
-        "colourIdentity": card.color_identity()
+        "colourIdentity": card.color_identity(),
+        "artist": card.artist()
     }
-    print(card_json)
     return card_json
 
 
@@ -68,14 +49,6 @@ def get_dict_tf(card, cardfull):
     time.sleep(0.01)
 
     print("Found information for: " + card["name"])
-
-    # art_url = card.image_uris(image_type='art_crop')
-
-    # Define a json object to store the relevant information
-
-    # Did you know that scrython is dumb and will throw an exception
-    # at you if the card doesn't have a power/toughness or flavour text,
-    # instead of just having the field be empty?
     # Handle missing power/toughness
     try:
         power = card["power"]
@@ -104,8 +77,8 @@ def get_dict_tf(card, cardfull):
         "toughness": toughness,
         "layout": "transform",
         "colourIdentity": card["colors"],
-        # "frame_effect": cardfull.frame_effect()
-        "frame_effect": cardfull.scryfallJson['frame_effects']
+        "frame_effect": cardfull.scryfallJson['frame_effects'],
+        "artist": cardfull.artist()
     }
     print(card_json)
     return card_json
@@ -117,13 +90,8 @@ def get_dict_pw(card):
 
     print("Found information for: " + card.name())
 
-    # art_url = card.image_uris(image_type='art_crop')
-
-    # Define a json object to store the relevant information
-
     # Split the card text into abilities
     abilities = card.oracle_text().splitlines()
-    print(abilities)
 
     card_json = {
         "name": card.name(),
@@ -133,21 +101,19 @@ def get_dict_pw(card):
         "text": card.oracle_text(),
         "loyalty": card.loyalty(),
         "layout": "planeswalker",
-        "colourIdentity": card.color_identity()
+        "colourIdentity": card.color_identity(),
+        "artist": card.artist()
     }
-
-    print(card.image_uris()['large'])
 
     img_data = requests.get(card.image_uris()['large']).content
     with open('card.jpg', 'wb') as handler:
         handler.write(img_data)
-
-    print(card_json)
     return card_json
 
 
 def save_json(card_json):
     json_dump = json.dumps(card_json)
+    print(card_json)
     with open(sys.path[0] + "/card.json", 'w') as f:
         json.dump(json_dump, f)
 
@@ -160,19 +126,9 @@ if __name__ == "__main__":
     time.sleep(0.05)
     card = scrython.cards.Named(fuzzy=cardname)
 
-
     if card.layout() == "transform":
-        # print(card.frame_effect())
-        print(card.card_faces()[1])
-        print("Double faced")
-        print(card.card_faces()[1]["name"] == cardname)
-
-
         if card.card_faces()[0]["name"] == cardname:
             # front face
-            # print("Printing frame effect")
-            # print(card.scryfallJson['frame_effects'])
-            print(card.card_faces()[0])
             card_json = get_dict_tf(card.card_faces()[0], card)
             try:
                 power = card.card_faces()[1]["power"]
@@ -180,13 +136,11 @@ if __name__ == "__main__":
                 card_json["back_power"] = power
                 card_json["back_toughness"] = toughness
             except KeyError:
-                print("Back is not a creature")
+                pass
             card_json["face"] = "front"
             save_json(card_json)
-            # if card.card_faces()[0]
         elif card.card_faces()[1]["name"] == cardname:
             # back face
-            print(card.card_faces()[1])
             card_json = get_dict_tf(card.card_faces()[1], card)
             card_json["face"] = "back"
             try:
@@ -195,15 +149,16 @@ if __name__ == "__main__":
                 card_json["color_indicator"] = None
 
             save_json(card_json)
-            # back face
-    elif "Planeswalker" in card.type_line():
-        print("Planeswalker")
 
+    elif "Planeswalker" in card.type_line():
+        # planeswalker
         save_json(get_dict_pw(card))
 
     elif card.layout() == "normal":
+        # normal card
         card_json = get_dict(card)
         save_json(card_json)
 
     else:
         print("Unsupported")
+    # TODO: Add more card types. Meld? Sagas? 
