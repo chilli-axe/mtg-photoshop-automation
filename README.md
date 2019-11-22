@@ -2,6 +2,10 @@
 Use Photoshop scripting to easily create custom high-quality Magic proxies for casual play.
 *NOTE*: If you downloaded the templates prior to the 9th of October 2019, you'll need to redownload them to use the latest version of this tool.
 
+If you found this tool and/or my renders useful, you could shout me a cup of coffee if you felt like it <3
+
+[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=7LJNRSLJYCZTJ&currency_code=AUD&source=url)
+
 [Google Drive full of MPC ready cards](https://drive.google.com/open?id=1CUaOPDZM84dk85Kvp6fGrqZVPDo4jQJo)
 
 # Examples
