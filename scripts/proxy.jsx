@@ -54,9 +54,9 @@ function proxy(file, ye) {
     if (cardArtist == "") cardArtist = jsonParsed.artist;
 
     if (jsonParsed.layout == "normal") {
-      proxyNormal(jsonParsed, ye, cardName, cardArtist, expansionSymbol, "normal")
+      proxyNormal(jsonParsed, ye, cardName, cardArtist, expansionSymbol, "normal");
     } else if (jsonParsed.layout == "planeswalker" || jsonParsed.type.indexOf("Planeswalker") > 0) {
-      proxyPlaneswalker(jsonParsed, cardName, cardArtist, expansionSymbol, ye);
+      proxyPlaneswalker(jsonParsed, ye, cardName, cardArtist, expansionSymbol);
     } else if (jsonParsed.layout == "transform") {
       if (jsonParsed.face == "front") {
         proxyNormal(jsonParsed, ye, cardName, cardArtist, expansionSymbol, "tf-front");
@@ -93,19 +93,16 @@ function proxyBasic(cardName, cardArtist, ye) {
   frame(artLayerFrame.bounds[0].as("px"),
     artLayerFrame.bounds[1].as("px"),
     artLayerFrame.bounds[2].as("px"),
-    artLayerFrame.bounds[3].as("px"))
+    artLayerFrame.bounds[3].as("px"));
 
-  var myLayer = docRef.layers.getByName(cardName);
-  myLayer.visible = true;
-
-  myLayer = docRef.layers.getByName("Legal");
-  var mySubLayer = myLayer.layers.getByName("Artist");
-  mySubLayer.textItem.contents = cardArtist;
+  docRef.layers.getByName(cardName).visible = true;
+  legalLayer = docRef.layers.getByName("Legal");
+  legalLayer.layers.getByName("Artist").textItem.contents = cardArtist;
 
   saveImage(cardName + " (" + cardArtist + ")");
 }
 
-function proxyPlaneswalker(jsonParsed, cardName, cardArtist, expansionSymbol, ye) {
+function proxyPlaneswalker(jsonParsed, ye, cardName, cardArtist, expansionSymbol) {
   // Load in json2.js and some function files
   $.evalFile(filePath + "/scripts/json2.js");
   $.evalFile(filePath + "/scripts/formatText.jsx");
@@ -120,11 +117,6 @@ function proxyPlaneswalker(jsonParsed, cardName, cardArtist, expansionSymbol, ye
   var fileRef = new File(filePath + "/templates/" + templateName + ".psd");
   app.open(fileRef);
 
-  // Create a reference to the active document for convenience
-  var docRef = app.activeDocument;
-  var myLayer;
-  var mySubLayer;
-
   // Place it in the template
   if (ye == 1) app.load(file);
   else app.load(file[0]);
@@ -133,7 +125,6 @@ function proxyPlaneswalker(jsonParsed, cardName, cardArtist, expansionSymbol, ye
   backFile.selection.selectAll();
   backFile.selection.copy();
   backFile.close(SaveOptions.DONOTSAVECHANGES);
-  docRef.paste();
 
   // Retrieve some more info about the card.
   var typeLine = jsonParsed.type;
@@ -143,58 +134,53 @@ function proxyPlaneswalker(jsonParsed, cardName, cardArtist, expansionSymbol, ye
   var cardManaCost = jsonParsed.manaCost;
 
   // Create a reference to the active document for convenience
-  docRef = app.activeDocument;
+  var docRef = app.activeDocument;
+  var textAndIcons = docRef.layers.getByName("Text and Icons");
 
   // Select the correct layers
   selectedLayers = selectFrameLayers(jsonParsed);
 
   // Move art into position
+  docRef.paste();
   var artLayerFrameName = "Planeswalker Art Frame";
   if (selectedLayers[4]) artLayerFrameName = "Full Art Frame";
   var artLayerFrame = docRef.layers.getByName(artLayerFrameName);
   frame(artLayerFrame.bounds[0].as("px"),
     artLayerFrame.bounds[1].as("px"),
     artLayerFrame.bounds[2].as("px"),
-    artLayerFrame.bounds[3].as("px"))
+    artLayerFrame.bounds[3].as("px"));
 
   // Background
-  myLayer = docRef.layers.getByName("Background");
-  mySubLayer = myLayer.layers.getByName(selectedLayers[0]);
-  mySubLayer.visible = true;
+  backgroundLayer = docRef.layers.getByName("Background");
+  backgroundLayer.layers.getByName(selectedLayers[0]).visible = true;
 
   // Pinlines
-  pinlinesGroup = "Pinlines";
-  myLayer = docRef.layers.getByName(pinlinesGroup);
-  mySubLayer = myLayer.layers.getByName(selectedLayers[1]);
-  mySubLayer.visible = true;
+  pinlinesLayer = docRef.layers.getByName("Pinlines");
+  pinlinesLayer.layers.getByName(selectedLayers[1]).visible = true;
 
   // Twins
-  myLayer = docRef.layers.getByName("Name & Title Boxes");
-  mySubLayer = myLayer.layers.getByName(selectedLayers[2]);
-  mySubLayer.visible = true;
+  nameboxLayer = docRef.layers.getByName("Name & Title Boxes");
+  nameboxLayer.layers.getByName(selectedLayers[2]).visible = true;
 
   // Rarity gradient
-  myLayer = docRef.layers.getByName("Text and Icons");
-  mySubLayer = myLayer.layers.getByName("Expansion Symbol");
-  mySubLayer.textItem.contents = expansionSymbol;
+  textAndIcons.layers.getByName("Expansion Symbol").textItem.contents = expansionSymbol;
   gradient(cardRarity);
 
   // Insert basic text fields
   replaceText("Artist", cardArtist);
   insertManaCost(cardManaCost);
-  insertName(cardName);
-  insertTypeline(typeLine);
+  insertName(cardName, "Card Name", false);
+  insertTypeline(typeLine, "Typeline", false);
 
   // Insert loyalty stuff
   var loyaltyGroup = docRef.layers.getByName("Loyalty Graphics");
-  myLayer = loyaltyGroup.layers.getByName("Starting Loyalty");
-  mySubLayer = myLayer.layers.getByName("Text");
-  mySubLayer.textItem.contents = cardLoyalty;
+  startingLoyalty = loyaltyGroup.layers.getByName("Starting Loyalty");
+  startingLoyalty.layers.getByName("Text").textItem.contents = cardLoyalty;
 
   groupNames = ["First Ability", "Second Ability", "Third Ability", "Fourth Ability"];
   for (var i = 0; i < abilities.length; i++) {
     // Select the appropriate ability group
-    myLayer = loyaltyGroup.layers.getByName(groupNames[i]);
+    abilityGroup = loyaltyGroup.layers.getByName(groupNames[i]);
     var colonIndex = abilities[i].indexOf(": ");
     if (colonIndex > 0 && colonIndex < 5) {
       // Loyalty ability, not a static ability
@@ -216,32 +202,29 @@ function proxyPlaneswalker(jsonParsed, cardName, cardArtist, expansionSymbol, ye
       var abilityText = abilities[i].slice(colonIndex + 2, abilities[i].length);
 
       // Select the correct layer, paste in the ability
-      var abilityTextLayer = myLayer.layers.getByName("Ability Text");
+      var abilityTextLayer = abilityGroup.layers.getByName("Ability Text");
       // abilityTextLayer.textItem.contents = abilityText;
       docRef.activeLayer = abilityTextLayer;
       formatText(abilityText, [], -1, false);
 
       var loyaltyNumberGroup;
-      if (loyaltyType == "") loyaltyNumberGroup = myLayer.layers.getByName("0");
-      else loyaltyNumberGroup = myLayer.layers.getByName(loyaltyType);
+      if (loyaltyType == "") loyaltyNumberGroup = abilityGroup.layers.getByName("0");
+      else loyaltyNumberGroup = abilityGroup.layers.getByName(loyaltyType);
 
       loyaltyNumberGroup.visible = true;
       var loyaltyText = loyaltyNumberGroup.layers.getByName("Cost");
       loyaltyText.textItem.contents = loyaltyType + loyaltyNumber;
     } else {
       // Static ability
-      var staticTextLayer = myLayer.layers.getByName("Static Text");
+      var staticTextLayer = abilityGroup.layers.getByName("Static Text");
       staticTextLayer.visible = true;
       staticTextLayer.textItem.contents = abilities[i];
 
       docRef.activeLayer = staticTextLayer;
       formatText(abilities[i], [], -1, false);
 
-      var abilityTextLayer = myLayer.layers.getByName("Ability Text");
-      abilityTextLayer.visible = false;
-
-      var colonTextLayer = myLayer.layers.getByName("Colon");
-      colonTextLayer.visible = false;
+      abilityGroup.layers.getByName("Ability Text").visible = false;
+      abilityGroup.layers.getByName("Colon").visible = false;
     }
   }
 
@@ -265,7 +248,7 @@ function proxyPlaneswalker(jsonParsed, cardName, cardArtist, expansionSymbol, ye
   var desc300 = new ActionDescriptor();
   var idIdnt = charIDToTypeID("Idnt");
   desc300.putInteger(idIdnt, 8219);
-  var idnull = charIDToTypeID("null");
+  idnull = charIDToTypeID("null");
   desc300.putPath(idnull, new File(filePath + "/scripts/card.jpg"));
   var idLnkd = charIDToTypeID("Lnkd");
   desc300.putBoolean(idLnkd, true);
@@ -279,20 +262,22 @@ function proxyPlaneswalker(jsonParsed, cardName, cardArtist, expansionSymbol, ye
   var idPxl = charIDToTypeID("#Pxl");
   desc301.putUnitDouble(idHrzn, idPxl, 0.000000);
   var idVrtc = charIDToTypeID("Vrtc");
-  var idPxl = charIDToTypeID("#Pxl");
+  idPxl = charIDToTypeID("#Pxl");
   desc301.putUnitDouble(idVrtc, idPxl, 0.000000);
-  var idOfst = charIDToTypeID("Ofst");
+  idOfst = charIDToTypeID("Ofst");
   desc300.putObject(idOfst, idOfst, desc301);
   var idWdth = charIDToTypeID("Wdth");
   var idPrc = charIDToTypeID("#Prc");
   desc300.putUnitDouble(idWdth, idPrc, 100.000000);
   var idHght = charIDToTypeID("Hght");
-  var idPrc = charIDToTypeID("#Prc");
+  idPrc = charIDToTypeID("#Prc");
   desc300.putUnitDouble(idHght, idPrc, 100.000000);
   executeAction(idPlc, desc300, DialogModes.NO);
 
   var scanLayer = docRef.layers.getByName("card");
-  scanLayer.resize(50 * app.activeDocument.width / scanLayer.bounds[0], 50 * app.activeDocument.height / scanLayer.bounds[1], AnchorPosition.MIDDLECENTER);
+  scanLayer.resize(50 * app.activeDocument.width / scanLayer.bounds[0],
+                   50 * app.activeDocument.height / scanLayer.bounds[1],
+                   AnchorPosition.MIDDLECENTER);
 
   // Make the script error so we can finish it off by hand
   exit();
@@ -306,8 +291,12 @@ function proxyNormal(jsonParsed, ye, cardName, cardArtist, expansionSymbol, layo
   $.evalFile(filePath + "/scripts/excessFunctions.jsx");
   $.evalFile(filePath + "/scripts/framelogic.jsx");
 
-  if (layout == "normal") var fileRef = new File(filePath + "/templates/" + layout + boxtopper + ".psd");
-  else var fileRef = new File(filePath + "/templates/" + layout + ".psd");
+  var isIxalan = jsonParsed.type.indexOf("Land") >= 0 && layout == "tf-back";
+  if (isIxalan) layout = "ixalan";
+
+  var fileRef;
+  if (layout == "normal") fileRef = new File(filePath + "/templates/" + layout + boxtopper + ".psd");
+  else fileRef = new File(filePath + "/templates/" + layout + ".psd");
   app.open(fileRef);
 
   // Place it in the template
@@ -322,8 +311,6 @@ function proxyNormal(jsonParsed, ye, cardName, cardArtist, expansionSymbol, layo
   // Create a reference to the active document for convenience
   var docRef = app.activeDocument;
   var textAndIcons = docRef.layers.getByName("Text and Icons");
-  var myLayer;
-  var mySubLayer;
 
   // Retrieve some more info about the card.
   var typeLine = jsonParsed.type;
@@ -405,64 +392,70 @@ function proxyNormal(jsonParsed, ye, cardName, cardArtist, expansionSymbol, layo
     // Switch on the transform icon in the top left
     textAndIcons.layers.getByName("Transform Backing").visible = true;
     var transformGroup = textAndIcons.layers.getByName(layout);
-    transformGroup.layers.getByName(String(jsonParsed.frame_effect[0])).visible = true;
+    transformGroup.layers.getByName(String(jsonParsed.frame_effect)).visible = true;
   }
 
-  // Nyx layer
-  if (selectedLayers[3]) {
-    var nyxLayer = docRef.layers.getByName("Nyx");
-    nyxLayer.layers.getByName(selectedLayers[0]).visible = true;
-  }
-
-  // Background
   var backgroundLayer = docRef.layers.getByName("Background");
-  backgroundLayer.layers.getByName(selectedLayers[0]).visible = true;;
+  if (isIxalan) {
+    // Switch on the correct background for ixalan style lands
+    backgroundLayer.layers.getByName(selectedLayers[1]).visible = true;
 
-  // Pinlines
-  if (typeLine.indexOf("Land") >= 0 && jsonParsed.layout == "normal") pinlinesName = "Land " + pinlinesName;
-  var pinlinesLayer = docRef.layers.getByName(pinlinesName);
-  pinlinesLayer.layers.getByName(selectedLayers[1]).visible = true;
+  } else {
+    // Nyx layer
+    if (selectedLayers[3]) {
+      var nyxLayer = docRef.layers.getByName("Nyx");
+      nyxLayer.layers.getByName(selectedLayers[0]).visible = true;
+    }
 
-  // Twins
-  var nameboxLayer = docRef.layers.getByName(nameboxName);
-  nameboxLayer.layers.getByName(selectedLayers[2]).visible = true;
+    // Background
+    backgroundLayer.layers.getByName(selectedLayers[0]).visible = true;
 
-  // Legendary crown
-  if (typeLine.indexOf("Legendary") >= 0) {
-    var legendaryLayer = docRef.layers.getByName("Legendary Crown (Credit to barbecue)");
-    legendaryLayer.layers.getByName(selectedLayers[1]).visible = true;
-    legendaryLayer.layers.getByName("Effects").visible = true;
-  }
+    // Pinlines
+    if (typeLine.indexOf("Land") >= 0 && jsonParsed.layout == "normal") pinlinesName = "Land " + pinlinesName;
+    var pinlinesLayer = docRef.layers.getByName(pinlinesName);
+    pinlinesLayer.layers.getByName(selectedLayers[1]).visible = true;
 
-  // PT box
-  if (isCreature) {
-    var ptBoxLayer = docRef.layers.getByName(ptBoxGroup);
-    if (selectedLayers[0] == "Vehicle") {
-      ptBoxLayer.layers.getByName("Vehicle").visible = true;
-      // Set PT text to white
-      textAndIcons.layers.getByName("Power / Toughness").textItem.color = textColour;
-    } else {
-      ptBoxLayer.layers.getByName(selectedLayers[2]).visible = true;
+    // Twins
+    var nameboxLayer = docRef.layers.getByName(nameboxName);
+    nameboxLayer.layers.getByName(selectedLayers[2]).visible = true;
+
+    // Legendary crown
+    if (typeLine.indexOf("Legendary") >= 0) {
+      var legendaryLayer = docRef.layers.getByName("Legendary Crown (Credit to barbecue)");
+      legendaryLayer.layers.getByName(selectedLayers[1]).visible = true;
+      legendaryLayer.layers.getByName("Effects").visible = true;
+    }
+
+    // PT box
+    if (isCreature) {
+      var ptBoxLayer = docRef.layers.getByName(ptBoxGroup);
+      if (selectedLayers[0] == "Vehicle") {
+        ptBoxLayer.layers.getByName("Vehicle").visible = true;
+        // Set PT text to white
+        textAndIcons.layers.getByName("Power / Toughness").textItem.color = textColour;
+      } else {
+        ptBoxLayer.layers.getByName(selectedLayers[2]).visible = true;
+      }
     }
   }
 
   // Rarity gradient
-  myLayer = docRef.layers.getByName("Text and Icons");
-  mySubLayer = myLayer.layers.getByName("Expansion Symbol");
-  mySubLayer.textItem.contents = expansionSymbol;
+  textAndIcons.layers.getByName("Expansion Symbol").textItem.contents = expansionSymbol;
   gradient(cardRarity);
 
   // Insert basic text fields
   replaceText("Artist", cardArtist);
-  insertManaCost(cardManaCost);
-  insertName(cardName, cardnameLayerName);
-  insertTypeline(typeLine, typelineLayerName);
+  if (!isIxalan) insertManaCost(cardManaCost);
+  insertName(cardName, cardnameLayerName, isIxalan);
+  insertTypeline(typeLine, typelineLayerName, isIxalan);
 
   // P/T Text
-  var ptLayer = textAndIcons.layers.getByName("Power / Toughness");
-  if (isCreature) {
-    ptLayer.textItem.contents = cardPower + "/" + cardTough;
-  } else ptLayer.visible = false;
+  if (!isIxalan) {
+    var ptLayer = textAndIcons.layers.getByName("Power / Toughness");
+    if (isCreature) {
+      ptLayer.textItem.contents = cardPower + "/" + cardTough;
+    } else ptLayer.visible = false;
+  }
 
   // ---------- Rules Text ----------
   var rulesTextLayer = textAndIcons.layers.getByName(textLayerName);
@@ -551,8 +544,7 @@ function proxyNormal(jsonParsed, ye, cardName, cardArtist, expansionSymbol, layo
   }
 
   // Maybe centre justify the text box
-  var centredText = false;
-  if (flavourText.length <= 1 && cardText.length <= 70 && cardText.indexOf("\r") < 0) centredText = true;
+  var centredText = flavourText.length <= 1 && cardText.length <= 70 && cardText.indexOf("\r") < 0;
 
   // Insert those mana symbols and italic text
   docRef.activeLayer = rulesTextLayer;
@@ -560,71 +552,68 @@ function proxyNormal(jsonParsed, ye, cardName, cardArtist, expansionSymbol, layo
   if (centredText) rulesTextLayer.textItem.justification = Justification.CENTER;
 
   // Scale the text to fit in the text box
-  var myRefLayer = textAndIcons.layers.getByName("Textbox Reference");
+  var textboxRef = textAndIcons.layers.getByName("Textbox Reference");
   var tolerance = new UnitValue(10, "px"); // 10 px tolerance from textbox reference
-  var layerHeight = myRefLayer.bounds[3] - myRefLayer.bounds[1] - tolerance.as("cm");
+  var layerHeight = textboxRef.bounds[3] - textboxRef.bounds[1] - tolerance.as("cm");
   var scaled = scaleTextToFitBox(rulesTextLayer, layerHeight);
 
   // Align card text in text box
   verticallyAlignText(textLayerName);
-  // TODO: Fix this causing errors for other people
-  if (isCreature) verticallyFixText(textLayerName);
+  if (isCreature) verticallyFixText(rulesTextLayer);
 
   // Write image to file and close document
   saveImage(cardName);
 }
 
 function insertManaCost(cardManaCost) {
-  $.evalFile(filePath + "/scripts/formatText.jsx");
   var docRef = app.activeDocument;
-  myManaLayer = docRef.layers.getByName("Text and Icons");
-  manaCostLayer = myManaLayer.layers.getByName("Mana Cost");
+  textAndIcons = docRef.layers.getByName("Text and Icons");
+  manaCostLayer = textAndIcons.layers.getByName("Mana Cost");
   if (cardManaCost != "") {
+    $.evalFile(filePath + "/scripts/formatText.jsx");
     docRef.activeLayer = manaCostLayer;
     formatText(cardManaCost, [], -1, false);
     docRef.activeLayer.name = "Mana Cost";
-  } else manaCostLayer.visible = false;
-}
-
-function insertName(cardName, cardnameLayerName) {
-  var docRef = app.activeDocument;
-  var myLayer = docRef.layers.getByName("Text and Icons");
-  var mySubLayer = myLayer.layers.getByName(cardnameLayerName);
-  docRef.activeLayer = mySubLayer;
-  docRef.activeLayer.textItem.contents = cardName;
-
-  // Scale down the name to fit in case it's too long
-  mySubLayer = myLayer.layers.getByName("Mana Cost");
-  var symbolLeftBound = mySubLayer.bounds[0];
-
-  mySubLayer = myLayer.layers.getByName(cardnameLayerName);
-  var typelineRightBound = mySubLayer.bounds[2];
-  var nameFontSize = mySubLayer.textItem.size;
-  while (typelineRightBound > symbolLeftBound - new UnitValue(16, "px")) { // minimum 16 px gap
-    mySubLayer.textItem.size = new UnitValue(nameFontSize - 1, "px");
-    nameFontSize = nameFontSize - 1;
-    typelineRightBound = mySubLayer.bounds[2];
+  } else {
+    manaCostLayer.visible = false;
   }
 }
 
-function insertTypeline(typeLine, typelineLayerName) {
+function insertName(cardName, cardnameLayerName, isIxalan) {
   var docRef = app.activeDocument;
-  myLayer = docRef.layers.getByName("Text and Icons");
-  mySubLayer = myLayer.layers.getByName(typelineLayerName);
-  docRef.activeLayer = mySubLayer;
-  docRef.activeLayer.textItem.contents = typeLine;
+  var textAndIcons = docRef.layers.getByName("Text and Icons");
+  var cardnameLayer = textAndIcons.layers.getByName(cardnameLayerName);
+  cardnameLayer.textItem.contents = cardName;
 
-  // Scale down the typeline to fit in case it's too long
-  mySubLayer = myLayer.layers.getByName("Expansion Symbol");
-  var symbolLeftBound = mySubLayer.bounds[0];
+  if (!isIxalan && textAndIcons.layers.getByName("Mana Cost").visible) {
+    // Scale down the name to fit in case it's too long
+    var symbolLeftBound = textAndIcons.layers.getByName("Mana Cost").bounds[0];
+    var typelineRightBound = cardnameLayer.bounds[2];
+    var nameFontSize = cardnameLayer.textItem.size;
+    while (typelineRightBound > symbolLeftBound - new UnitValue(16, "px")) { // minimum 16 px gap
+      cardnameLayer.textItem.size = new UnitValue(nameFontSize - 1, "px");
+      nameFontSize = nameFontSize - 1;
+      typelineRightBound = cardnameLayer.bounds[2];
+    }
+  }
+}
 
-  mySubLayer = myLayer.layers.getByName(typelineLayerName);
-  var typelineRightBound = mySubLayer.bounds[2];
-  var typelineFontSize = mySubLayer.textItem.size;
-  while (typelineRightBound > symbolLeftBound) {
-    mySubLayer.textItem.size = new UnitValue(typelineFontSize - 1, "px");
-    typelineFontSize = typelineFontSize - 1;
-    typelineRightBound = mySubLayer.bounds[2];
+function insertTypeline(typeLine, typelineLayerName, isIxalan) {
+  var docRef = app.activeDocument;
+  textAndIcons = docRef.layers.getByName("Text and Icons");
+  var typelineLayer = textAndIcons.layers.getByName(typelineLayerName);
+  typelineLayer.textItem.contents = typeLine;
+
+  if (!isIxalan) {
+    // Scale down the typeline to fit in case it's too long
+    var symbolLeftBound = textAndIcons.layers.getByName("Expansion Symbol").bounds[0];
+    var typelineRightBound = typelineLayer.bounds[2];
+    var typelineFontSize = typelineLayer.textItem.size;
+    while (typelineRightBound > symbolLeftBound) {
+      typelineLayer.textItem.size = new UnitValue(typelineFontSize - 1, "px");
+      typelineFontSize = typelineFontSize - 1;
+      typelineRightBound = typelineLayer.bounds[2];
+    }
   }
 }
 
