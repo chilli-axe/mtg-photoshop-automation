@@ -26,6 +26,7 @@ def get_dict(card):
 
     # Account for Scryfall sometimes not inserting a new line for flavour text that quotes someone
     flavourText = flavourText.replace("\" —", "\"\n—")
+    flavourText = flavourText.replace("\"—", "\"\n—")
     # TODO: Make this more robust. This still sometimes misses and hecks up the formatting on cards.
 
     card_json = {
@@ -77,7 +78,7 @@ def get_dict_tf(card, cardfull):
         "toughness": toughness,
         "layout": "transform",
         "colourIdentity": card["colors"],
-        "frame_effect": cardfull.scryfallJson['frame_effects'],
+        "frame_effect": cardfull.scryfallJson['frame_effects'][0],
         "artist": cardfull.artist()
     }
     print(card_json)
@@ -159,6 +160,27 @@ if __name__ == "__main__":
         card_json = get_dict(card)
         save_json(card_json)
 
+    elif card.layout() == "meld":
+        card_json = get_dict(card)
+        card_json["frame_effect"] = "mooneldrazidfc"
+        card_json["layout"] = "transform"
+        if "meld them" in card_json["text"] or "Melds with" in card_json["text"]:
+            card_json["face"] = "front"
+            # get the power and toughness of the backside
+            meldbackidx = [card.all_parts()[x]["component"] for x in range(0, len(card.all_parts()))].index("meld_result")
+            meldbackname = card.all_parts()[meldbackidx]["name"]
+            meldback = scrython.cards.Named(fuzzy=meldbackname)
+
+            # assume meld cards flip into creatures
+            power = meldback.power()
+            toughness = meldback.toughness()
+            card_json["back_power"] = power
+            card_json["back_toughness"] = toughness
+        else:
+            card_json["face"] = "back"
+        card_json["colourIdentity"] = card.colors()
+        save_json(card_json)
+
     else:
         print("Unsupported")
-    # TODO: Add more card types. Meld? Sagas? 
+    # TODO: Add more card types. Meld? Sagas?

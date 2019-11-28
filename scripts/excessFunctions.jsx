@@ -207,6 +207,8 @@ function verticallyFixText(textLayer) {
   // Make a selection of the text layer that's above the P/T box, then ctrl-j
   // the selection from the card text layer
 
+
+
   // Make selection from the reference layer
   var textAndIcons = app.activeDocument.layers.getByName("Text and Icons");
   var ptAdjustmentReference = textAndIcons.layers.getByName("PT Adjustment Reference");
@@ -221,6 +223,10 @@ function verticallyFixText(textLayer) {
     [right, bottom],
     [left, bottom]
   ]);
+
+  // Only proceed here if the text layer potentially needs to be shifted up
+  // (If the text isn't long enough, the code will error when attempting to ctrl J)
+  if (getRealTextLayerDimensions(textLayer).width + textLayer.bounds[0] < left) return;
 
   // get PT Top Reference layer
   var ptTopReference = textAndIcons.layers.getByName("PT Top Reference");
@@ -253,8 +259,7 @@ function verticallyFixText(textLayer) {
   extraBit.visible = false;
 
   // Shift the rules text up by the appropriate amount so there's no overlap
-  var rulesText = textAndIcons.layers.getByName("Rules Text - Creature");
-  if (pixelOverlap > 0) rulesText.applyOffset(0, pixelOverlapUnit, OffsetUndefinedAreas.SETTOBACKGROUND);
+  if (pixelOverlap > 0) textLayer.applyOffset(0, pixelOverlapUnit, OffsetUndefinedAreas.SETTOBACKGROUND);
 }
 
 function gradient(rarity) {
