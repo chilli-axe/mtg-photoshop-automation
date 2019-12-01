@@ -51,7 +51,7 @@ Photoshop scripting works within an outdated version of JavaScript and has more 
 
 # Limitations
 As of this release, the script can't handle:
-* Full automation of non-standard card layouts, such as planeswalkers, transforming cards, and Kamigawa flip cards. The script is now capable of proxying planeswalkers, but requires the user to manually position the text as a final step. My typical workflow for planeswalkers is to run the script up until it errors, then position the inserted Scryfall scan to fill the canvas. From here, I resize the text layers until they line up with the real card, then reposition the art if necessary. *Save As* and saving as a PNG with the default settings is fine. Transform cards are mostly finished, but still a work in progress - transforming planeswalkers and Ixalan lands.
-* Devoid-style frames - this is in the pipeline.
+* Automation of cards that aren't one of the following: cards with the normal frame, transform cards (fronts and backs, including Ixalan transform lands), meld cards, planeswalker cards, or basic lands. Included in the Templates drive, however, I have templates for the following which you can use manually: Sagas, level-up cards, adventure cards, full-art promos (e.g. Lightning Bolt, Path to Exile), and Kaladesh Invention masterpieces.
+* Full automation of planeswalkers. The script does most of the heavy lifting, requires the user to manually position the text as a final step. My typical workflow for planeswalkers is to run the script up until it errors, then position the inserted Scryfall scan to fill the canvas. From here, I resize the text layers until they line up with the real card, then reposition the art if necessary. *Save As* and saving as a PNG with the default settings is fine. 
+* Devoid-style frames, miracle-style frames, and draft-matters frames - these will be added eventually but they're not a high priority.
 * Quoting something in a card's flavour text without italics. See: Yarok the Desecrated, Phyrexian Altar.
-* Snow mana symbols and the untap symbol - I haven't gotten around to adding these to the font yet.
