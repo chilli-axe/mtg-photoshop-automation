@@ -79,7 +79,9 @@ function formatText(inputString, italicStrings, flavourIndex, centredText) {
     "{2/U}": "QqWS",
     "{2/B}": "QqWT",
     "{2/R}": "QqWU",
-    "{2/G}": "QqWV"
+    "{2/G}": "QqWV",
+    "{S}": "omn",
+    "{Q}": "ol"
   };
 
   if (flavourIndex > 0) {
@@ -315,6 +317,11 @@ function formatText(inputString, italicStrings, flavourIndex, centredText) {
         idSz = charIDToTypeID("Sz  ");
         idPnt = charIDToTypeID("#Pnt");
         desc130.putUnitDouble(idSz, idPnt, myFontSize);
+        idautoLeading = stringIDToTypeID("autoLeading");
+        desc130.putBoolean(idautoLeading, false);
+        idLdng = charIDToTypeID("Ldng");
+        idPnt = charIDToTypeID("#Pnt");
+        desc130.putUnitDouble(idLdng, idPnt, myFontSize);
         idTxtS = charIDToTypeID("TxtS");
         desc129.putObject(idTxtS, idTxtS, desc130);
         currentLayerReference = desc129;
@@ -368,6 +375,9 @@ function formatText(inputString, italicStrings, flavourIndex, centredText) {
         desc713.putUnitDouble(idSz, idPnt, myFontSize);
         idautoLeading = stringIDToTypeID("autoLeading");
         desc713.putBoolean(idautoLeading, false);
+        idLdng = charIDToTypeID("Ldng");
+        idPnt = charIDToTypeID("#Pnt");
+        desc713.putUnitDouble(idLdng, idPnt, myFontSize);
         idClr = charIDToTypeID("Clr ");
         var desc714 = new ActionDescriptor();
         idRd = charIDToTypeID("Rd  ");
@@ -400,6 +410,9 @@ function formatText(inputString, italicStrings, flavourIndex, centredText) {
         desc717.putUnitDouble(idSz, idPnt, myFontSize);
         idautoLeading = stringIDToTypeID("autoLeading");
         desc717.putBoolean(idautoLeading, false);
+        idLdng = charIDToTypeID("Ldng");
+        idPnt = charIDToTypeID("#Pnt");
+        desc717.putUnitDouble(idLdng, idPnt, myFontSize);
         idClr = charIDToTypeID("Clr ");
         var desc718 = new ActionDescriptor();
         idRd = charIDToTypeID("Rd  ");
@@ -432,6 +445,9 @@ function formatText(inputString, italicStrings, flavourIndex, centredText) {
         desc721.putUnitDouble(idSz, idPnt, myFontSize);
         idautoLeading = stringIDToTypeID("autoLeading");
         desc721.putBoolean(idautoLeading, false);
+        idLdng = charIDToTypeID("Ldng");
+        idPnt = charIDToTypeID("#Pnt");
+        desc721.putUnitDouble(idLdng, idPnt, myFontSize);
         idClr = charIDToTypeID("Clr ");
         var desc722 = new ActionDescriptor();
         idRd = charIDToTypeID("Rd  ");
@@ -440,6 +456,8 @@ function formatText(inputString, italicStrings, flavourIndex, centredText) {
         desc722.putDouble(idGrn, 0.000000);
         idBl = charIDToTypeID("Bl  ");
         desc722.putDouble(idBl, 0.000000);
+        idRGBC = charIDToTypeID("RGBC");
+        desc721.putObject(idClr, idRGBC, desc722);
         idTxtS = charIDToTypeID("TxtS");
         desc720.putObject(idTxtS, idTxtS, desc721);
 
@@ -462,6 +480,9 @@ function formatText(inputString, italicStrings, flavourIndex, centredText) {
         desc725.putUnitDouble(idSz, idPnt, myFontSize);
         idautoLeading = stringIDToTypeID("autoLeading");
         desc725.putBoolean(idautoLeading, false);
+        idLdng = charIDToTypeID("Ldng");
+        idPnt = charIDToTypeID("#Pnt");
+        desc725.putUnitDouble(idLdng, idPnt, myFontSize);
         idClr = charIDToTypeID("Clr ");
         var desc726 = new ActionDescriptor();
         idRd = charIDToTypeID("Rd  ");
@@ -470,6 +491,8 @@ function formatText(inputString, italicStrings, flavourIndex, centredText) {
         desc726.putDouble(idGrn, 0.000000);
         idBl = charIDToTypeID("Bl  ");
         desc726.putDouble(idBl, 0.000000);
+        idRGBC = charIDToTypeID("RGBC");
+        desc725.putObject(idClr, idRGBC, desc726);
         idTxtS = charIDToTypeID("TxtS");
         desc724.putObject(idTxtS, idTxtS, desc725);
         idTxtt = charIDToTypeID("Txtt");
@@ -477,6 +500,118 @@ function formatText(inputString, italicStrings, flavourIndex, centredText) {
         desc724.putList(idTxtt, list12);
         currentLayerReference = desc724;
 
+      } else if (inputString.slice(symbolIndices[i], symbolIndices[i] + 3) == "omn") {
+        // Snow mana symbol
+
+        // Character 1
+        idTxtt = charIDToTypeID("Txtt");
+        list12.putObject(idTxtt, currentLayerReference);
+        var desc712 = new ActionDescriptor();
+        idFrom = charIDToTypeID("From");
+        desc712.putInteger(idFrom, symbolIndices[i]);
+        idT = charIDToTypeID("T   ");
+        desc712.putInteger(idT, symbolIndices[i] + 1);
+        idTxtS = charIDToTypeID("TxtS");
+        var desc713 = new ActionDescriptor();
+        idfontPostScriptName = stringIDToTypeID("fontPostScriptName");
+        desc713.putString(idfontPostScriptName, selectedFont);
+        idFntN = charIDToTypeID("FntN");
+        desc713.putString(idFntN, selectedFont);
+        idSz = charIDToTypeID("Sz  ");
+        idPnt = charIDToTypeID("#Pnt");
+        desc713.putUnitDouble(idSz, idPnt, myFontSize);
+        idautoLeading = stringIDToTypeID("autoLeading");
+        desc713.putBoolean(idautoLeading, false);
+        idLdng = charIDToTypeID("Ldng");
+        idPnt = charIDToTypeID("#Pnt");
+        desc713.putUnitDouble(idLdng, idPnt, myFontSize);
+        idClr = charIDToTypeID("Clr ");
+        var desc714 = new ActionDescriptor();
+        idRd = charIDToTypeID("Rd  ");
+        desc714.putDouble(idRd, rgbC[0]);
+        idGrn = charIDToTypeID("Grn ");
+        desc714.putDouble(idGrn, rgbC[1]);
+        idBl = charIDToTypeID("Bl  ");
+        desc714.putDouble(idBl, rgbC[2]);
+        idRGBC = charIDToTypeID("RGBC");
+        desc713.putObject(idClr, idRGBC, desc714);
+        idTxtS = charIDToTypeID("TxtS");
+        desc712.putObject(idTxtS, idTxtS, desc713);
+
+        // Character 2
+        idTxtt = charIDToTypeID("Txtt");
+        list12.putObject(idTxtt, desc712);
+        var desc716 = new ActionDescriptor();
+        idFrom = charIDToTypeID("From");
+        desc716.putInteger(idFrom, symbolIndices[i] + 1);
+        idT = charIDToTypeID("T   ");
+        desc716.putInteger(idT, symbolIndices[i] + 2);
+        idTxtS = charIDToTypeID("TxtS");
+        var desc717 = new ActionDescriptor();
+        idfontPostScriptName = stringIDToTypeID("fontPostScriptName");
+        desc717.putString(idfontPostScriptName, selectedFont);
+        idFntN = charIDToTypeID("FntN");
+        desc717.putString(idFntN, selectedFont);
+        idSz = charIDToTypeID("Sz  ");
+        idPnt = charIDToTypeID("#Pnt");
+        desc717.putUnitDouble(idSz, idPnt, myFontSize);
+        idautoLeading = stringIDToTypeID("autoLeading");
+        desc717.putBoolean(idautoLeading, false);
+        idLdng = charIDToTypeID("Ldng");
+        idPnt = charIDToTypeID("#Pnt");
+        desc717.putUnitDouble(idLdng, idPnt, myFontSize);
+        idClr = charIDToTypeID("Clr ");
+        var desc718 = new ActionDescriptor();
+        idRd = charIDToTypeID("Rd  ");
+        desc718.putDouble(idRd, 0.000000);
+        idGrn = charIDToTypeID("Grn ");
+        desc718.putDouble(idGrn, 0.000000);
+        idBl = charIDToTypeID("Bl  ");
+        desc718.putDouble(idBl, 0.000000);
+        idRGBC = charIDToTypeID("RGBC");
+        desc717.putObject(idClr, idRGBC, desc718);
+        idTxtS = charIDToTypeID("TxtS");
+        desc716.putObject(idTxtS, idTxtS, desc717);
+
+        // Character 3
+        idTxtt = charIDToTypeID("Txtt");
+        list12.putObject(idTxtt, desc716);
+        var desc720 = new ActionDescriptor();
+        idFrom = charIDToTypeID("From");
+        desc720.putInteger(idFrom, symbolIndices[i] + 2);
+        idT = charIDToTypeID("T   ");
+        desc720.putInteger(idT, symbolIndices[i] + 3);
+        idTxtS = charIDToTypeID("TxtS");
+        var desc721 = new ActionDescriptor();
+        idfontPostScriptName = stringIDToTypeID("fontPostScriptName");
+        desc721.putString(idfontPostScriptName, selectedFont);
+        idFntN = charIDToTypeID("FntN");
+        desc721.putString(idFntN, selectedFont);
+        idSz = charIDToTypeID("Sz  ");
+        idPnt = charIDToTypeID("#Pnt");
+        desc721.putUnitDouble(idSz, idPnt, myFontSize);
+        idautoLeading = stringIDToTypeID("autoLeading");
+        desc721.putBoolean(idautoLeading, false);
+        idLdng = charIDToTypeID("Ldng");
+        idPnt = charIDToTypeID("#Pnt");
+        desc721.putUnitDouble(idLdng, idPnt, myFontSize);
+        idClr = charIDToTypeID("Clr ");
+        var desc722 = new ActionDescriptor();
+        idRd = charIDToTypeID("Rd  ");
+        desc722.putDouble(idRd, 255.000000);
+        idGrn = charIDToTypeID("Grn ");
+        desc722.putDouble(idGrn, 255.000000);
+        idBl = charIDToTypeID("Bl  ");
+        desc722.putDouble(idBl, 255.000000);
+        idRGBC = charIDToTypeID("RGBC");
+        desc721.putObject(idClr, idRGBC, desc722);
+        idTxtS = charIDToTypeID("TxtS");
+        desc720.putObject(idTxtS, idTxtS, desc721);
+
+        idTxtt = charIDToTypeID("Txtt");
+        list12.putObject(idTxtt, desc720);
+        desc720.putList(idTxtt, list12);
+        currentLayerReference = desc720;
       } else {
         // Handle normal symbols, composed of two characters
         // Backing circle of the specified colour, followed by a black char
@@ -497,7 +632,16 @@ function formatText(inputString, italicStrings, flavourIndex, centredText) {
 
         // If the text contains a Phyrexian mana symbol, change the colour of
         // this symbol to the previously noted Phyrexian colour
-        if (inputString.slice(symbolIndices[i], symbolIndices[i] + 2) == "Qp" && phyrexianCard) rgbValue = phyrexianColour;
+        if (inputString.slice(symbolIndices[i], symbolIndices[i] + 2) == "Qp" && phyrexianCard) {
+          rgbValue = phyrexianColour;
+        }
+
+        // Untap symbols have black backing circles and white untap symbols
+        var rgbBlack = 0.000000;
+        if (inputString.slice(symbolIndices[i], symbolIndices[i] + 2) == "ol") {
+          rgbValue = [rgbBlack, rgbBlack, rgbBlack];
+          rgbBlack = 255.000000;
+        }
 
         // Character 1
         idTxtt = charIDToTypeID("Txtt");
@@ -518,6 +662,9 @@ function formatText(inputString, italicStrings, flavourIndex, centredText) {
         desc130.putUnitDouble(idSz, idPnt, myFontSize);
         idautoLeading = stringIDToTypeID("autoLeading");
         desc130.putBoolean(idautoLeading, false);
+        idLdng = charIDToTypeID("Ldng");
+        idPnt = charIDToTypeID("#Pnt");
+        desc130.putUnitDouble(idLdng, idPnt, myFontSize);
         idClr = charIDToTypeID("Clr ");
         desc131 = new ActionDescriptor();
         idRd = charIDToTypeID("Rd  ");
@@ -550,14 +697,19 @@ function formatText(inputString, italicStrings, flavourIndex, centredText) {
         desc134.putUnitDouble(idSz, idPnt, myFontSize);
         idautoLeading = stringIDToTypeID("autoLeading");
         desc134.putBoolean(idautoLeading, false);
+        idLdng = charIDToTypeID("Ldng");
+        idPnt = charIDToTypeID("#Pnt");
+        desc134.putUnitDouble(idLdng, idPnt, myFontSize);
         idClr = charIDToTypeID("Clr ");
         var desc135 = new ActionDescriptor();
         idRd = charIDToTypeID("Rd  ");
-        desc135.putDouble(idRd, 0.000000);
+        desc135.putDouble(idRd, rgbBlack);
         idGrn = charIDToTypeID("Grn ");
-        desc135.putDouble(idGrn, 0.000000);
+        desc135.putDouble(idGrn, rgbBlack);
         idBl = charIDToTypeID("Bl  ");
-        desc135.putDouble(idBl, 0.000000);
+        desc135.putDouble(idBl, rgbBlack);
+        idRGBC = charIDToTypeID("RGBC");
+        desc134.putObject(idClr, idRGBC, desc135);
         idTxtS = charIDToTypeID("TxtS");
         desc133.putObject(idTxtS, idTxtS, desc134);
         currentLayerReference = desc133;
@@ -660,118 +812,6 @@ function formatText(inputString, italicStrings, flavourIndex, centredText) {
   desc120.putList(idkerningRange, list14);
 
   list13 = new ActionList();
-  if (flavourIndex > 0) {
-    // Set the formatting for flavour text - larger gap between rules text
-    // & flavour text than between rules text lines
-    idparagraphStyleRange = stringIDToTypeID("paragraphStyleRange");
-    desc141 = new ActionDescriptor();
-    idFrom = charIDToTypeID("From");
-    desc141.putInteger(idFrom, flavourIndex + 3);
-    idT = charIDToTypeID("T   ");
-    desc141.putInteger(idT, flavourIndex + 4);
-    idPnt = charIDToTypeID("#Pnt");
-    desc142.putUnitDouble(idspaceBefore, idPnt, 34);
-    idspaceAfter = stringIDToTypeID("spaceAfter");
-    idPnt = charIDToTypeID("#Pnt");
-    desc142.putUnitDouble(idspaceAfter, idPnt, 0.000000);
-    iddropCapMultiplier = stringIDToTypeID("dropCapMultiplier");
-    desc142.putInteger(iddropCapMultiplier, 1);
-    idautoLeadingPercentage = stringIDToTypeID("autoLeadingPercentage");
-    desc142.putDouble(idautoLeadingPercentage, 1.200000);
-    idleadingType = stringIDToTypeID("leadingType");
-    idleadingType = stringIDToTypeID("leadingType");
-    idleadingBelow = stringIDToTypeID("leadingBelow");
-    desc142.putEnumerated(idleadingType, idleadingType, idleadingBelow);
-    var idhyphenate = stringIDToTypeID("hyphenate");
-    desc142.putBoolean(idhyphenate, false);
-    var idhyphenateWordSize = stringIDToTypeID("hyphenateWordSize");
-    desc142.putInteger(idhyphenateWordSize, 6);
-    var idhyphenatePreLength = stringIDToTypeID("hyphenatePreLength");
-    desc142.putInteger(idhyphenatePreLength, 2);
-    var idhyphenatePostLength = stringIDToTypeID("hyphenatePostLength");
-    desc142.putInteger(idhyphenatePostLength, 2);
-    var idhyphenateLimit = stringIDToTypeID("hyphenateLimit");
-    desc142.putInteger(idhyphenateLimit, 0);
-    var idhyphenationZone = stringIDToTypeID("hyphenationZone");
-    desc142.putDouble(idhyphenationZone, 36.000000);
-    var idhyphenateCapitalized = stringIDToTypeID("hyphenateCapitalized");
-    desc142.putBoolean(idhyphenateCapitalized, true);
-    var idhyphenationPreference = stringIDToTypeID("hyphenationPreference");
-    desc142.putDouble(idhyphenationPreference, 0.500000);
-    var idjustificationWordMinimum = stringIDToTypeID("justificationWordMinimum");
-    desc142.putDouble(idjustificationWordMinimum, 0.800000);
-    var idjustificationWordDesired = stringIDToTypeID("justificationWordDesired");
-    desc142.putDouble(idjustificationWordDesired, 1.000000);
-    var idjustificationWordMaximum = stringIDToTypeID("justificationWordMaximum");
-    desc142.putDouble(idjustificationWordMaximum, 1.330000);
-    var idjustificationLetterMinimum = stringIDToTypeID("justificationLetterMinimum");
-    desc142.putDouble(idjustificationLetterMinimum, 0.000000);
-    var idjustificationLetterDesired = stringIDToTypeID("justificationLetterDesired");
-    desc142.putDouble(idjustificationLetterDesired, 0.000000);
-    var idjustificationLetterMaximum = stringIDToTypeID("justificationLetterMaximum");
-    desc142.putDouble(idjustificationLetterMaximum, 0.000000);
-    var idjustificationGlyphMinimum = stringIDToTypeID("justificationGlyphMinimum");
-    desc142.putDouble(idjustificationGlyphMinimum, 1.000000);
-    var idjustificationGlyphDesired = stringIDToTypeID("justificationGlyphDesired");
-    desc142.putDouble(idjustificationGlyphDesired, 1.000000);
-    var idjustificationGlyphMaximum = stringIDToTypeID("justificationGlyphMaximum");
-    desc142.putDouble(idjustificationGlyphMaximum, 1.000000);
-    var idsingleWordJustification = stringIDToTypeID("singleWordJustification");
-    idAlg = charIDToTypeID("Alg ");
-    var idJstA = charIDToTypeID("JstA");
-    desc142.putEnumerated(idsingleWordJustification, idAlg, idJstA);
-    var idhangingRoman = stringIDToTypeID("hangingRoman");
-    desc142.putBoolean(idhangingRoman, false);
-    var idautoTCY = stringIDToTypeID("autoTCY");
-    desc142.putInteger(idautoTCY, 1);
-    var idkeepTogether = stringIDToTypeID("keepTogether");
-    desc142.putBoolean(idkeepTogether, false);
-    var idburasagari = stringIDToTypeID("burasagari");
-    idburasagari = stringIDToTypeID("burasagari");
-    var idburasagariNone = stringIDToTypeID("burasagariNone");
-    desc142.putEnumerated(idburasagari, idburasagari, idburasagariNone);
-    var idpreferredKinsokuOrder = stringIDToTypeID("preferredKinsokuOrder");
-    idpreferredKinsokuOrder = stringIDToTypeID("preferredKinsokuOrder");
-    var idpushIn = stringIDToTypeID("pushIn");
-    desc142.putEnumerated(idpreferredKinsokuOrder, idpreferredKinsokuOrder, idpushIn);
-    var idkurikaeshiMojiShori = stringIDToTypeID("kurikaeshiMojiShori");
-    desc142.putBoolean(idkurikaeshiMojiShori, false);
-    var idtextEveryLineComposer = stringIDToTypeID("textEveryLineComposer");
-    desc142.putBoolean(idtextEveryLineComposer, false);
-    var iddefaultTabWidth = stringIDToTypeID("defaultTabWidth");
-    desc142.putDouble(iddefaultTabWidth, 36.000000);
-    var iddefaultStyle = stringIDToTypeID("defaultStyle");
-    desc143 = new ActionDescriptor();
-    idfontPostScriptName = stringIDToTypeID("fontPostScriptName");
-    desc143.putString(idfontPostScriptName, selectedFont);
-    idFntN = charIDToTypeID("FntN");
-    desc143.putString(idFntN, primaryFont);
-    idSz = charIDToTypeID("Sz  ");
-    idPnt = charIDToTypeID("#Pnt");
-    desc143.putUnitDouble(idSz, idPnt, 11.998500);
-    idautoLeading = stringIDToTypeID("autoLeading");
-    desc143.putBoolean(idautoLeading, false);
-    idClr = charIDToTypeID("Clr ");
-    desc144 = new ActionDescriptor();
-    idRd = charIDToTypeID("Rd  ");
-    desc144.putDouble(idRd, textColour[0]);
-    idGrn = charIDToTypeID("Grn ");
-    desc144.putDouble(idGrn, textColour[1]);
-    idBl = charIDToTypeID("Bl  ");
-    desc144.putDouble(idBl, textColour[2]);
-    idRGBC = charIDToTypeID("RGBC");
-    desc143.putObject(idClr, idRGBC, desc144);
-    idTxtS = charIDToTypeID("TxtS");
-    desc142.putObject(iddefaultStyle, idTxtS, desc143);
-    idparagraphStyle = stringIDToTypeID("paragraphStyle");
-    desc141.putObject(idparagraphStyle, idparagraphStyle, desc142);
-    idparagraphStyleRange = stringIDToTypeID("paragraphStyleRange");
-    list13.putObject(idparagraphStyleRange, desc141);
-    desc120.putList(idparagraphStyleRange, list13);
-    idkerningRange = stringIDToTypeID("kerningRange");
-    list14 = new ActionList();
-    desc120.putList(idkerningRange, list14);
-  }
 
   if (inputString.indexOf("\u2022") >= 0) {
     // Modal card with bullet points - adjust the formatting slightly
@@ -896,6 +936,27 @@ function formatText(inputString, italicStrings, flavourIndex, centredText) {
     desc120.putList(idkerningRange, list14);
   }
 
+  if (flavourIndex > 0) {
+    // Adjust line break spacing if there's a line break in the flavour text
+    idparagraphStyleRange = stringIDToTypeID("paragraphStyleRange");
+    desc141 = new ActionDescriptor();
+    idFrom = charIDToTypeID("From");
+    desc141.putInteger(idFrom, flavourIndex + 3);
+    idT = charIDToTypeID("T   ");
+    desc141.putInteger(idT, flavourIndex + 4);
+    idspaceBefore = stringIDToTypeID("spaceBefore");
+    idPnt = charIDToTypeID("#Pnt");
+    desc142.putUnitDouble(idspaceBefore, idPnt, 34);
+    idparagraphStyle = stringIDToTypeID("paragraphStyle");
+    desc141.putObject(idparagraphStyle, idparagraphStyle, desc142);
+    idparagraphStyleRange = stringIDToTypeID("paragraphStyleRange");
+    list13.putObject(idparagraphStyleRange, desc141);
+    desc120.putList(idparagraphStyleRange, list13);
+    idkerningRange = stringIDToTypeID("kerningRange");
+    list14 = new ActionList();
+    desc120.putList(idkerningRange, list14);
+  }
+
   if (quoteIndex > 0) {
     // Adjust line break spacing if there's a line break in the flavour text
     idparagraphStyleRange = stringIDToTypeID("paragraphStyleRange");
@@ -904,110 +965,9 @@ function formatText(inputString, italicStrings, flavourIndex, centredText) {
     desc141.putInteger(idFrom, quoteIndex + 3);
     idT = charIDToTypeID("T   ");
     desc141.putInteger(idT, inputString.length);
-    idparagraphStyle = stringIDToTypeID("paragraphStyle");
-    desc142 = new ActionDescriptor();
-    idfirstLineIndent = stringIDToTypeID("firstLineIndent");
-    idPnt = charIDToTypeID("#Pnt");
-    desc142.putUnitDouble(idfirstLineIndent, idPnt, 0.000000);
-    idstartIndent = stringIDToTypeID("startIndent");
-    idPnt = charIDToTypeID("#Pnt");
-    desc142.putUnitDouble(idstartIndent, idPnt, 0.000000);
-    idendIndent = stringIDToTypeID("endIndent");
-    idPnt = charIDToTypeID("#Pnt");
-    desc142.putUnitDouble(idendIndent, idPnt, 0.000000);
     idspaceBefore = stringIDToTypeID("spaceBefore");
     idPnt = charIDToTypeID("#Pnt");
     desc142.putUnitDouble(idspaceBefore, idPnt, 0);
-    idspaceAfter = stringIDToTypeID("spaceAfter");
-    idPnt = charIDToTypeID("#Pnt");
-    desc142.putUnitDouble(idspaceAfter, idPnt, 0.000000);
-    iddropCapMultiplier = stringIDToTypeID("dropCapMultiplier");
-    desc142.putInteger(iddropCapMultiplier, 1);
-    idautoLeadingPercentage = stringIDToTypeID("autoLeadingPercentage");
-    desc142.putDouble(idautoLeadingPercentage, 1.200000);
-    idleadingType = stringIDToTypeID("leadingType");
-    idleadingType = stringIDToTypeID("leadingType");
-    idleadingBelow = stringIDToTypeID("leadingBelow");
-    desc142.putEnumerated(idleadingType, idleadingType, idleadingBelow);
-    idhyphenate = stringIDToTypeID("hyphenate");
-    desc142.putBoolean(idhyphenate, false);
-    idhyphenateWordSize = stringIDToTypeID("hyphenateWordSize");
-    desc142.putInteger(idhyphenateWordSize, 6);
-    idhyphenatePreLength = stringIDToTypeID("hyphenatePreLength");
-    desc142.putInteger(idhyphenatePreLength, 2);
-    idhyphenatePostLength = stringIDToTypeID("hyphenatePostLength");
-    desc142.putInteger(idhyphenatePostLength, 2);
-    idhyphenateLimit = stringIDToTypeID("hyphenateLimit");
-    desc142.putInteger(idhyphenateLimit, 0);
-    idhyphenationZone = stringIDToTypeID("hyphenationZone");
-    desc142.putDouble(idhyphenationZone, 36.000000);
-    idhyphenateCapitalized = stringIDToTypeID("hyphenateCapitalized");
-    desc142.putBoolean(idhyphenateCapitalized, true);
-    idhyphenationPreference = stringIDToTypeID("hyphenationPreference");
-    desc142.putDouble(idhyphenationPreference, 0.500000);
-    idjustificationWordMinimum = stringIDToTypeID("justificationWordMinimum");
-    desc142.putDouble(idjustificationWordMinimum, 0.800000);
-    idjustificationWordDesired = stringIDToTypeID("justificationWordDesired");
-    desc142.putDouble(idjustificationWordDesired, 1.000000);
-    idjustificationWordMaximum = stringIDToTypeID("justificationWordMaximum");
-    desc142.putDouble(idjustificationWordMaximum, 1.330000);
-    idjustificationLetterMinimum = stringIDToTypeID("justificationLetterMinimum");
-    desc142.putDouble(idjustificationLetterMinimum, 0.000000);
-    idjustificationLetterDesired = stringIDToTypeID("justificationLetterDesired");
-    desc142.putDouble(idjustificationLetterDesired, 0.000000);
-    idjustificationLetterMaximum = stringIDToTypeID("justificationLetterMaximum");
-    desc142.putDouble(idjustificationLetterMaximum, 0.000000);
-    idjustificationGlyphMinimum = stringIDToTypeID("justificationGlyphMinimum");
-    desc142.putDouble(idjustificationGlyphMinimum, 1.000000);
-    idjustificationGlyphDesired = stringIDToTypeID("justificationGlyphDesired");
-    desc142.putDouble(idjustificationGlyphDesired, 1.000000);
-    idjustificationGlyphMaximum = stringIDToTypeID("justificationGlyphMaximum");
-    desc142.putDouble(idjustificationGlyphMaximum, 1.000000);
-    idsingleWordJustification = stringIDToTypeID("singleWordJustification");
-    idAlg = charIDToTypeID("Alg ");
-    idJstA = charIDToTypeID("JstA");
-    desc142.putEnumerated(idsingleWordJustification, idAlg, idJstA);
-    idhangingRoman = stringIDToTypeID("hangingRoman");
-    desc142.putBoolean(idhangingRoman, false);
-    idautoTCY = stringIDToTypeID("autoTCY");
-    desc142.putInteger(idautoTCY, 1);
-    idkeepTogether = stringIDToTypeID("keepTogether");
-    desc142.putBoolean(idkeepTogether, false);
-    idburasagari = stringIDToTypeID("burasagari");
-    idburasagari = stringIDToTypeID("burasagari");
-    idburasagariNone = stringIDToTypeID("burasagariNone");
-    desc142.putEnumerated(idburasagari, idburasagari, idburasagariNone);
-    idpreferredKinsokuOrder = stringIDToTypeID("preferredKinsokuOrder");
-    idpreferredKinsokuOrder = stringIDToTypeID("preferredKinsokuOrder");
-    idpushIn = stringIDToTypeID("pushIn");
-    desc142.putEnumerated(idpreferredKinsokuOrder, idpreferredKinsokuOrder, idpushIn);
-    idkurikaeshiMojiShori = stringIDToTypeID("kurikaeshiMojiShori");
-    desc142.putBoolean(idkurikaeshiMojiShori, false);
-    idtextEveryLineComposer = stringIDToTypeID("textEveryLineComposer");
-    desc142.putBoolean(idtextEveryLineComposer, false);
-    iddefaultTabWidth = stringIDToTypeID("defaultTabWidth");
-    desc142.putDouble(iddefaultTabWidth, 36.000000);
-    iddefaultStyle = stringIDToTypeID("defaultStyle");
-    desc143 = new ActionDescriptor();
-    idfontPostScriptName = stringIDToTypeID("fontPostScriptName");
-    desc143.putString(idfontPostScriptName, selectedFont);
-    idSz = charIDToTypeID("Sz  ");
-    idPnt = charIDToTypeID("#Pnt");
-    desc143.putUnitDouble(idSz, idPnt, 11.998500);
-    idautoLeading = stringIDToTypeID("autoLeading");
-    desc143.putBoolean(idautoLeading, false);
-    idClr = charIDToTypeID("Clr ");
-    desc144 = new ActionDescriptor();
-    idRd = charIDToTypeID("Rd  ");
-    desc144.putDouble(idRd, textColour[0]);
-    idGrn = charIDToTypeID("Grn ");
-    desc144.putDouble(idGrn, textColour[1]);
-    idBl = charIDToTypeID("Bl  ");
-    desc144.putDouble(idBl, textColour[2]);
-    idRGBC = charIDToTypeID("RGBC");
-    desc143.putObject(idClr, idRGBC, desc144);
-    idTxtS = charIDToTypeID("TxtS");
-    desc142.putObject(iddefaultStyle, idTxtS, desc143);
     idparagraphStyle = stringIDToTypeID("paragraphStyle");
     desc141.putObject(idparagraphStyle, idparagraphStyle, desc142);
     idparagraphStyleRange = stringIDToTypeID("paragraphStyleRange");
