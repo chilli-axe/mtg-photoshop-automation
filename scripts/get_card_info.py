@@ -107,7 +107,7 @@ def get_dict_pw(card):
     }
 
     img_data = requests.get(card.image_uris()['large']).content
-    with open('card.jpg', 'wb') as handler:
+    with open(sys.path[0] + 'card.jpg', 'wb') as handler:
         handler.write(img_data)
     return card_json
 
@@ -178,7 +178,7 @@ if __name__ == "__main__":
             card_json["back_toughness"] = toughness
         else:
             card_json["face"] = "back"
-        card_json["colourIdentity"] = card.colors()
+            card_json["colourIdentity"] = card.colors()
         save_json(card_json)
 
     else:
