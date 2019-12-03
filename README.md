@@ -22,7 +22,7 @@ Example printed through http://makeplayingcards.com
   * [The Photoshop templates](https://drive.google.com/open?id=1s-mVBKkMzJMhzxrfjb8SiJms1EEVvoxq) (download `automated.zip`)
   * The following fonts:
     * [Beleren Smallcaps, MPlantin and MPlantin-Italics](https://github.com/magarena/magarena/tree/master/resources/cardbuilder/fonts) and [Beleren2016](https://magic.wizards.com/sites/all/themes/wiz_mtg/fonts/Beleren/Beleren2016-Bold.ttf),
-    * My custom Magic symbols font NDPMTG, as well as MTG2016, both included in the repo,
+    * My custom Magic symbols font NDPMTG, included in the repo,
     * [Keyrune](https://andrewgioia.github.io/Keyrune/index.html) and [Mana](https://andrewgioia.github.io/Mana/), for the expansion symbol and transform symbols,
     * Relay Medium and Calibri.
   * [json2.js](https://github.com/douglascrockford/JSON-js), included but you may need to download a more recent version.
@@ -44,6 +44,7 @@ Example printed through http://makeplayingcards.com
 
 # FAQ
 Photoshop scripting works within an outdated version of JavaScript and has more than its share of idiosyncrasies. There are unfortunately bugs that don't occur on my system and that I can't recreate, but others have found ways to fix them.
+* *When I load the template, Photoshop tells me I'm  missing a font called MTG2016.* Open up the template outside of the script, and resolve it by substituting the NDPMTG font in instead, then save. This is just for the paintbrush symbol at the bottom of each card. (When saving, ensure the bottom layer `Layer 1` is selected, otherwise the scripts may not work as intended.)
 * *When I render a card, the artwork is twice as big as it should be.* Open `excessFunctions.jsx`, and at the top there should be the line `var artScaleFactor = 100;`. Change this to equal 50 instead of 100, and that typically fixes it.
 * *My set symbols don't have the proper gradient to them.* Clone the latest version of the repo, and download the most recent version of the templates - this should hopefully be fixed for everyone now. Feel free to raise an issue if it's not though!
 * *I want to change the set symbol to something else.* Head over to https://andrewgioia.github.io/Keyrune/cheatsheet.html - you can use any of these symbols for the set symbol for your cards. Copy the text of the symbol you want on the cheatsheet, then hop into `proxy.jsx` and look about 10 lines down. Replace the square character in quotations with the character you copied.
@@ -52,6 +53,6 @@ Photoshop scripting works within an outdated version of JavaScript and has more 
 # Limitations
 As of this release, the script can't handle:
 * Automation of cards that aren't one of the following: cards with the normal frame, transform cards (fronts and backs, including Ixalan transform lands), meld cards, planeswalker cards, or basic lands. Included in the Templates drive, however, I have templates for the following which you can use manually: Sagas, level-up cards, adventure cards, full-art promos (e.g. Lightning Bolt, Path to Exile), and Kaladesh Invention masterpieces.
-* Full automation of planeswalkers. The script does most of the heavy lifting, requires the user to manually position the text as a final step. My typical workflow for planeswalkers is to run the script up until it errors, then position the inserted Scryfall scan to fill the canvas. From here, I resize the text layers until they line up with the real card, then reposition the art if necessary. *Save As* and saving as a PNG with the default settings is fine. 
+* Full automation of planeswalkers. The script does most of the heavy lifting, but requires the user to manually position the text as a final step. My typical workflow for planeswalkers is to run the script up until it errors, then position the inserted Scryfall scan to fill the canvas. From here, I resize the text layers until they line up with the real card, then reposition the art if necessary. *Save As* and saving as a PNG with the default settings is fine.
 * Devoid-style frames, miracle-style frames, and draft-matters frames - these will be added eventually but they're not a high priority.
 * Quoting something in a card's flavour text without italics. See: Yarok the Desecrated, Phyrexian Altar.
