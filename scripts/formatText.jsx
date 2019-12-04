@@ -944,6 +944,18 @@ function formatText(inputString, italicStrings, flavourIndex, centredText) {
     desc141.putInteger(idFrom, flavourIndex + 3);
     idT = charIDToTypeID("T   ");
     desc141.putInteger(idT, flavourIndex + 4);
+    idfirstLineIndent = stringIDToTypeID( "firstLineIndent" );
+    idPnt = charIDToTypeID( "#Pnt" );
+    desc142.putUnitDouble( idfirstLineIndent, idPnt, 0 );
+    var idimpliedFirstLineIndent = stringIDToTypeID( "impliedFirstLineIndent" );
+    idPnt = charIDToTypeID( "#Pnt" );
+    desc142.putUnitDouble( idimpliedFirstLineIndent, idPnt, 0 );
+    idstartIndent = stringIDToTypeID( "startIndent" );
+    idPnt = charIDToTypeID( "#Pnt" );
+    desc142.putUnitDouble( idstartIndent, idPnt, 0 );
+    idimpliedStartIndent = stringIDToTypeID( "impliedStartIndent" );
+    idPnt = charIDToTypeID( "#Pnt" );
+    desc142.putUnitDouble( idimpliedStartIndent, idPnt, 0 );
     idspaceBefore = stringIDToTypeID("spaceBefore");
     idPnt = charIDToTypeID("#Pnt");
     desc142.putUnitDouble(idspaceBefore, idPnt, 34);
