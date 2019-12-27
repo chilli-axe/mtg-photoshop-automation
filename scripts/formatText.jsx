@@ -755,7 +755,7 @@ function formatText(inputString, italicStrings, flavourIndex, centredText) {
 
   // Set spacing between line breaks
   var spacingMan = 16.428175;
-  if (centredText == true) spacingMan = 0;
+  if (centredText) spacingMan = 0;
 
   var idparagraphStyleRange = stringIDToTypeID("paragraphStyleRange");
   var list13 = new ActionList();
