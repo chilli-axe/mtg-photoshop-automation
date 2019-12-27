@@ -207,8 +207,6 @@ function verticallyFixText(textLayer) {
   // Make a selection of the text layer that's above the P/T box, then ctrl-j
   // the selection from the card text layer
 
-
-
   // Make selection from the reference layer
   var textAndIcons = app.activeDocument.layers.getByName("Text and Icons");
   var ptAdjustmentReference = textAndIcons.layers.getByName("PT Adjustment Reference");
@@ -262,33 +260,20 @@ function verticallyFixText(textLayer) {
   if (pixelOverlap > 0) textLayer.applyOffset(0, pixelOverlapUnit, OffsetUndefinedAreas.SETTOBACKGROUND);
 }
 
-function gradient(rarity) {
+function gradient(textAndIcons, rarity) {
   // Select the stroke colour
   var strokeColour = 0.000000;
   var strokeWidth = 6.000000;
+  var symbolLayer = textAndIcons.layers.getByName("Expansion Symbol");
 
   if (rarity == "uncommon" | rarity == "rare" || rarity == "mythic") {
     // Switch on gradient layer
-    var textAndIcons = app.activeDocument.layers.getByName("Text and Icons");
+    // var textAndIcons = app.activeDocument.layers.getByName("Text and Icons");
     var gradientLayer = textAndIcons.layers.getByName(rarity);
     gradientLayer.visible = true;
 
     // Align gradient layer to the expansion symbol
-    // =======================================================
-    var idslct = charIDToTypeID("slct");
-    var desc60 = new ActionDescriptor();
-    var idnull = charIDToTypeID("null");
-    var ref30 = new ActionReference();
-    var idLyr = charIDToTypeID("Lyr ");
-    ref30.putName(idLyr, "Expansion Symbol");
-    desc60.putReference(idnull, ref30);
-    var idMkVs = charIDToTypeID("MkVs");
-    desc60.putBoolean(idMkVs, false);
-    var idLyrI = charIDToTypeID("LyrI");
-    var list8 = new ActionList();
-    list8.putInteger(9851);
-    desc60.putList(idLyrI, list8);
-    executeAction(idslct, desc60, DialogModes.NO);
+    app.activeDocument.activeLayer = symbolLayer;
 
     // =======================================================
     var idsetd = charIDToTypeID("setd");
@@ -308,21 +293,7 @@ function gradient(rarity) {
     desc62.putReference(idT, ref32);
     executeAction(idsetd, desc62, DialogModes.NO);
 
-    // =======================================================
-    var idslct = charIDToTypeID("slct");
-    var desc63 = new ActionDescriptor();
-    var idnull = charIDToTypeID("null");
-    var ref33 = new ActionReference();
-    var idLyr = charIDToTypeID("Lyr ");
-    ref33.putName(idLyr, rarity);
-    desc63.putReference(idnull, ref33);
-    var idMkVs = charIDToTypeID("MkVs");
-    desc63.putBoolean(idMkVs, false);
-    var idLyrI = charIDToTypeID("LyrI");
-    var list9 = new ActionList();
-    list9.putInteger(9865);
-    desc63.putList(idLyrI, list9);
-    executeAction(idslct, desc63, DialogModes.NO);
+    app.activeDocument.activeLayer = gradientLayer;
 
     // =======================================================
     var idslct = charIDToTypeID("slct");
@@ -390,21 +361,7 @@ function gradient(rarity) {
   }
 
   // Apply stroke
-  // =======================================================
-  var idslct = charIDToTypeID("slct");
-  var desc60 = new ActionDescriptor();
-  var idnull = charIDToTypeID("null");
-  var ref30 = new ActionReference();
-  var idLyr = charIDToTypeID("Lyr ");
-  ref30.putName(idLyr, "Expansion Symbol");
-  desc60.putReference(idnull, ref30);
-  var idMkVs = charIDToTypeID("MkVs");
-  desc60.putBoolean(idMkVs, false);
-  var idLyrI = charIDToTypeID("LyrI");
-  var list8 = new ActionList();
-  list8.putInteger(9851);
-  desc60.putList(idLyrI, list8);
-  executeAction(idslct, desc60, DialogModes.NO);
+  app.activeDocument.activeLayer = symbolLayer;
 
   // =======================================================
   idsetd = charIDToTypeID("setd");

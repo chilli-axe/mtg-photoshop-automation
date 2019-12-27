@@ -107,7 +107,7 @@ def get_dict_pw(card):
     }
 
     img_data = requests.get(card.image_uris()['large']).content
-    with open(sys.path[0] + 'card.jpg', 'wb') as handler:
+    with open(sys.path[0] + '/card.jpg', 'wb') as handler:
         handler.write(img_data)
     return card_json
 

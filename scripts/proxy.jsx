@@ -109,11 +109,8 @@ function proxyPlaneswalker(jsonParsed, ye, cardName, cardArtist, expansionSymbol
   $.evalFile(filePath + "/scripts/excessFunctions.jsx");
   $.evalFile(filePath + "/scripts/framelogic.jsx");
 
-  var abilities = jsonParsed.text.split("\n");
-  var templateName = "pw-3";
-  if (abilities.length > 3) templateName = "pw-4";
-  if (jsonParsed.layout == "transform") templateName = templateName + "-transform";
-
+  var templateName = "pw" + boxtopper;
+  var isBoxtopper = boxtopper != "";
   var fileRef = new File(filePath + "/templates/" + templateName + ".psd");
   app.open(fileRef);
 
@@ -135,7 +132,11 @@ function proxyPlaneswalker(jsonParsed, ye, cardName, cardArtist, expansionSymbol
 
   // Create a reference to the active document for convenience
   var docRef = app.activeDocument;
-  var textAndIcons = docRef.layers.getByName("Text and Icons");
+  var abilities = jsonParsed.text.split("\n");
+  var numAbilities = 3; if (abilities.length > 3) numAbilities = 4;
+  var templateRef = docRef.layers.getByName("pw-" + String(numAbilities));
+  var textAndIcons = templateRef.layers.getByName("Text and Icons");
+  templateRef.visible = true;
 
   // Select the correct layers
   selectedLayers = selectFrameLayers(jsonParsed);
@@ -151,29 +152,29 @@ function proxyPlaneswalker(jsonParsed, ye, cardName, cardArtist, expansionSymbol
     artLayerFrame.bounds[3].as("px"));
 
   // Background
-  backgroundLayer = docRef.layers.getByName("Background");
+  backgroundLayer = templateRef.layers.getByName("Background");
   backgroundLayer.layers.getByName(selectedLayers[0]).visible = true;
 
   // Pinlines
-  pinlinesLayer = docRef.layers.getByName("Pinlines");
+  pinlinesLayer = templateRef.layers.getByName("Pinlines");
   pinlinesLayer.layers.getByName(selectedLayers[1]).visible = true;
 
   // Twins
-  nameboxLayer = docRef.layers.getByName("Name & Title Boxes");
+  nameboxLayer = templateRef.layers.getByName("Name & Title Boxes");
   nameboxLayer.layers.getByName(selectedLayers[2]).visible = true;
 
   // Rarity gradient
   textAndIcons.layers.getByName("Expansion Symbol").textItem.contents = expansionSymbol;
-  gradient(cardRarity);
+  gradient(textAndIcons, cardRarity);
 
   // Insert basic text fields
   replaceText("Artist", cardArtist);
-  insertManaCost(cardManaCost);
-  insertName(cardName, "Card Name", false);
-  insertTypeline(typeLine, "Typeline", false);
+  insertManaCost(textAndIcons, cardManaCost);
+  insertName(textAndIcons, cardName, "Card Name", false);
+  insertTypeline(textAndIcons, typeLine, "Typeline", false);
 
   // Insert loyalty stuff
-  var loyaltyGroup = docRef.layers.getByName("Loyalty Graphics");
+  var loyaltyGroup = templateRef.layers.getByName("Loyalty Graphics");
   startingLoyalty = loyaltyGroup.layers.getByName("Starting Loyalty");
   startingLoyalty.layers.getByName("Text").textItem.contents = cardLoyalty;
 
@@ -229,21 +230,7 @@ function proxyPlaneswalker(jsonParsed, ye, cardName, cardArtist, expansionSymbol
   }
 
   // Drop in scan from Scryfall to help line up text
-  var idslct = charIDToTypeID("slct");
-  var desc292 = new ActionDescriptor();
-  var idnull = charIDToTypeID("null");
-  var ref133 = new ActionReference();
-  var idLyr = charIDToTypeID("Lyr ");
-  ref133.putName(idLyr, "Name & Title Boxes");
-  desc292.putReference(idnull, ref133);
-  var idMkVs = charIDToTypeID("MkVs");
-  desc292.putBoolean(idMkVs, false);
-  var idLyrI = charIDToTypeID("LyrI");
-  var list39 = new ActionList();
-  list39.putInteger(8142);
-  desc292.putList(idLyrI, list39);
-  executeAction(idslct, desc292, DialogModes.NO);
-
+  docRef.activeLayer = templateRef.layers.getByName("Name & Title Boxes");
   var idPlc = charIDToTypeID("Plc ");
   var desc300 = new ActionDescriptor();
   var idIdnt = charIDToTypeID("Idnt");
@@ -274,10 +261,11 @@ function proxyPlaneswalker(jsonParsed, ye, cardName, cardArtist, expansionSymbol
   desc300.putUnitDouble(idHght, idPrc, 100.000000);
   executeAction(idPlc, desc300, DialogModes.NO);
 
-  var scanLayer = docRef.layers.getByName("card");
+  var scanLayer = templateRef.layers.getByName("card");
   scanLayer.resize(50 * app.activeDocument.width / scanLayer.bounds[0],
                    50 * app.activeDocument.height / scanLayer.bounds[1],
                    AnchorPosition.MIDDLECENTER);
+  // scanLayer.resize(app.activeDocument.width, app.activeDocument.height, AnchorPosition.MIDDLECENTER);
 
   // Make the script error so we can finish it off by hand
   exit();
@@ -296,7 +284,9 @@ function proxyNormal(jsonParsed, ye, cardName, cardArtist, expansionSymbol, layo
 
   var fileRef;
   if (layout == "normal") fileRef = new File(filePath + "/templates/" + layout + boxtopper + ".psd");
+  // if (layout == "normal") fileRef = new File(filePath + "/templates/" + "fullartland" + ".psd");
   else fileRef = new File(filePath + "/templates/" + layout + ".psd");
+
   app.open(fileRef);
 
   // Place it in the template
@@ -441,13 +431,13 @@ function proxyNormal(jsonParsed, ye, cardName, cardArtist, expansionSymbol, layo
 
   // Rarity gradient
   textAndIcons.layers.getByName("Expansion Symbol").textItem.contents = expansionSymbol;
-  gradient(cardRarity);
+  gradient(textAndIcons, cardRarity);
 
   // Insert basic text fields
   replaceText("Artist", cardArtist);
-  if (!isIxalan) insertManaCost(cardManaCost);
-  insertName(cardName, cardnameLayerName, isIxalan);
-  insertTypeline(typeLine, typelineLayerName, isIxalan);
+  if (!isIxalan) insertManaCost(textAndIcons, cardManaCost);
+  insertName(textAndIcons, cardName, cardnameLayerName, isIxalan);
+  insertTypeline(textAndIcons, typeLine, typelineLayerName, isIxalan);
 
   // P/T Text
   if (!isIxalan) {
@@ -565,9 +555,9 @@ function proxyNormal(jsonParsed, ye, cardName, cardArtist, expansionSymbol, layo
   saveImage(cardName);
 }
 
-function insertManaCost(cardManaCost) {
+function insertManaCost(textAndIcons, cardManaCost) {
   var docRef = app.activeDocument;
-  textAndIcons = docRef.layers.getByName("Text and Icons");
+  // textAndIcons = docRef.layers.getByName("Text and Icons");
   manaCostLayer = textAndIcons.layers.getByName("Mana Cost");
   if (cardManaCost != "") {
     $.evalFile(filePath + "/scripts/formatText.jsx");
@@ -579,9 +569,9 @@ function insertManaCost(cardManaCost) {
   }
 }
 
-function insertName(cardName, cardnameLayerName, isIxalan) {
+function insertName(textAndIcons, cardName, cardnameLayerName, isIxalan) {
   var docRef = app.activeDocument;
-  var textAndIcons = docRef.layers.getByName("Text and Icons");
+  // var textAndIcons = docRef.layers.getByName("Text and Icons");
   var cardnameLayer = textAndIcons.layers.getByName(cardnameLayerName);
   cardnameLayer.textItem.contents = cardName;
 
@@ -598,9 +588,9 @@ function insertName(cardName, cardnameLayerName, isIxalan) {
   }
 }
 
-function insertTypeline(typeLine, typelineLayerName, isIxalan) {
+function insertTypeline(textAndIcons, typeLine, typelineLayerName, isIxalan) {
   var docRef = app.activeDocument;
-  textAndIcons = docRef.layers.getByName("Text and Icons");
+  // textAndIcons = docRef.layers.getByName("Text and Icons");
   var typelineLayer = textAndIcons.layers.getByName(typelineLayerName);
   typelineLayer.textItem.contents = typeLine;
 

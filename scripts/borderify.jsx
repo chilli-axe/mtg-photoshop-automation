@@ -31,11 +31,11 @@ function borderify(file) {
   var idWdth = charIDToTypeID("Wdth");
   var idPrc = charIDToTypeID("#Prc");
   desc22.putUnitDouble(idWdth, idPrc, 93.859572);
-  // desc22.putUnitDouble( idWdth, idPrc, 113 );
+  // desc22.putUnitDouble( idWdth, idPrc, 112.55 );
   var idHght = charIDToTypeID("Hght");
   idPrc = charIDToTypeID("#Prc");
   desc22.putUnitDouble(idHght, idPrc, 93.855091);
-  // desc22.putUnitDouble( idHght, idPrc, 113 );
+  // desc22.putUnitDouble( idHght, idPrc, 112.55 );
   var idLnkd = charIDToTypeID("Lnkd");
   desc22.putBoolean(idLnkd, true);
   executeAction(idPlc, desc22, DialogModes.NO);

@@ -35,7 +35,7 @@ Example printed through http://makeplayingcards.com
 # Install / Usage Guide
 * Clone to a folder of your choice, referred to as the *working directory*.
 * Install the included font and the other fonts specified above.
-* Download the Photoshop templates and extract them into the `templates` folder of the working directory.
+* Download the Photoshop templates, create a folder called `templates` in the working directory, and extract them into the folder.
 * Create a folder called `art` in the working directory, and another called `out`. Create a folder called `border` inside `out`.
 * Move all of your card artwork to the `art` folder. File names should be structured as `<CARDNAME> (<ARTIST NAME>).jpg`.
 * Run the script `proxyAll` to render each card in the `art` folder, and store the results in the `out` folder. `proxyTarget` does the same but only for a specific art image.
@@ -44,7 +44,7 @@ Example printed through http://makeplayingcards.com
 
 # FAQ
 Photoshop scripting works within an outdated version of JavaScript and has more than its share of idiosyncrasies. There are unfortunately bugs that don't occur on my system and that I can't recreate, but others have found ways to fix them.
-* *When I load the template, Photoshop tells me I'm  missing a font called MTG2016.* Open up the template outside of the script, and resolve it by substituting the NDPMTG font in instead, then save. This is just for the paintbrush symbol at the bottom of each card. (When saving, ensure the bottom layer `Layer 1` is selected, otherwise the scripts may not work as intended.)
+* *When I load the template, Photoshop tells me I'm  missing a font called MTG2016.* Try updating your templates - this should be fixed for everyone now. Feel free to raise an issue if it's not though!
 * *When I render a card, the artwork is twice as big as it should be.* Open `excessFunctions.jsx`, and at the top there should be the line `var artScaleFactor = 100;`. Change this to equal 50 instead of 100, and that typically fixes it.
 * *My set symbols don't have the proper gradient to them.* Clone the latest version of the repo, and download the most recent version of the templates - this should hopefully be fixed for everyone now. Feel free to raise an issue if it's not though!
 * *I want to change the set symbol to something else.* Head over to https://andrewgioia.github.io/Keyrune/cheatsheet.html - you can use any of these symbols for the set symbol for your cards. Copy the text of the symbol you want on the cheatsheet, then hop into `proxy.jsx` and look about 10 lines down. Replace the square character in quotations with the character you copied.
