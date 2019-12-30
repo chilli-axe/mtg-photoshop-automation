@@ -14,7 +14,8 @@ def process_scan(card, cardname):
     r = requests.post(
         "https://api.deepai.org/api/waifu2x",
         data={
-            'image': card.image_uris()['art_crop'],
+            # 'image': card.image_uris()['art_crop'],
+            'image': card["image_uris"]["art_crop"]
         },
         headers={'api-key': config.TOKEN}
     )
@@ -43,19 +44,36 @@ def process_scan(card, cardname):
     im_recon_sc = 255*((im_recon - minval)/(maxval - minval))
 
     # Write image to disk, casting to uint8
-    imageio.imwrite("../art_raw/" + cardname + " (" + card.artist() + ").jpg", im_recon_sc.astype(np.uint8))
+    imageio.imwrite("../art_raw/" + cardname + " (" + card["artist"] + ").jpg", im_recon_sc.astype(np.uint8))
     print("Successfully processed scan for {}.".format(cardname))
 
 
 if __name__ == "__main__":
     cardname = input("Card name (exact): ")
     try:
-        card = scrython.cards.Named(fuzzy=cardname)
+        # If the card specifies which set to retrieve the scan from, do that
+        try:
+            pipe_idx = cardname.index("|")
+            query = cardname[0:pipe_idx] + " set=" + cardname[pipe_idx + 1:]
+            card = scrython.cards.Search(q=query).data()[0]
+            print("Processing: " + cardname[0:pipe_idx] + ", set: " + cardname[pipe_idx + 1:])
+            cardname = cardname[0:pipe_idx]
+        except (ValueError, scrython.foundation.ScryfallError):
+            card = scrython.cards.Named(fuzzy=cardname).scryfallJson
+            print("Processing: " + cardname)
+
+        # Handle case of transform card
+        if card["layout"] == "transform":
+            card_idx = [card["card_faces"][x]["name"] for x in range(0, 2)].index(cardname)
+            card["image_uris"] = {}
+            card["image_uris"]["art_crop"] = card["card_faces"][card_idx]["image_uris"]["art_crop"]
+            card["name"] = card["card_faces"][card_idx]["name"]
+
         # If the card is on Scryfall with that exact name:
-        if card.name() == cardname:
+        if card["name"] == cardname:
             process_scan(card, cardname)
         else:
             print("Couldn't find that card.")
     except Exception as e:
-        print(e)
+        print("Exception: " + str(e))
     input("Press enter to continue.")
