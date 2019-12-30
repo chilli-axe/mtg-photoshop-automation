@@ -1,6 +1,5 @@
 # MTG Autoproxy
 Use Photoshop scripting to easily create custom high-quality Magic proxies for casual play.
-*NOTE*: If you downloaded the templates prior to the 9th of October 2019, you'll need to redownload them to use the latest version of this tool.
 
 If you found this tool and/or my renders useful, you could shout me a cup of coffee if you felt like it <3
 
@@ -49,6 +48,7 @@ Photoshop scripting works within an outdated version of JavaScript and has more 
 * *My set symbols don't have the proper gradient to them.* Clone the latest version of the repo, and download the most recent version of the templates - this should hopefully be fixed for everyone now. Feel free to raise an issue if it's not though!
 * *I want to change the set symbol to something else.* Head over to https://andrewgioia.github.io/Keyrune/cheatsheet.html - you can use any of these symbols for the set symbol for your cards. Copy the text of the symbol you want on the cheatsheet, then hop into `proxy.jsx` and look about 10 lines down. Replace the square character in quotations with the character you copied.
 * *The script doesn't seem to be saving `card.json` properly. The `get_card_info.py` script works properly from the command line.* Seems like this issue arises from PS running the Python script in a different directory, and running into permissions issues. Clone the latest version of the repo if you haven't already, because I'm fairly certain I've fixed the root cause of this issue. Failing that, a couple of users have had success with modifying file permissions - try `chmod 777 card.json`, or `sudo chmod a+rw .` in the root work directory.
+* *I'm getting an error that looks like `"error 23: ) does not have a value. Line: 1"`* This is usually related to the above issue.
 
 # Limitations
 As of this release, the script can't handle:
