@@ -18,7 +18,7 @@ Example printed through http://makeplayingcards.com
 
 # What You'll Need
   * A copy of Photoshop. I tested the system using CS5 and CC 2018, but other versions may work as well.
-  * [The Photoshop templates](https://drive.google.com/open?id=1s-mVBKkMzJMhzxrfjb8SiJms1EEVvoxq) (download `automated.zip`)
+  * [The Photoshop templates](https://drive.google.com/open?id=1CUaOPDZM84dk85Kvp6fGrqZVPDo4jQJo) (download the desired templates in the Automated folder - hopefully the filenames are self-explanatory)
   * The following fonts:
     * [Beleren Smallcaps, MPlantin and MPlantin-Italics](https://github.com/magarena/magarena/tree/master/resources/cardbuilder/fonts) and [Beleren2016](https://magic.wizards.com/sites/all/themes/wiz_mtg/fonts/Beleren/Beleren2016-Bold.ttf),
     * My custom Magic symbols font NDPMTG, included in the repo,
