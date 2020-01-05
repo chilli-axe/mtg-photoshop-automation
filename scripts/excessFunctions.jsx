@@ -428,11 +428,12 @@ function frame(leftPix, topPix, rightPix, bottomPix) {
 
   // Get current size of art in layer
   var myLayer = docRef.layers.getByName("Layer 1");
-  var imageHeight = myLayer.bounds[3] - myLayer.bounds[1];
-  var imageWidth = myLayer.bounds[2] - myLayer.bounds[0];
-
+  var imageHeight = myLayer.bounds[3].as("px") - myLayer.bounds[1].as("px");
+  var imageWidth = myLayer.bounds[2].as("px") - myLayer.bounds[0].as("px");
+  
   // Determine how much to scale the art by, such that it fits into the art window
-  var percentageToScale = artScaleFactor * (Math.max(windowWidth / imageWidth.as('px'), windowHeight / imageHeight.as('px')));
+  var percentageToScale = artScaleFactor * Math.max(windowWidth / imageWidth, windowHeight / imageHeight);
+
   myLayer.resize(percentageToScale, percentageToScale, AnchorPosition.TOPLEFT);
   myLayer.move(activeDocument, ElementPlacement.PLACEATEND);
 
