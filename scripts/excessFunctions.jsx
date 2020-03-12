@@ -211,10 +211,10 @@ function verticallyFixText(textLayer) {
   var textAndIcons = app.activeDocument.layers.getByName("Text and Icons");
   var ptAdjustmentReference = textAndIcons.layers.getByName("PT Adjustment Reference");
 
-  var left = ptAdjustmentReference.bounds[0];
-  var top = ptAdjustmentReference.bounds[1];
-  var right = ptAdjustmentReference.bounds[2];
-  var bottom = ptAdjustmentReference.bounds[3];
+  var left = ptAdjustmentReference.bounds[0].as("px");
+  var top = ptAdjustmentReference.bounds[1].as("px");
+  var right = ptAdjustmentReference.bounds[2].as("px");
+  var bottom = ptAdjustmentReference.bounds[3].as("px");
   app.activeDocument.selection.select([
     [left, top],
     [right, top],
@@ -230,7 +230,6 @@ function verticallyFixText(textLayer) {
   var ptTopReference = textAndIcons.layers.getByName("PT Top Reference");
 
   // ctrl-j the selection on the rasterised text to a new layer
-  // TODO: Ensure there are pixels in the selection before running this block
   var idCpTL = charIDToTypeID("CpTL");
   executeAction(idCpTL, undefined, DialogModes.NO);
   idsetd = charIDToTypeID("setd");
