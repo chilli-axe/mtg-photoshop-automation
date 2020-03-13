@@ -224,7 +224,7 @@ function verticallyFixText(textLayer) {
 
   // Only proceed here if the text layer potentially needs to be shifted up
   // (If the text isn't long enough, the code will error when attempting to ctrl J)
-  if (getRealTextLayerDimensions(textLayer).width + textLayer.bounds[0] < left) return;
+  if (textLayer.bounds[2].as("px") < left) return;
 
   // get PT Top Reference layer
   var ptTopReference = textAndIcons.layers.getByName("PT Top Reference");
