@@ -419,17 +419,16 @@ function gradient(textAndIcons, rarity) {
   executeAction(idsetd, desc608, DialogModes.NO);
 }
 
-function frame(leftPix, topPix, rightPix, bottomPix) {
+function frame(myLayer, leftPix, topPix, rightPix, bottomPix) {
   var docRef = app.activeDocument;
   // Get width and height of art window
   var windowHeight = bottomPix - topPix;
   var windowWidth = rightPix - leftPix;
 
   // Get current size of art in layer
-  var myLayer = docRef.layers.getByName("Layer 1");
   var imageHeight = myLayer.bounds[3].as("px") - myLayer.bounds[1].as("px");
   var imageWidth = myLayer.bounds[2].as("px") - myLayer.bounds[0].as("px");
-  
+
   // Determine how much to scale the art by, such that it fits into the art window
   var percentageToScale = artScaleFactor * Math.max(windowWidth / imageWidth, windowHeight / imageHeight);
 
