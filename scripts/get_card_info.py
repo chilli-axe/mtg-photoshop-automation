@@ -155,10 +155,15 @@ if __name__ == "__main__":
         # planeswalker
         save_json(get_dict_pw(card))
 
-    elif card.layout() == "normal":
-        # normal card
+    elif card.layout() == "normal" or card.layout() == "planar":
+        # normal or planar card
         card_json = get_dict(card)
         save_json(card_json)
+
+        if card.layout() == "planar":
+            img_data = requests.get(card.image_uris()['large']).content
+            with open(sys.path[0] + '/card.jpg', 'wb') as handler:
+                handler.write(img_data)
 
     elif card.layout() == "meld":
         card_json = get_dict(card)

@@ -63,8 +63,172 @@ function proxy(file, ye) {
       } else if (jsonParsed.face == "back") {
         proxyNormal(jsonParsed, ye, cardName, cardArtist, expansionSymbol, "tf-back");
       }
+    } else if (jsonParsed.layout == "planar") {
+      proxyPlanar(jsonParsed, ye, cardName, cardArtist)
     }
   }
+}
+
+function proxyPlanar(jsonParsed, ye, cardName, cardArtist) {
+  // Load in json2.js and some function files
+  $.evalFile(filePath + "/scripts/json2.js");
+  $.evalFile(filePath + "/scripts/formatText.jsx");
+  $.evalFile(filePath + "/scripts/excessFunctions.jsx");
+
+  templateName = "planar";
+  var fileRef = new File(filePath + "/templates/" + templateName + ".psd");
+  app.open(fileRef);
+  var docRef = app.activeDocument;
+
+  // Place it in the template
+  if (ye == 1) app.load(file);
+  else app.load(file[0]);
+  backFile = app.activeDocument;
+  backFile.selection.selectAll();
+  backFile.selection.copy();
+  backFile.close(SaveOptions.DONOTSAVECHANGES);
+  docRef.paste();
+
+  // Create a reference to the active document for convenience
+  docRef = app.activeDocument;
+  var textAndIcons = docRef.layers.getByName("Text and Icons");
+
+  // Move art into position
+  var artLayerFrameName = "Art Frame";
+  var artLayerFrame = docRef.layers.getByName(artLayerFrameName);
+  frame(docRef.layers.getByName("Layer 1"),
+    artLayerFrame.bounds[0].as("px"),
+    artLayerFrame.bounds[1].as("px"),
+    artLayerFrame.bounds[2].as("px"),
+    artLayerFrame.bounds[3].as("px"));
+
+  // Insert artist name
+  var artistLayer = docRef.layers.getByName("Legal").layers.getByName("Artist");
+  docRef.activeLayer = artistLayer;
+  replaceText("Artist", cardArtist);
+
+  // Insert card name, aligning horizontally afterwards
+  docRef.activeLayer = textAndIcons.layers.getByName("Card Name");
+  docRef.activeLayer.textItem.contents = cardName;
+  var idAlgn = charIDToTypeID("Algn");
+  var desc855 = new ActionDescriptor();
+  var idnull = charIDToTypeID("null");
+  var ref363 = new ActionReference();
+  var idLyr = charIDToTypeID("Lyr ");
+  var idOrdn = charIDToTypeID("Ordn");
+  var idTrgt = charIDToTypeID("Trgt");
+  ref363.putEnumerated(idLyr, idOrdn, idTrgt);
+  desc855.putReference(idnull, ref363);
+  var idUsng = charIDToTypeID("Usng");
+  var idADSt = charIDToTypeID("ADSt");
+  var idAdCH = charIDToTypeID("AdCH");
+  desc855.putEnumerated(idUsng, idADSt, idAdCH);
+  executeAction(idAlgn, desc855, DialogModes.NO);
+
+  // Split card text into static ability & chaos ability text
+  var cardText = jsonParsed.text;
+  if (cardText !== undefined) cardText = cardText.replace(/\n/g, "\r");
+  var splitIndex = cardText.indexOf("Whenever you roll {CHAOS},");
+  var cardTextArray = [cardText];
+  if (splitIndex > 0) cardTextArray = [cardText.slice(0, splitIndex - 1), cardText.slice(splitIndex)];
+
+  // Insert card name, aligning horizontally afterwards
+  docRef.activeLayer = textAndIcons.layers.getByName("Typeline");
+  docRef.activeLayer.textItem.contents = jsonParsed.type;
+  idAlgn = charIDToTypeID("Algn");
+  desc855 = new ActionDescriptor();
+  idnull = charIDToTypeID("null");
+  ref363 = new ActionReference();
+  idLyr = charIDToTypeID("Lyr ");
+  idOrdn = charIDToTypeID("Ordn");
+  idTrgt = charIDToTypeID("Trgt");
+  ref363.putEnumerated(idLyr, idOrdn, idTrgt);
+  desc855.putReference(idnull, ref363);
+  idUsng = charIDToTypeID("Usng");
+  idADSt = charIDToTypeID("ADSt");
+  idAdCH = charIDToTypeID("AdCH");
+  desc855.putEnumerated(idUsng, idADSt, idAdCH);
+  executeAction(idAlgn, desc855, DialogModes.NO);
+
+  // Format text on static / phenomenon ability
+  var reminderTextBool = true;
+  var italicText = [];
+  endIndex = 0;
+  while (reminderTextBool) {
+    startIndex = cardTextArray[0].indexOf("(", endIndex);
+    if (startIndex >= 0) {
+      endIndex = cardTextArray[0].indexOf(")", startIndex + 1);
+      italicText.push(cardTextArray[0].slice(startIndex, endIndex + 1));
+    } else {
+      reminderTextBool = false;
+    }
+  }
+  docRef.activeLayer = textAndIcons.layers.getByName("Static Ability");
+  formatText(cardTextArray[0], italicText, -1, false);
+
+  if (cardTextArray.length > 1) {
+    // Plane - enable layer mask
+    docRef.activeLayer = docRef.layers.getByName("Frame").layers.getByName("Text Boxes");
+    enableLayerMask();
+
+    // Format text on chaos abiltiy
+    reminderTextBool = true;
+    italicText = [];
+    endIndex = 0;
+    while (reminderTextBool) {
+      startIndex = cardTextArray[1].indexOf("(", endIndex);
+      if (startIndex >= 0) {
+        endIndex = cardTextArray[1].indexOf(")", startIndex + 1);
+        italicText.push(cardTextArray[1].slice(startIndex, endIndex + 1));
+      } else {
+        reminderTextBool = false;
+      }
+    }
+
+    docRef.activeLayer = textAndIcons.layers.getByName("Chaos Ability");
+    formatText(cardTextArray[1], italicText, -1, false);
+  } else {
+    // Phenomenon - disable chaos symbol layer and chaos rules text
+    textAndIcons.layers.getByName("Chaos Symbol").visible = false;
+    textAndIcons.layers.getByName("Chaos Ability").visible = false;
+  }
+
+  // Drop in scan from Scryfall to help line up text
+  docRef.activeLayer = docRef.layers.getByName("Frame");
+  var idPlc = charIDToTypeID("Plc ");
+  var desc548 = new ActionDescriptor();
+  var idIdnt = charIDToTypeID("Idnt");
+  desc548.putInteger(idIdnt, 196);
+  idnull = charIDToTypeID("null");
+  desc548.putPath(idnull, new File(filePath + "/scripts/card.jpg"));
+  var idFTcs = charIDToTypeID("FTcs");
+  var idQCSt = charIDToTypeID("QCSt");
+  var idQcsa = charIDToTypeID("Qcsa");
+  desc548.putEnumerated(idFTcs, idQCSt, idQcsa);
+  var idOfst = charIDToTypeID("Ofst");
+  var desc549 = new ActionDescriptor();
+  var idHrzn = charIDToTypeID("Hrzn");
+  var idPxl = charIDToTypeID("#Pxl");
+  desc549.putUnitDouble(idHrzn, idPxl, 0.500000);
+  var idVrtc = charIDToTypeID("Vrtc");
+  idPxl = charIDToTypeID("#Pxl");
+  desc549.putUnitDouble(idVrtc, idPxl, -0.500000);
+  idOfst = charIDToTypeID("Ofst");
+  desc548.putObject(idOfst, idOfst, desc549);
+  var idAngl = charIDToTypeID("Angl");
+  var idAng = charIDToTypeID("#Ang");
+  desc548.putUnitDouble(idAngl, idAng, 90.000000);
+  executeAction(idPlc, desc548, DialogModes.NO);
+  var scanRef = docRef.layers.getByName("Planechase Frame");
+  frame(docRef.layers.getByName("card"),
+    scanRef.bounds[0].as("px"),
+    scanRef.bounds[1].as("px"),
+    scanRef.bounds[2].as("px"),
+    scanRef.bounds[3].as("px"));
+
+  // Finish off card by aligning text & saving manually
+  docRef.layers.getByName("card").move(docRef.layers.getByName("Frame"), ElementPlacement.PLACEBEFORE);
+  docRef.selection.deselect();
 }
 
 function proxyBasic(cardName, cardArtist, ye) {
@@ -110,7 +274,6 @@ function proxyPlaneswalker(jsonParsed, ye, cardName, cardArtist, expansionSymbol
   $.evalFile(filePath + "/scripts/framelogic.jsx");
 
   var templateName = "pw" + boxtopper;
-  var isBoxtopper = boxtopper != "";
   var fileRef = new File(filePath + "/templates/" + templateName + ".psd");
   app.open(fileRef);
 
@@ -146,7 +309,8 @@ function proxyPlaneswalker(jsonParsed, ye, cardName, cardArtist, expansionSymbol
   var artLayerFrameName = "Planeswalker Art Frame";
   if (selectedLayers[4]) artLayerFrameName = "Full Art Frame";
   var artLayerFrame = docRef.layers.getByName(artLayerFrameName);
-  frame(artLayerFrame.bounds[0].as("px"),
+  frame(docRef.layers.getByName("Layer 1"),
+    artLayerFrame.bounds[0].as("px"),
     artLayerFrame.bounds[1].as("px"),
     artLayerFrame.bounds[2].as("px"),
     artLayerFrame.bounds[3].as("px"));
@@ -319,7 +483,8 @@ function proxyNormal(jsonParsed, ye, cardName, cardArtist, expansionSymbol, layo
   var artLayerFrameName = "Art Frame";
   if (selectedLayers[4]) artLayerFrameName = "Full Art Frame";
   var artLayerFrame = docRef.layers.getByName(artLayerFrameName);
-  frame(artLayerFrame.bounds[0].as("px"),
+  frame(docRef.layers.getByName("Layer 1"),
+    artLayerFrame.bounds[0].as("px"),
     artLayerFrame.bounds[1].as("px"),
     artLayerFrame.bounds[2].as("px"),
     artLayerFrame.bounds[3].as("px"));
@@ -335,12 +500,12 @@ function proxyNormal(jsonParsed, ye, cardName, cardArtist, expansionSymbol, layo
   if (isCreature) textLayerName = "Rules Text - Creature";
   var textColour = new SolidColor();
   textColour.rgb.red = 255.0; textColour.rgb.blue = 255.0; textColour.rgb.green = 255.0;
-
+  var nyxcrown = (typeLine.indexOf("Legendary") >= 0 && typeLine.indexOf("Enchantment") >= 0) && (typeLine.indexOf("Creature") >= 0 || typeLine.indexOf("Artifact") >= 0);
   // Add a colour indicator dot when the card has no mana cost, it isn't a land
   // (or it is a creature: cornercase Dryad Arbor), and it isn't an artifact
   if ((cardManaCost == "" || cardManaCost == "{0}") &&
     (typeLine.indexOf("Land") < 0 || typeLine.indexOf("Creature") >= 0) &&
-    selectedLayers[1] != "Artifact" && ! selectedLayers[4]) {
+    selectedLayers[1] != "Artifact" && !selectedLayers[4]) {
     // Card needs a colour indicator
     var colourIndicator = docRef.layers.getByName("Colour Indicator");
     colourIndicator.layers.getByName(selectedLayers[1]).visible = true;
@@ -395,15 +560,25 @@ function proxyNormal(jsonParsed, ye, cardName, cardArtist, expansionSymbol, layo
     if (selectedLayers[3]) {
       var nyxLayer = docRef.layers.getByName("Nyx");
       nyxLayer.layers.getByName(selectedLayers[0]).visible = true;
+    } else {
+      // Background
+      backgroundLayer.layers.getByName(selectedLayers[0]).visible = true;
     }
-
-    // Background
-    backgroundLayer.layers.getByName(selectedLayers[0]).visible = true;
 
     // Pinlines
     if (typeLine.indexOf("Land") >= 0 && jsonParsed.layout == "normal") pinlinesName = "Land " + pinlinesName;
     var pinlinesLayer = docRef.layers.getByName(pinlinesName);
     pinlinesLayer.layers.getByName(selectedLayers[1]).visible = true;
+    if (nyxcrown) {
+      app.activeDocument.activeLayer = docRef.layers.getByName(pinlinesName);
+      enableLayerMask();
+
+      app.activeDocument.activeLayer = docRef.layers.getByName("Border");
+      enableLayerMask();
+
+      app.activeDocument.activeLayer = docRef.layers.getByName("Shadows");
+      enableLayerMask();
+    }
 
     // Twins
     var nameboxLayer = docRef.layers.getByName(nameboxName);
@@ -414,6 +589,11 @@ function proxyNormal(jsonParsed, ye, cardName, cardArtist, expansionSymbol, layo
       var legendaryLayer = docRef.layers.getByName("Legendary Crown (Credit to barbecue)");
       legendaryLayer.layers.getByName(selectedLayers[1]).visible = true;
       legendaryLayer.layers.getByName("Effects").visible = true;
+      if (nyxcrown) {
+        app.activeDocument.activeLayer = legendaryLayer.layers.getByName(selectedLayers[1]);
+        // script listener to enable layer mask
+        enableLayerMask();
+      }
     }
 
     // PT box
@@ -438,6 +618,9 @@ function proxyNormal(jsonParsed, ye, cardName, cardArtist, expansionSymbol, layo
   if (!isIxalan) insertManaCost(textAndIcons, cardManaCost);
   insertName(textAndIcons, cardName, cardnameLayerName, isIxalan);
   insertTypeline(textAndIcons, typeLine, typelineLayerName, isIxalan);
+
+  // For normal style box topper cards, make the typeline white
+  if (boxtopper != "") textAndIcons.layers.getByName(typelineLayerName).textItem.color = textColour;
 
   // P/T Text
   if (!isIxalan) {
@@ -552,7 +735,8 @@ function proxyNormal(jsonParsed, ye, cardName, cardArtist, expansionSymbol, layo
   if (isCreature) verticallyFixText(rulesTextLayer);
 
   // Write image to file and close document
-  saveImage(cardName);
+  if (boxtopper == "") saveImage(cardName);
+  else saveImage("border/" + cardName + " (Extended)");
 }
 
 function insertManaCost(textAndIcons, cardManaCost) {
@@ -564,6 +748,7 @@ function insertManaCost(textAndIcons, cardManaCost) {
     docRef.activeLayer = manaCostLayer;
     formatText(cardManaCost, [], -1, false);
     docRef.activeLayer.name = "Mana Cost";
+    docRef.activeLayer.textItem.justification = Justification.RIGHT; // Force justification
   } else {
     manaCostLayer.visible = false;
   }
@@ -577,13 +762,13 @@ function insertName(textAndIcons, cardName, cardnameLayerName, isIxalan) {
 
   if (!isIxalan && textAndIcons.layers.getByName("Mana Cost").visible) {
     // Scale down the name to fit in case it's too long
-    var symbolLeftBound = textAndIcons.layers.getByName("Mana Cost").bounds[0];
-    var typelineRightBound = cardnameLayer.bounds[2];
+    var symbolLeftBound = textAndIcons.layers.getByName("Mana Cost").bounds[0].as("px");
+    var typelineRightBound = cardnameLayer.bounds[2].as("px");
     var nameFontSize = cardnameLayer.textItem.size;
-    while (typelineRightBound > symbolLeftBound - new UnitValue(16, "px")) { // minimum 16 px gap
+    while (typelineRightBound > symbolLeftBound - 16) { // minimum 16 px gap
       cardnameLayer.textItem.size = new UnitValue(nameFontSize - 1, "px");
       nameFontSize = nameFontSize - 1;
-      typelineRightBound = cardnameLayer.bounds[2];
+      typelineRightBound = cardnameLayer.bounds[2].as("px");
     }
   }
 }
@@ -596,13 +781,13 @@ function insertTypeline(textAndIcons, typeLine, typelineLayerName, isIxalan) {
 
   if (!isIxalan) {
     // Scale down the typeline to fit in case it's too long
-    var symbolLeftBound = textAndIcons.layers.getByName("Expansion Symbol").bounds[0];
-    var typelineRightBound = typelineLayer.bounds[2];
+    var symbolLeftBound = textAndIcons.layers.getByName("Expansion Symbol").bounds[0].as("px");
+    var typelineRightBound = typelineLayer.bounds[2].as("px");
     var typelineFontSize = typelineLayer.textItem.size;
-    while (typelineRightBound > symbolLeftBound) {
+    while (typelineRightBound > symbolLeftBound - 16) { // minimum 16 px gap
       typelineLayer.textItem.size = new UnitValue(typelineFontSize - 1, "px");
       typelineFontSize = typelineFontSize - 1;
-      typelineRightBound = typelineLayer.bounds[2];
+      typelineRightBound = typelineLayer.bounds[2].as("px");
     }
   }
 }
@@ -631,4 +816,24 @@ function saveImage(cardName) {
 
   // Close the thing without saving
   docRef.close(SaveOptions.DONOTSAVECHANGES);
+}
+
+function enableLayerMask() {
+  // works on the active layer, I think?
+  var idsetd = charIDToTypeID("setd");
+  var desc3078 = new ActionDescriptor();
+  var idnull = charIDToTypeID("null");
+  var ref1567 = new ActionReference();
+  var idLyr = charIDToTypeID("Lyr ");
+  var idOrdn = charIDToTypeID("Ordn");
+  var idTrgt = charIDToTypeID("Trgt");
+  ref1567.putEnumerated(idLyr, idOrdn, idTrgt);
+  desc3078.putReference(idnull, ref1567);
+  var idT = charIDToTypeID("T   ");
+  var desc3079 = new ActionDescriptor();
+  var idUsrM = charIDToTypeID("UsrM");
+  desc3079.putBoolean(idUsrM, true);
+  var idLyr = charIDToTypeID("Lyr ");
+  desc3078.putObject(idT, idLyr, desc3079);
+  executeAction(idsetd, desc3078, DialogModes.NO);
 }

@@ -1,7 +1,7 @@
 function borderify(file, ye) {
   // File path to main working directory
   var filePath = File($.fileName).parent.parent.fsName;
-  $.evalFile(filePath + "/scripts/excessFunctions.jsx"); 
+  $.evalFile(filePath + "/scripts/excessFunctions.jsx");
 
   var fileRef = new File(filePath + "/templates/MPCcrop.psd");
 
@@ -28,7 +28,8 @@ function borderify(file, ye) {
   docRef.paste();
   var cardFrameName = "Card Size";
   var cardFrame = docRef.layers.getByName(cardFrameName);
-  frame(cardFrame.bounds[0].as("px"),
+  frame(docRef.layers.getByName("Layer 1"),
+    cardFrame.bounds[0].as("px"),
     cardFrame.bounds[1].as("px"),
     cardFrame.bounds[2].as("px"),
     cardFrame.bounds[3].as("px"));

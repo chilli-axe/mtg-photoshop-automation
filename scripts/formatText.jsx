@@ -81,7 +81,8 @@ function formatText(inputString, italicStrings, flavourIndex, centredText) {
     "{2/R}": "QqWU",
     "{2/G}": "QqWV",
     "{S}": "omn",
-    "{Q}": "ol"
+    "{Q}": "ol",
+    "{CHAOS}": "?"
   };
 
   if (flavourIndex > 0) {
@@ -300,8 +301,8 @@ function formatText(inputString, italicStrings, flavourIndex, centredText) {
     for (i = 0; i < symbolIndices.length; i++) {
 
       // Determine what sort of symbol it is, then handle it accordingly
-      if (inputString.slice(symbolIndices[i], symbolIndices[i] + 1) == "e") {
-        // Energy symbol
+      if (inputString.slice(symbolIndices[i], symbolIndices[i] + 1) == "e" || inputString.slice(symbolIndices[i], symbolIndices[i] + 1) == "?") {
+        // Energy symbol or chaos symbol
         // =======================================================
         var idTxtt = charIDToTypeID("Txtt");
         list12.putObject(idTxtt, currentLayerReference);
