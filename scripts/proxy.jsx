@@ -1,7 +1,7 @@
 // Settings
 // Switch from the default template by uncommenting a line here
 // Make sure you know what you're doing when you force the script to use a specific template
-// var chosenTemplate = "";
+var chosenTemplate = "";
 // var chosenTemplate = "znrexp";
 // var chosenTemplate = "masterpiece";
 // var chosenTemplate = "stargazing";
@@ -10,7 +10,7 @@
 // var chosenTemplate = "normal-promo";
 // var chosenTemplate = "basic-theros";
 // var chosenTemplate = "basic-unstable";
-var chosenTemplate = "pw-textonly";
+// var chosenTemplate = "pw-textonly";
 
 // Toggle between these two lines to use the normal frame or box topper frame
 var extended = "";
