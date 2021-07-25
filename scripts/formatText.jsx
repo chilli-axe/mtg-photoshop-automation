@@ -357,6 +357,11 @@ function formatText(inputString, italicStrings, flavourIndex, centredText) {
           rgbValue2 = rgbG;
         }
 
+        // special case for 2/B
+        if (inputString.slice(symbolIndices[i], symbolIndices[i] + 4) == "QqWT") {
+          rgbValue2 = [159, 146, 143];
+        }
+
         // Character 1
         idTxtt = charIDToTypeID("Txtt");
         list12.putObject(idTxtt, currentLayerReference);
@@ -828,13 +833,13 @@ function formatText(inputString, italicStrings, flavourIndex, centredText) {
     idparagraphStyle = stringIDToTypeID("paragraphStyle");
     idfirstLineIndent = stringIDToTypeID("firstLineIndent");
     idPnt = charIDToTypeID("#Pnt");
-    desc142.putUnitDouble(idfirstLineIndent, idPnt, -41.000000);
+    desc142.putUnitDouble(idfirstLineIndent, idPnt, -5.7); // -41
     idstartIndent = stringIDToTypeID("startIndent");
     idPnt = charIDToTypeID("#Pnt");
-    desc142.putUnitDouble(idstartIndent, idPnt, 41.000000);
+    desc142.putUnitDouble(idstartIndent, idPnt, 5.7); // 41
     idspaceBefore = stringIDToTypeID("spaceBefore");
     idPnt = charIDToTypeID("#Pnt");
-    desc142.putUnitDouble(idspaceBefore, idPnt, 10.000000);
+    desc142.putUnitDouble(idspaceBefore, idPnt, 1.0); // 10
     idspaceAfter = stringIDToTypeID("spaceAfter");
     idPnt = charIDToTypeID("#Pnt");
     desc142.putUnitDouble(idspaceAfter, idPnt, 0.000000);
@@ -959,7 +964,7 @@ function formatText(inputString, italicStrings, flavourIndex, centredText) {
     desc142.putUnitDouble( idimpliedStartIndent, idPnt, 0 );
     idspaceBefore = stringIDToTypeID("spaceBefore");
     idPnt = charIDToTypeID("#Pnt");
-    desc142.putUnitDouble(idspaceBefore, idPnt, 34);
+    desc142.putUnitDouble(idspaceBefore, idPnt, 4.4);  // sets the pt lead size between rules text and flavour text
     idparagraphStyle = stringIDToTypeID("paragraphStyle");
     desc141.putObject(idparagraphStyle, idparagraphStyle, desc142);
     idparagraphStyleRange = stringIDToTypeID("paragraphStyleRange");
@@ -996,4 +1001,83 @@ function formatText(inputString, italicStrings, flavourIndex, centredText) {
   idTxLr = charIDToTypeID("TxLr");
   desc119.putObject(idT, idTxLr, desc120);
   executeAction(idsetd, desc119, DialogModes.NO);
+}
+
+// TODO: anything that calls formatText should go through this step of italics text & keyword identification
+// also, the version of this code sitting in proxy.jsx has an extra step where it reverts words between asterisks in flavour text
+// back to non-italics - that should be here too
+// this code should only be written once - DRY! this is a temporary fix to allow me to make mutate cards but I don't have much free time atm
+function common_formatting(cardText) {
+  var reminderTextBool = true;
+
+  var italicText = [];
+  endIndex = 0;
+  while (reminderTextBool) {
+    startIndex = cardText.indexOf("(", endIndex);
+    if (startIndex >= 0) {
+      endIndex = cardText.indexOf(")", startIndex + 1);
+      italicText.push(cardText.slice(startIndex, endIndex + 1));
+    } else {
+      reminderTextBool = false;
+    }
+  }
+
+  // Also attach the ability word Threshold and the cards' flavour text
+  // to the italics array.
+  const abilityWords = [
+    "Adamant",
+    "Addendum",
+    "Battalion",
+    "Bloodrush",
+    "Channel",
+    "Chroma",
+    "Cohort",
+    "Constellation",
+    "Converge",
+    "Council's dilemma",
+    "Delirium",
+    "Domain",
+    "Eminence",
+    "Enrage",
+    "Fateful hour",
+    "Ferocious",
+    "Formidable",
+    "Grandeur",
+    "Hellbent",
+    "Heroic",
+    "Imprint",
+    "Inspired",
+    "Join forces",
+    "Kinship",
+    "Landfall",
+    "Lieutenant",
+    "Metalcraft",
+    "Morbid",
+    "Parley",
+    "Radiance",
+    "Raid",
+    "Rally",
+    "Revolt",
+    "Spell mastery",
+    "Strive",
+    "Sweep",
+    "Tempting offer",
+    "Threshold",
+    "Undergrowth",
+    "Will of the council",
+    "Magecraft"
+  ];
+
+  for (var i = 0; i < abilityWords.length; i++) {
+    italicText.push(abilityWords[i] + " \u2014"); // Include em dash
+  }
+
+  return italicText;
+}
+
+function formatNow() {
+  var cardText = app.activeDocument.activeLayer.textItem.contents;
+  var italicText = common_formatting(cardText);
+
+  formatText(cardText, italicText, -1, false);
 }

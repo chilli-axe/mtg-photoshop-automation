@@ -180,9 +180,9 @@ function selectFrameLayers(cardjson) {
     var devoid = cardtext.indexOf("Devoid") >= 0 && colourIdentity.length > 0;
     if ((colourIdentity.length <= 0 && typeline.indexOf("Artifact") < 0) || devoid) {
       // Eldrazi-style card identified
-      selectedBackground = "Eldrazi";
-      selectedPinlines = "Eldrazi";
-      selectedNamebox = "Eldrazi";
+      selectedBackground = "Colourless";
+      selectedPinlines = "Colourless";
+      selectedNamebox = "Colourless";
 
       // Handle devoid frame
       if (devoid) {

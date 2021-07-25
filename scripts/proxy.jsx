@@ -1,6 +1,24 @@
+// Settings
+// Switch from the default template by uncommenting a line here
+// Make sure you know what you're doing when you force the script to use a specific template
+// var chosenTemplate = "";
+// var chosenTemplate = "znrexp";
+// var chosenTemplate = "masterpiece";
+// var chosenTemplate = "stargazing";
+// var chosenTemplate = "womensday";
+// var chosenTemplate = "universesbeyond";
+// var chosenTemplate = "normal-promo";
+// var chosenTemplate = "basic-theros";
+// var chosenTemplate = "basic-unstable";
+var chosenTemplate = "pw-textonly";
+
 // Toggle between these two lines to use the normal frame or box topper frame
-// boxtopper = "-boxtopper";
-boxtopper = "";
+var extended = "";
+// var extended = "-extended";
+
+// Toggle breakpoint to manually edit image before rasterising text & saving image
+var breakpoint = false;
+// var breakpoint = true;
 
 function proxy(file, ye) {
   var expansionSymbol = ""; // Cube
@@ -26,8 +44,21 @@ function proxy(file, ye) {
     cardName = fullCardName.slice(0, openIndex);
   }
 
+  var basicNames = [
+    "Plains",
+    "Island",
+    "Swamp",
+    "Mountain",
+    "Forest",
+    "Wastes",
+    "Snow-Covered Plains",
+    "Snow-Covered Island",
+    "Snow-Covered Swamp",
+    "Snow-Covered Mountain",
+    "Snow-Covered Forest"
+  ];
 
-  if (cardName == "Plains" || cardName == "Island" || cardName == "Swamp" || cardName == "Mountain" || cardName == "Forest") {
+  if (basicNames.toString().indexOf(cardName) >= 0) { // cardName == "Plains" || cardName == "Island" || cardName == "Swamp" || cardName == "Mountain" || cardName == "Forest" || cardName == "Wastes") {
     proxyBasic(cardName, cardArtist, ye);
   } else {
     // Run Python script to get info from Scryfall
@@ -50,11 +81,14 @@ function proxy(file, ye) {
     // Why do we have to parse this twice? To be honest only God knows lmao
     var jsonParsed = JSON.parse(JSON.parse(cardJSON));
 
+    // Retrive card name from Scryfall in case the capitalisation in the filename was wrong
+    cardName = jsonParsed.name;
+
     // If no artist name was supplied, use the name from Scryfall
     if (cardArtist == "") cardArtist = jsonParsed.artist;
 
-    if (jsonParsed.layout == "normal") {
-      proxyNormal(jsonParsed, ye, cardName, cardArtist, expansionSymbol, "normal");
+    if (jsonParsed.layout == "normal" || jsonParsed.layout == "mutate" || jsonParsed.layout == "snow" || jsonParsed.layout == "miracle" || jsonParsed.layout == "adventure") {
+      proxyNormal(jsonParsed, ye, cardName, cardArtist, expansionSymbol, jsonParsed.layout);
     } else if (jsonParsed.layout == "planeswalker" || jsonParsed.type.indexOf("Planeswalker") > 0) {
       proxyPlaneswalker(jsonParsed, ye, cardName, cardArtist, expansionSymbol);
     } else if (jsonParsed.layout == "transform") {
@@ -62,6 +96,12 @@ function proxy(file, ye) {
         proxyNormal(jsonParsed, ye, cardName, cardArtist, expansionSymbol, "tf-front");
       } else if (jsonParsed.face == "back") {
         proxyNormal(jsonParsed, ye, cardName, cardArtist, expansionSymbol, "tf-back");
+      }
+    } else if (jsonParsed.layout == "modal_dfc") {
+      if (jsonParsed.face == "front") {
+        proxyNormal(jsonParsed, ye, cardName, cardArtist, expansionSymbol, "mdfc-front");
+      } else if (jsonParsed.face == "back") {
+        proxyNormal(jsonParsed, ye, cardName, cardArtist, expansionSymbol, "mdfc-back");
       }
     } else if (jsonParsed.layout == "planar") {
       proxyPlanar(jsonParsed, ye, cardName, cardArtist)
@@ -235,7 +275,9 @@ function proxyBasic(cardName, cardArtist, ye) {
   $.evalFile(filePath + "/scripts/excessFunctions.jsx");
 
   templateName = "basic";
-  var fileRef = new File(filePath + "/templates/" + templateName + ".psd");
+  if (chosenTemplate != "") fileRef = new File(filePath + "/templates/" + chosenTemplate + ".psd");
+  else var fileRef = new File(filePath + "/templates/" + templateName + ".psd");
+  // var fileRef = new File(filePath + "/templates/" + templateName + ".psd");
   app.open(fileRef);
 
   var docRef = app.activeDocument;
@@ -254,7 +296,8 @@ function proxyBasic(cardName, cardArtist, ye) {
   // Move art into position
   var artLayerFrameName = "Basic Art Frame";
   var artLayerFrame = docRef.layers.getByName(artLayerFrameName);
-  frame(artLayerFrame.bounds[0].as("px"),
+  frame(docRef.layers.getByName("Layer 1"),
+    artLayerFrame.bounds[0].as("px"),
     artLayerFrame.bounds[1].as("px"),
     artLayerFrame.bounds[2].as("px"),
     artLayerFrame.bounds[3].as("px"));
@@ -273,8 +316,9 @@ function proxyPlaneswalker(jsonParsed, ye, cardName, cardArtist, expansionSymbol
   $.evalFile(filePath + "/scripts/excessFunctions.jsx");
   $.evalFile(filePath + "/scripts/framelogic.jsx");
 
-  var templateName = "pw" + boxtopper;
+  var templateName = "pw" + extended;
   var fileRef = new File(filePath + "/templates/" + templateName + ".psd");
+  if (chosenTemplate != "") fileRef = new File(filePath + "/templates/" + chosenTemplate + ".psd");
   app.open(fileRef);
 
   // Place it in the template
@@ -393,6 +437,11 @@ function proxyPlaneswalker(jsonParsed, ye, cardName, cardArtist, expansionSymbol
     }
   }
 
+  if (abilities.length == 2) {
+    // planeswalker with only two abilities - hide the third one
+    loyaltyGroup.layers.getByName(groupNames[2]).visible = false;
+  }
+
   // Drop in scan from Scryfall to help line up text
   docRef.activeLayer = templateRef.layers.getByName("Name & Title Boxes");
   var idPlc = charIDToTypeID("Plc ");
@@ -425,11 +474,14 @@ function proxyPlaneswalker(jsonParsed, ye, cardName, cardArtist, expansionSymbol
   desc300.putUnitDouble(idHght, idPrc, 100.000000);
   executeAction(idPlc, desc300, DialogModes.NO);
 
-  var scanLayer = templateRef.layers.getByName("card");
-  scanLayer.resize(50 * app.activeDocument.width / scanLayer.bounds[0],
-                   50 * app.activeDocument.height / scanLayer.bounds[1],
-                   AnchorPosition.MIDDLECENTER);
-  // scanLayer.resize(app.activeDocument.width, app.activeDocument.height, AnchorPosition.MIDDLECENTER);
+  // fit scryfall scan to frame
+  var scryfallScanFrameName = "Scryfall Scan Frame";
+  var scryfallScanFrame = docRef.layers.getByName(scryfallScanFrameName);
+  frame(templateRef.layers.getByName("card"),
+    scryfallScanFrame.bounds[0].as("px"),
+    scryfallScanFrame.bounds[1].as("px"),
+    scryfallScanFrame.bounds[2].as("px"),
+    scryfallScanFrame.bounds[3].as("px"));
 
   // Make the script error so we can finish it off by hand
   exit();
@@ -447,7 +499,8 @@ function proxyNormal(jsonParsed, ye, cardName, cardArtist, expansionSymbol, layo
   if (isIxalan) layout = "ixalan";
 
   var fileRef;
-  if (layout == "normal") fileRef = new File(filePath + "/templates/" + layout + boxtopper + ".psd");
+  if (chosenTemplate != "") fileRef = new File(filePath + "/templates/" + chosenTemplate + ".psd");
+  else if (layout == "normal") fileRef = new File(filePath + "/templates/" + layout + extended + ".psd");
   // if (layout == "normal") fileRef = new File(filePath + "/templates/" + "fullartland" + ".psd");
   else fileRef = new File(filePath + "/templates/" + layout + ".psd");
 
@@ -517,37 +570,58 @@ function proxyNormal(jsonParsed, ye, cardName, cardArtist, expansionSymbol, layo
   }
 
   // Modify a few things if the card is a transform card
-  if (layout.indexOf("tf") >= 0) {
+  if (layout.indexOf("tf") >= 0 || layout.indexOf("mdfc-") >= 0) {
     // Shift the card name layer
     textAndIcons.layers.getByName(cardnameLayerName).visible = false;
     cardnameLayerName = cardnameLayerName + " Shift";
     textAndIcons.layers.getByName(cardnameLayerName).visible = true;
 
     // Select the correct twins and pinlines
-    nameboxName = nameboxName + " " + layout;
-    pinlinesName = pinlinesName + " " + layout;
+    // nameboxName = nameboxName + " " + layout;
+    // pinlinesName = pinlinesName + " " + layout;
 
-    // If the card is a front face with a creature back, insert the back P/T
-    if (layout == "tf-front" && jsonParsed.back_power != null && jsonParsed.back_toughness != null) {
-      var flipPT = textAndIcons.layers.getByName("Flipside Power / Toughness");
-      flipPT.visible = true;
-      flipPT.textItem.contents = jsonParsed.back_power + "/" + jsonParsed.back_toughness;
-      // Select the correct text box as well
-      textLayerName = textLayerName + " Flip";
-    } else if (layout == "tf-back") {
-      ptBoxGroup = "PT Box tf-back";
-      if (!selectedLayers[4]) {
-        // Card is a back face that's not an eldrazi - make the relevant text white
-        textAndIcons.layers.getByName(cardnameLayerName).textItem.color = textColour;
-        textAndIcons.layers.getByName(typelineLayerName).textItem.color = textColour;
-        textAndIcons.layers.getByName("Power / Toughness").textItem.color = textColour;
+    if (layout.indexOf("tf-") >= 0) {
+      // Switch on the transform icon in the top left
+      textAndIcons.layers.getByName("Transform Backing").visible = true;
+      var transformGroup = textAndIcons.layers.getByName(layout);
+      transformGroup.layers.getByName(String(jsonParsed.frame_effect)).visible = true;
+
+      // If the card is a front face with a creature back, insert the back P/T
+      if (layout == "tf-front" && jsonParsed.back_power != null && jsonParsed.back_toughness != null) {
+        var flipPT = textAndIcons.layers.getByName("Flipside Power / Toughness");
+        flipPT.visible = true;
+        flipPT.textItem.contents = jsonParsed.back_power + "/" + jsonParsed.back_toughness;
+        // Select the correct text box as well
+        textLayerName = textLayerName + " Flip";
+        
       }
     }
+    else {
+      // card must be a MDFC - enable the correct layers and insert info
+      var mdfcGroup = textAndIcons.layers.getByName(layout);
+      mdfcGroup.layers.getByName("Left").textItem.contents = jsonParsed.back.type_short;
+      docRef.activeLayer = mdfcGroup.layers.getByName("Right");
+      formatText(jsonParsed.back.info_short, [], -1, false);
 
-    // Switch on the transform icon in the top left
-    textAndIcons.layers.getByName("Transform Backing").visible = true;
-    var transformGroup = textAndIcons.layers.getByName(layout);
-    transformGroup.layers.getByName(String(jsonParsed.frame_effect)).visible = true;
+      var topGroup = mdfcGroup.layers.getByName("Top");
+      // enable the colour for this face
+      var topName = selectedLayers[1];
+      if (topName.length == 2) topName = "Gold";
+      topGroup.layers.getByName(topName).visible = true;
+
+      // enable the colour for the reverse face
+      var bottomGroup = mdfcGroup.layers.getByName("Bottom");
+      var bottomColour = selectFrameLayers(jsonParsed.back)[1];
+      if (bottomColour.length == 2) bottomColour = "Gold";
+      bottomGroup.layers.getByName(bottomColour).visible = true;
+    }
+
+    if ((layout == "tf-back" && !selectedLayers[4]) || (layout.indexOf("-back") >= 0 && layout != "tf-back")) {
+      // Card is a back face that's not an eldrazi - make the relevant text white
+      textAndIcons.layers.getByName(cardnameLayerName).textItem.color = textColour;
+      textAndIcons.layers.getByName(typelineLayerName).textItem.color = textColour;
+      textAndIcons.layers.getByName("Power / Toughness").textItem.color = textColour;
+    }
   }
 
   var backgroundLayer = docRef.layers.getByName("Background");
@@ -565,18 +639,32 @@ function proxyNormal(jsonParsed, ye, cardName, cardArtist, expansionSymbol, layo
       backgroundLayer.layers.getByName(selectedLayers[0]).visible = true;
     }
 
+    // also switch on nyxcrown for legendary masterpiece cards and companion cards, but do it after the background is adjusted
+    var isCompanion = (cardText.indexOf("Companion ") == 0);
+    if (isCompanion) {
+      // turn on companion crown layer
+      docRef.layers.getByName("Companion").layers.getByName(selectedLayers[0]).visible = true;
+    }
+    nyxcrown = nyxcrown || (chosenTemplate == "masterpiece" && typeLine.indexOf("Legendary") >= 0) || isCompanion;
+
     // Pinlines
-    if (typeLine.indexOf("Land") >= 0 && jsonParsed.layout == "normal") pinlinesName = "Land " + pinlinesName;
+    if (typeLine.indexOf("Land") >= 0) pinlinesName = "Land " + pinlinesName;  //  && jsonParsed.layout == "normal"
     var pinlinesLayer = docRef.layers.getByName(pinlinesName);
     pinlinesLayer.layers.getByName(selectedLayers[1]).visible = true;
     if (nyxcrown) {
       app.activeDocument.activeLayer = docRef.layers.getByName(pinlinesName);
       enableLayerMask();
 
-      app.activeDocument.activeLayer = docRef.layers.getByName("Border");
-      enableLayerMask();
+      // app.activeDocument.activeLayer = docRef.layers.getByName("Border");
+      // enableLayerMask();
 
       app.activeDocument.activeLayer = docRef.layers.getByName("Shadows");
+      enableLayerMask();
+    }
+
+    if (chosenTemplate == "womensday" && typeLine.indexOf("Legendary") >= 0) {
+      // disable the layer mask for pinlines bc of legendary crown things
+      app.activeDocument.activeLayer = docRef.layers.getByName(pinlinesName);
       enableLayerMask();
     }
 
@@ -586,13 +674,21 @@ function proxyNormal(jsonParsed, ye, cardName, cardArtist, expansionSymbol, layo
 
     // Legendary crown
     if (typeLine.indexOf("Legendary") >= 0) {
-      var legendaryLayer = docRef.layers.getByName("Legendary Crown (Credit to barbecue)");
+      var legendaryLayer = docRef.layers.getByName("Legendary Crown");
       legendaryLayer.layers.getByName(selectedLayers[1]).visible = true;
-      legendaryLayer.layers.getByName("Effects").visible = true;
+      // legendaryLayer.layers.getByName("Effects").visible = true;
+      // Switch to the legendary border
+      var borderGroup = docRef.layers.getByName("Border");
+      borderGroup.layers.getByName("Legendary Border").visible = true;
+      borderGroup.layers.getByName("Normal Border").visible = false;
+      
       if (nyxcrown) {
-        app.activeDocument.activeLayer = legendaryLayer.layers.getByName(selectedLayers[1]);
+        app.activeDocument.activeLayer = legendaryLayer;  // .layers.getByName(selectedLayers[1]);
         // script listener to enable layer mask
         enableLayerMask();
+
+        // Switch on nyx crown effects
+        docRef.layers.getByName("Hollow Crown Shadow").visible = true;
       }
     }
 
@@ -614,19 +710,62 @@ function proxyNormal(jsonParsed, ye, cardName, cardArtist, expansionSymbol, layo
   gradient(textAndIcons, cardRarity);
 
   // Insert basic text fields
-  replaceText("Artist", cardArtist);
+  legalLayer = docRef.layers.getByName("Legal");
+  legalLayer.layers.getByName("Artist").textItem.contents = cardArtist;
+  // replaceText("Artist", cardArtist);
   if (!isIxalan) insertManaCost(textAndIcons, cardManaCost);
   insertName(textAndIcons, cardName, cardnameLayerName, isIxalan);
   insertTypeline(textAndIcons, typeLine, typelineLayerName, isIxalan);
 
   // For normal style box topper cards, make the typeline white
-  if (boxtopper != "") textAndIcons.layers.getByName(typelineLayerName).textItem.color = textColour;
+  if (extended != "") textAndIcons.layers.getByName(typelineLayerName).textItem.color = textColour;
+
+  // For mutate cards, insert the mutate text into the appropriate layer & format it
+  if (layout == "mutate") {
+    var mutateLayer = textAndIcons.layers.getByName("Mutate");
+    mutateLayer.textItem.contents = jsonParsed.mutate;
+    docRef.activeLayer = mutateLayer;
+    formatNow();
+    // formatText(jsonParsed.mutate, [], -1, false);
+
+    // vertically centre the text too
+    verticallyAlignText("Mutate", "Mutate Reference");
+  } else if (layout == "adventure") {
+    // insert adventure name, mana cost, typeline, and rules text. format the adventure's rules text and fit it to the text box
+    var adventureNameLayer = textAndIcons.layers.getByName("Card Name - Adventure");
+    adventureNameLayer.textItem.contents = jsonParsed.name_adventure;
+
+    var adventureTypeLayer = textAndIcons.layers.getByName("Typeline - Adventure");
+    adventureTypeLayer.textItem.contents = jsonParsed.type_adventure;
+
+    var adventureManaCostLayer = textAndIcons.layers.getByName("Mana Cost - Adventure");
+    $.evalFile(filePath + "/scripts/formatText.jsx");
+    docRef.activeLayer = adventureManaCostLayer;
+    formatText(jsonParsed.manaCost_adventure, [], -1, false);
+
+    var adventureRulesTextLayer = textAndIcons.layers.getByName("Rules Text - Adventure");
+    adventureRulesTextLayer.textItem.contents = jsonParsed.text_adventure;
+    docRef.activeLayer = adventureRulesTextLayer;
+    formatNow();
+
+    // Scale the text to fit in the text box
+    var adventureTextboxRefLayerName = "Textbox Reference - Adventure";
+    var adventureTextboxRef = textAndIcons.layers.getByName(adventureTextboxRefLayerName);
+    var tolerance = new UnitValue(10, "px"); // 10 px tolerance from textbox reference
+    var layerHeightAdventure = adventureTextboxRef.bounds[3] - adventureTextboxRef.bounds[1] - tolerance.as("cm");
+    scaleTextToFitBox(adventureRulesTextLayer, layerHeightAdventure);
+    verticallyAlignText("Rules Text - Adventure", adventureTextboxRefLayerName);
+
+  }
 
   // P/T Text
   if (!isIxalan) {
     var ptLayer = textAndIcons.layers.getByName("Power / Toughness");
     if (isCreature) {
       ptLayer.textItem.contents = cardPower + "/" + cardTough;
+      // also switch mpcautofill.com lines
+      legalLayer.layers.getByName("Noncreature MPC Autofill").visible = false;
+      legalLayer.layers.getByName("Creature MPC Autofill").visible = true;
     } else ptLayer.visible = false;
   }
 
@@ -634,80 +773,35 @@ function proxyNormal(jsonParsed, ye, cardName, cardArtist, expansionSymbol, layo
   var rulesTextLayer = textAndIcons.layers.getByName(textLayerName);
   if (cardText !== undefined) cardText = cardText.replace(/\n/g, "\r");
   else cardText = "";
-  rulesTextLayer.textItem.contents = cardText;
+  // rulesTextLayer.textItem.contents = cardText;
 
   // ---------- Italics Text ----------
   // Build an array of italics text, starting with identifying any
   // reminder text in the card's text body (anything in brackets).
-  var reminderTextBool = true;
-
-  var italicText = [];
-  endIndex = 0;
-  while (reminderTextBool) {
-    startIndex = cardText.indexOf("(", endIndex);
-    if (startIndex >= 0) {
-      endIndex = cardText.indexOf(")", startIndex + 1);
-      italicText.push(cardText.slice(startIndex, endIndex + 1));
-    } else {
-      reminderTextBool = false;
-    }
-  }
-
-  // Also attach the ability word Threshold and the cards' flavour text
-  // to the italics array.
   var flavourIndex = -1;
-  const abilityWords = [
-    "Adamant",
-    "Addendum",
-    "Battalion",
-    "Bloodrush",
-    "Channel",
-    "Chroma",
-    "Cohort",
-    "Constellation",
-    "Converge",
-    "Council's dilemma",
-    "Delirium",
-    "Domain",
-    "Eminence",
-    "Enrage",
-    "Fateful hour",
-    "Ferocious",
-    "Formidable",
-    "Grandeur",
-    "Hellbent",
-    "Heroic",
-    "Imprint",
-    "Inspired",
-    "Join forces",
-    "Kinship",
-    "Landfall",
-    "Lieutenant",
-    "Metalcraft",
-    "Morbid",
-    "Parley",
-    "Radiance",
-    "Raid",
-    "Rally",
-    "Revolt",
-    "Spell mastery",
-    "Strive",
-    "Sweep",
-    "Tempting offer",
-    "Threshold",
-    "Undergrowth",
-    "Will of the council"
-  ];
-
-  for (var i = 0; i < abilityWords.length; i++) {
-    italicText.push(abilityWords[i] + " \u2014"); // Include em dash
-  }
+  var italicText = common_formatting(cardText);
 
   if (flavourText.length > 1) {
+    // fix newline characters
     flavourText = flavourText.replace(/\n/g, "\r");
-    italicText.push(flavourText);
+
+    // remove things between asterisks from flavour text if necessary
+    var flavourTextSplit = flavourText.split("*");
+    if (flavourTextSplit.length > 1) {
+      // asterisks present in flavour text
+      for (var  i=0; i<flavourTextSplit.length; i+=2) {
+        // add the parts of the flavour text not between asterisks to italicText
+        italicText.push(flavourTextSplit[i])
+      }
+      // reassemble flavourText without asterisks
+      flavourText = flavourTextSplit.join("");
+    } else {
+      // if no asterisks in flavour text, push the whole flavour text string instead
+      italicText.push(flavourText);
+    }
+    
     flavourIndex = cardText.length;
-  }
+  } 
   // Jam the rules text and flavour text together
   var completeString = "";
   if (flavourText.length > 0) {
@@ -728,15 +822,16 @@ function proxyNormal(jsonParsed, ye, cardName, cardArtist, expansionSymbol, layo
   var textboxRef = textAndIcons.layers.getByName("Textbox Reference");
   var tolerance = new UnitValue(10, "px"); // 10 px tolerance from textbox reference
   var layerHeight = textboxRef.bounds[3] - textboxRef.bounds[1] - tolerance.as("cm");
-  var scaled = scaleTextToFitBox(rulesTextLayer, layerHeight);
+  scaleTextToFitBox(rulesTextLayer, layerHeight);
 
   // Align card text in text box
-  verticallyAlignText(textLayerName);
+  if (breakpoint) exit();
+  verticallyAlignText(textLayerName, "Textbox Reference");
   if (isCreature) verticallyFixText(rulesTextLayer);
 
   // Write image to file and close document
-  if (boxtopper == "") saveImage(cardName);
-  else saveImage("border/" + cardName + " (Extended)");
+  if (extended == "") saveImage(cardName);
+  else saveImage(cardName + " (Extended)");
 }
 
 function insertManaCost(textAndIcons, cardManaCost) {
@@ -762,13 +857,14 @@ function insertName(textAndIcons, cardName, cardnameLayerName, isIxalan) {
 
   if (!isIxalan && textAndIcons.layers.getByName("Mana Cost").visible) {
     // Scale down the name to fit in case it's too long
-    var symbolLeftBound = textAndIcons.layers.getByName("Mana Cost").bounds[0].as("px");
-    var typelineRightBound = cardnameLayer.bounds[2].as("px");
-    var nameFontSize = cardnameLayer.textItem.size;
-    while (typelineRightBound > symbolLeftBound - 16) { // minimum 16 px gap
-      cardnameLayer.textItem.size = new UnitValue(nameFontSize - 1, "px");
-      nameFontSize = nameFontSize - 1;
-      typelineRightBound = cardnameLayer.bounds[2].as("px");
+    var stepSize = new UnitValue(0.2, "pt");
+    var manaCostLeftBound = textAndIcons.layers.getByName("Mana Cost").bounds[0].as("px");
+    var cardnameRightBound = cardnameLayer.bounds[2].as("px");
+    var cardnameFontSize = cardnameLayer.textItem.size; // returns unit value
+    while (cardnameRightBound > manaCostLeftBound - 24) { // minimum 24 px gap
+      cardnameFontSize = cardnameFontSize - stepSize;
+      cardnameLayer.textItem.size = cardnameFontSize;
+      cardnameRightBound = cardnameLayer.bounds[2].as("px");
     }
   }
 }
@@ -781,12 +877,13 @@ function insertTypeline(textAndIcons, typeLine, typelineLayerName, isIxalan) {
 
   if (!isIxalan) {
     // Scale down the typeline to fit in case it's too long
+    var stepSize = new UnitValue(0.2, "pt");
     var symbolLeftBound = textAndIcons.layers.getByName("Expansion Symbol").bounds[0].as("px");
     var typelineRightBound = typelineLayer.bounds[2].as("px");
-    var typelineFontSize = typelineLayer.textItem.size;
-    while (typelineRightBound > symbolLeftBound - 16) { // minimum 16 px gap
-      typelineLayer.textItem.size = new UnitValue(typelineFontSize - 1, "px");
-      typelineFontSize = typelineFontSize - 1;
+    var typelineFontSize = typelineLayer.textItem.size; // returns unit value
+    while (typelineRightBound > symbolLeftBound - 24) { // minimum 24 px gap
+      typelineFontSize = typelineFontSize - stepSize;
+      typelineLayer.textItem.size = typelineFontSize;
       typelineRightBound = typelineLayer.bounds[2].as("px");
     }
   }

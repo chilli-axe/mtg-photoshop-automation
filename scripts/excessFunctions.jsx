@@ -5,23 +5,26 @@ var artScaleFactor = 100;
 function scaleTextToFitBox(textLayer, referenceHeight) {
   // Step down font size until text fits within the text box
   startingFontSize = textLayer.textItem.size;
-  stepSize = 1;
+  stepSize = new UnitValue(0.25, "pt"); // default 0.1 pt
 
+  // initialise lead and font size tracker variables to the font size of the layer's text
   var fontSize = startingFontSize;
-  var leadSize = 2 * startingFontSize;
+  var leadSize = startingFontSize;
 
   var scaled = false;
-  var inputWidth = new UnitValue(textLayer.textItem.width, "px");
-  var number = textLayer.textItem.height;
-  var inputHeight = new UnitValue(2 * (number), "px");
+
+  // Reduce the reference height by 64 pixels to avoid text landing on the top/bottom bevels
+  referenceHeight = referenceHeight - new UnitValue(64, "px");
 
   while (referenceHeight < getRealTextLayerDimensions(textLayer).height) {
     scaled = true;
-    textLayer.textItem.size = new UnitValue(fontSize - stepSize, "px");
+    // step down font and lead sizes by the step size, and update those sizes in the layer
     fontSize = fontSize - stepSize;
-    textLayer.textItem.leading = new UnitValue(leadSize - 2 * stepSize, "px");
-    leadSize = leadSize - 2 * stepSize;
+    textLayer.textItem.size = fontSize;
+    leadSize = leadSize - stepSize;
+    textLayer.textItem.leading = leadSize;
   }
+  // return true if the text was shrunk or not
   return scaled;
 }
 
@@ -76,7 +79,7 @@ function replaceText(replaceThis, replaceWith) {
 }
 
 // Rasterise the text layer and vertically align it to the text box
-function verticallyAlignText(textLayerName) {
+function verticallyAlignText(textLayerName, referenceLayerName) {
   // =======================================================
   idslct = charIDToTypeID("slct");
   var desc2 = new ActionDescriptor();
@@ -123,7 +126,7 @@ function verticallyAlignText(textLayerName) {
   idnull = charIDToTypeID("null");
   var ref4 = new ActionReference();
   idLyr = charIDToTypeID("Lyr ");
-  ref4.putName(idLyr, "Textbox Reference");
+  ref4.putName(idLyr, referenceLayerName);
   desc5.putReference(idnull, ref4);
   idMkVs = charIDToTypeID("MkVs");
   desc5.putBoolean(idMkVs, false);
@@ -196,7 +199,7 @@ function verticallyAlignText(textLayerName) {
   var list2 = new ActionList();
   var ref10 = new ActionReference();
   idLyr = charIDToTypeID("Lyr ");
-  ref10.putName(idLyr, "Textbox Reference");
+  ref10.putName(idLyr, referenceLayerName);
   list2.putReference(ref10);
   desc10.putList(idnull, list2);
   executeAction(idHd, desc10, DialogModes.NO);
@@ -264,6 +267,9 @@ function gradient(textAndIcons, rarity) {
   var strokeColour = 0.000000;
   var strokeWidth = 6.000000;
   var symbolLayer = textAndIcons.layers.getByName("Expansion Symbol");
+
+  // treat bonus cards as mythic rarity (e.g. VMA power 9)
+  if (rarity == "bonus") rarity = "mythic";
 
   if (rarity == "uncommon" | rarity == "rare" || rarity == "mythic") {
     // Switch on gradient layer
