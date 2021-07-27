@@ -1,145 +1,120 @@
-/* Constants */
+#include "constants.jsx";
 
-// Font names
-const font_name_mplantin = "MPlantin";
-const font_name_mplantin_italic = "MPlantin-Italic";
-const font_name_ndpmtg = "NDPMTG";
+/* Formatting for different symbol types */
 
-// Font spacing
-const modal_indent = 5.7;
-const line_break_lead = 2.4;
-const flavour_text_lead = 4.4;
 
-// Symbol colours
-var rgb_c = new SolidColor();
-rgb_c.rgb.red = 204;
-rgb_c.rgb.green = 194;
-rgb_c.rgb.blue = 193;
+function determine_symbol_colours(symbol, symbol_length) {
+    /**
+     * Determines the colours of a symbol (represented as Scryfall string) and returns an array of SolidColor objects.
+     */
 
-var rgb_w = new SolidColor();
-rgb_w.rgb.red = 255;
-rgb_w.rgb.green = 251;
-rgb_w.rgb.blue = 214;
+    const symbol_colour_map = {
+        "W": rgb_w,
+        "U": rgb_u,
+        "B": rgb_c,
+        "R": rgb_r,
+        "G": rgb_g,
+    }
 
-var rgb_b = new SolidColor();
-rgb_b.rgb.red = 170;
-rgb_b.rgb.green = 224;
-rgb_b.rgb.blue = 250;
+    // for hybrid symbols, use the black symbol colour rather than colourless for B
+    const hybrid_symbol_colour_map = {
+        "W": rgb_w,
+        "U": rgb_u,
+        "B": rgb_b,
+        "R": rgb_r,
+        "G": rgb_g,
+        "2": rgb_c,
+    }
 
-var rgb_b = new SolidColor();
-rgb_b.rgb.red = 159;
-rgb_b.rgb.green = 146;
-rgb_b.rgb.blue = 143;
+    if (symbol === "{E}" || symbol === "{CHAOS}") {
+        // energy or chaos symbols
+        return [rgb_black()];
+    } else if (symbol === "{S}") {
+        // snow symbol
+        return [rgb_c, rgb_black(), rgb_white()];
+    } else if (symbol == "{Q}") {
+        // untap symbol
+        return [rgb_black(), rgb_white()];
+    }
 
-var rgb_r = new SolidColor();
-rgb_r.rgb.red = 249;
-rgb_r.rgb.green = 169;
-rgb_r.rgb.blue = 143;
+    var phyrexian_regex = /^\{([W,U,B,R,G])\/P\}$/;
+    var phyrexian_match = symbol.match(phyrexian_regex);
+    if (phyrexian_match !== null) {
+        return [symbol_colour_map[phyrexian_match[1]], rgb_black()];
+    }
 
-var rgb_g = new SolidColor();
-rgb_g.rgb.red = 154;
-rgb_g.rgb.green = 211;
-rgb_g.rgb.blue = 175;
+    var hybrid_regex = /^\{([2,W,U,B,R,G])\/([W,U,B,R,G])\}$/;
+    var hybrid_match = symbol.match(hybrid_regex);
+    if (hybrid_match !== null) {
+        return [
+            hybrid_symbol_colour_map[hybrid_match[2]],
+            hybrid_symbol_colour_map[hybrid_match[1]],
+            rgb_black(),
+            rgb_black()
+        ];
+    }
 
-// NDPMTG font dictionary to translate Scryfall symbols to font character sequences
-const symbols = {
-    "{W/P}": "Qp",
-    "{U/P}": "Qp",
-    "{B/P}": "Qp",
-    "{R/P}": "Qp",
-    "{G/P}": "Qp",
-    "{E}": "e",
-    "{T}": "ot",
-    "{X}": "ox",
-    "{0}": "o0",
-    "{1}": "o1",
-    "{2}": "o2",
-    "{3}": "o3",
-    "{4}": "o4",
-    "{5}": "o5",
-    "{6}": "o6",
-    "{7}": "o7",
-    "{8}": "o8",
-    "{9}": "o9",
-    "{10}": "oA",
-    "{11}": "oB",
-    "{12}": "oC",
-    "{13}": "oD",
-    "{14}": "oE",
-    "{15}": "oF",
-    "{16}": "oG",
-    "{20}": "oK",
-    "{W}": "ow",
-    "{U}": "ou",
-    "{B}": "ob",
-    "{R}": "or",
-    "{G}": "og",
-    "{C}": "oc",
-    "{W/U}": "QqLS",
-    "{U/B}": "QqMT",
-    "{B/R}": "QqNU",
-    "{R/G}": "QqOV",
-    "{G/W}": "QqPR",
-    "{W/B}": "QqLT",
-    "{B/G}": "QqNV",
-    "{G/U}": "QqPS",
-    "{U/R}": "QqMU",
-    "{R/W}": "QqOR",
-    "{2/W}": "QqWR",
-    "{2/U}": "QqWS",
-    "{2/B}": "QqWT",
-    "{2/R}": "QqWU",
-    "{2/G}": "QqWV",
-    "{S}": "omn",
-    "{Q}": "ol",
-    "{CHAOS}": "?"
-};
+    var normal_symbol_regex = /^\{([W,U,B,R,G])\}$/;
+    var normal_symbol_match = symbol.match(normal_symbol_regex);
+    if (normal_symbol_match !== null) {
+        return [symbol_colour_map[normal_symbol_match[1]], rgb_black()];
+    }
 
-// Ability words which should be italicised in formatted text
-const ability_words = [
-    "Adamant",
-    "Addendum",
-    "Battalion",
-    "Bloodrush",
-    "Channel",
-    "Chroma",
-    "Cohort",
-    "Constellation",
-    "Converge",
-    "Council's dilemma",
-    "Delirium",
-    "Domain",
-    "Eminence",
-    "Enrage",
-    "Fateful hour",
-    "Ferocious",
-    "Formidable",
-    "Grandeur",
-    "Hellbent",
-    "Heroic",
-    "Imprint",
-    "Inspired",
-    "Join forces",
-    "Kinship",
-    "Landfall",
-    "Lieutenant",
-    "Metalcraft",
-    "Morbid",
-    "Parley",
-    "Radiance",
-    "Raid",
-    "Rally",
-    "Revolt",
-    "Spell mastery",
-    "Strive",
-    "Sweep",
-    "Tempting offer",
-    "Threshold",
-    "Undergrowth",
-    "Will of the council",
-    "Magecraft"
-];
+    if (symbol_length == 2) {
+        return [rgb_c, rgb_black()];
+    }
 
+    // TODO: raise error
+    alert(symbol);
+}
+
+
+function format_symbol(primary_action_list, starting_layer_ref, symbol_index, symbol_colours, layer_font_size) {
+    /**
+     * Formats an n-character symbol at the specified index (symbol length determined from symbol_colours).
+     */
+
+    var current_ref = starting_layer_ref;
+
+    for (var i = 0; i < symbol_colours.length; i++) {
+        idTxtt = charIDToTypeID("Txtt");
+        primary_action_list.putObject(idTxtt, current_ref);
+        desc1 = new ActionDescriptor();
+        idFrom = charIDToTypeID("From");
+        desc1.putInteger(idFrom, symbol_index + i);
+        idT = charIDToTypeID("T   ");
+        desc1.putInteger(idT, symbol_index + i + 1);
+        idTxtS = charIDToTypeID("TxtS");
+        desc2 = new ActionDescriptor();
+        idfontPostScriptName = stringIDToTypeID("fontPostScriptName");
+        desc2.putString(idfontPostScriptName, font_name_ndpmtg);  // NDPMTG font name
+        idFntN = charIDToTypeID("FntN");
+        desc2.putString(idFntN, font_name_ndpmtg);  // NDPMTG font name
+        idSz = charIDToTypeID("Sz  ");
+        idPnt = charIDToTypeID("#Pnt");
+        desc2.putUnitDouble(idSz, idPnt, layer_font_size);
+        idautoLeading = stringIDToTypeID("autoLeading");
+        desc2.putBoolean(idautoLeading, false);
+        idLdng = charIDToTypeID("Ldng");
+        idPnt = charIDToTypeID("#Pnt");
+        desc2.putUnitDouble(idLdng, idPnt, layer_font_size);
+        idClr = charIDToTypeID("Clr ");
+        desc3 = new ActionDescriptor();
+        idRd = charIDToTypeID("Rd  ");
+        desc3.putDouble(idRd, symbol_colours[i].rgb.red);  // rgb value.red
+        idGrn = charIDToTypeID("Grn ");
+        desc3.putDouble(idGrn, symbol_colours[i].rgb.green);  // rgb value.green
+        idBl = charIDToTypeID("Bl  ");
+        desc3.putDouble(idBl, symbol_colours[i].rgb.blue);  // rgb value.blue
+        idRGBC = charIDToTypeID("RGBC");
+        desc2.putObject(idClr, idRGBC, desc3);
+        idTxtS = charIDToTypeID("TxtS");
+        desc1.putObject(idTxtS, idTxtS, desc2);
+
+        current_ref = desc1;
+    }
+    return current_ref;
+}
 
 function format_text(inputString, italicStrings, flavourIndex, centredText) {
     /**
@@ -149,8 +124,8 @@ function format_text(inputString, italicStrings, flavourIndex, centredText) {
      * @param {int} flavourIndex The index at which linebreak spacing should be increased (where the card's flavour text begins)
      * @param {boolean} centredText Whether or not the input text should be centre-justified
      */
-    // Make sure to select the layer you want to insert mana symbols into before
-    // running this function
+
+    // TODO: check that the active layer is a text layer, and raise an issue if not
     try {
         var text_colour = app.activeDocument.activeLayer.textItem.color;
     } catch (err) {
@@ -185,7 +160,6 @@ function format_text(inputString, italicStrings, flavourIndex, centredText) {
     });
 
     // Offset each instance of flavour text by how many mana symbols appear before it
-    // Replacing mana symbols before detecting flavour text doesn't seem to work
     for (i = 0; i < startIndex.length; i++) {
         // Start indices
         var tempString = inputString.slice(0, startIndex[i]);
@@ -223,6 +197,7 @@ function format_text(inputString, italicStrings, flavourIndex, centredText) {
 
     // Find all instances of mana symbols in the text and replace them
     while (true) {
+        // TODO: error handling if the input is malformed
         var braceIndex1 = inputString.indexOf("{", startingIndex);
         var braceIndex2 = inputString.indexOf("}", startingIndex);
         if (braceIndex1 < 0) {
@@ -243,7 +218,13 @@ function format_text(inputString, italicStrings, flavourIndex, centredText) {
             for (symbol in symbols) {
                 if (currentSymbol.valueOf() == symbol.valueOf()) {
                     inputString = inputString.replace(symbol, symbols[symbol]);
-                    symbolIndices.push(braceIndex1);
+
+                    // symbolIndices.push([braceIndex1, symbols[symbol].length]);  // insert the symbol index and its length into symbolIndices
+                    symbolIndices.push({
+                        index: braceIndex1,
+                        // size: symbols[symbol].length,
+                        colours: determine_symbol_colours(currentSymbol, symbols[symbol].length),
+                    })
                     startingIndex = braceIndex1 + 1;
                 }
             }
@@ -261,11 +242,11 @@ function format_text(inputString, italicStrings, flavourIndex, centredText) {
     var idTrgt = charIDToTypeID("Trgt");
     ref101.putEnumerated(idTxLr, idOrdn, idTrgt);
     desc119.putReference(idnull, ref101);
-    var desc120 = new ActionDescriptor();
+    var primary_action_descriptor = new ActionDescriptor();
     var idTxt = charIDToTypeID("Txt ");
-    desc120.putString(idTxt, inputString);
+    primary_action_descriptor.putString(idTxt, inputString);
 
-    var list12 = new ActionList();
+    var primary_action_list = new ActionList();
     desc25 = new ActionDescriptor();
     var idFrom = charIDToTypeID("From");
     desc25.putInteger(idFrom, 0);
@@ -298,13 +279,13 @@ function format_text(inputString, italicStrings, flavourIndex, centredText) {
     desc26.putObject(idClr, idRGBC, desc27);
     idTxtS = charIDToTypeID("TxtS");
     desc25.putObject(idTxtS, idTxtS, desc26);
-    var currentLayerReference = desc25;
+    var current_layer_ref = desc25;
 
     if (startIndex.length > 0) {
         for (i = 0; i < startIndex.length; i++) {
             // Italics text
             var idTxtt = charIDToTypeID("Txtt");
-            list12.putObject(idTxtt, currentLayerReference);
+            primary_action_list.putObject(idTxtt, current_layer_ref);
             desc125 = new ActionDescriptor();
             idFrom = charIDToTypeID("From");
             desc125.putInteger(idFrom, startIndex[i]);
@@ -339,439 +320,25 @@ function format_text(inputString, italicStrings, flavourIndex, centredText) {
             desc126.putObject(idClr, idRGBC, desc127);
             idTxtS = charIDToTypeID("TxtS");
             desc125.putObject(idTxtS, idTxtS, desc126);
-            currentLayerReference = desc125;
+            current_layer_ref = desc125;
         }
     }
 
     // Format each symbol correctly
     if (symbolIndices.length > 0) {
         for (i = 0; i < symbolIndices.length; i++) {
-
-            // Determine what sort of symbol it is, then handle it accordingly
-            if (inputString.slice(symbolIndices[i], symbolIndices[i] + 1) == "e" || inputString.slice(symbolIndices[i], symbolIndices[i] + 1) == "?") {
-                // Energy symbol or chaos symbol
-                // =======================================================
-                var idTxtt = charIDToTypeID("Txtt");
-                list12.putObject(idTxtt, currentLayerReference);
-                desc129 = new ActionDescriptor();
-                idFrom = charIDToTypeID("From");
-                desc129.putInteger(idFrom, symbolIndices[i]);
-                idT = charIDToTypeID("T   ");
-                desc129.putInteger(idT, symbolIndices[i] + 1);
-                idTxtS = charIDToTypeID("TxtS");
-                desc130 = new ActionDescriptor();
-                idfontPostScriptName = stringIDToTypeID("fontPostScriptName");
-                desc130.putString(idfontPostScriptName, font_name_ndpmtg);  // NDPMTG font name
-                idSz = charIDToTypeID("Sz  ");
-                idPnt = charIDToTypeID("#Pnt");
-                desc130.putUnitDouble(idSz, idPnt, layer_font_size);
-                idautoLeading = stringIDToTypeID("autoLeading");
-                desc130.putBoolean(idautoLeading, false);
-                idLdng = charIDToTypeID("Ldng");
-                idPnt = charIDToTypeID("#Pnt");
-                desc130.putUnitDouble(idLdng, idPnt, layer_font_size);
-                idTxtS = charIDToTypeID("TxtS");
-                desc129.putObject(idTxtS, idTxtS, desc130);
-                currentLayerReference = desc129;
-
-            } else if (inputString.slice(symbolIndices[i] + 1, symbolIndices[i] + 2) == "q") {
-                // Hybrid mana
-                // Symbol 1 colour
-                var rgbValue1 = rgbC;
-                if (inputString.slice(symbolIndices[i] + 2, symbolIndices[i] + 3) == "L") {
-                    rgbValue1 = rgb_w;
-                } else if (inputString.slice(symbolIndices[i] + 2, symbolIndices[i] + 3) == "M") {
-                    rgbValue1 = rgb_u;
-                } else if (inputString.slice(symbolIndices[i] + 2, symbolIndices[i] + 3) == "N") {
-                    rgbValue1 = rgb_c;
-                } else if (inputString.slice(symbolIndices[i] + 2, symbolIndices[i] + 3) == "O") {
-                    rgbValue1 = rgb_r;
-                } else if (inputString.slice(symbolIndices[i] + 2, symbolIndices[i] + 3) == "P") {
-                    rgbValue1 = rgb_g;
-                }
-
-                // Symbol 2 colour
-                var rgbValue2 = rgbC;
-                if (inputString.slice(symbolIndices[i] + 3, symbolIndices[i] + 4) == "R") {
-                    rgbValue2 = rgb_w;
-                } else if (inputString.slice(symbolIndices[i] + 3, symbolIndices[i] + 4) == "S") {
-                    rgbValue2 = rgb_u;
-                } else if (inputString.slice(symbolIndices[i] + 3, symbolIndices[i] + 4) == "T") {
-                    rgbValue2 = rgb_c;
-                } else if (inputString.slice(symbolIndices[i] + 3, symbolIndices[i] + 4) == "U") {
-                    rgbValue2 = rgb_r;
-                } else if (inputString.slice(symbolIndices[i] + 3, symbolIndices[i] + 4) == "V") {
-                    rgbValue2 = rgb_g;
-                }
-
-                // special case for 2/B
-                if (inputString.slice(symbolIndices[i], symbolIndices[i] + 4) == "QqWT") {
-                    rgbValue2 = [159, 146, 143];
-                }
-
-                // Character 1
-                idTxtt = charIDToTypeID("Txtt");
-                list12.putObject(idTxtt, currentLayerReference);
-                var desc712 = new ActionDescriptor();
-                idFrom = charIDToTypeID("From");
-                desc712.putInteger(idFrom, symbolIndices[i]);
-                idT = charIDToTypeID("T   ");
-                desc712.putInteger(idT, symbolIndices[i] + 1);
-                idTxtS = charIDToTypeID("TxtS");
-                var desc713 = new ActionDescriptor();
-                idfontPostScriptName = stringIDToTypeID("fontPostScriptName");
-                desc713.putString(idfontPostScriptName, font_name_ndpmtg);  // NDPMTG font name
-                idFntN = charIDToTypeID("FntN");
-                desc713.putString(idFntN, font_name_ndpmtg);  // NDPMTG font name
-                idSz = charIDToTypeID("Sz  ");
-                idPnt = charIDToTypeID("#Pnt");
-                desc713.putUnitDouble(idSz, idPnt, layer_font_size);
-                idautoLeading = stringIDToTypeID("autoLeading");
-                desc713.putBoolean(idautoLeading, false);
-                idLdng = charIDToTypeID("Ldng");
-                idPnt = charIDToTypeID("#Pnt");
-                desc713.putUnitDouble(idLdng, idPnt, layer_font_size);
-                idClr = charIDToTypeID("Clr ");
-                var desc714 = new ActionDescriptor();
-                idRd = charIDToTypeID("Rd  ");
-                desc714.putDouble(idRd, rgbValue2.rgb.red);  // rgb value 2.red
-                idGrn = charIDToTypeID("Grn ");
-                desc714.putDouble(idGrn, rgbValue2.rgb.green);  // rgb value 2.green
-                idBl = charIDToTypeID("Bl  ");
-                desc714.putDouble(idBl, rgbValue2.rgb.blue);  // rgb value 2.blue
-                idRGBC = charIDToTypeID("RGBC");
-                desc713.putObject(idClr, idRGBC, desc714);
-                idTxtS = charIDToTypeID("TxtS");
-                desc712.putObject(idTxtS, idTxtS, desc713);
-
-                // Character 2
-                idTxtt = charIDToTypeID("Txtt");
-                list12.putObject(idTxtt, desc712);
-                var desc716 = new ActionDescriptor();
-                idFrom = charIDToTypeID("From");
-                desc716.putInteger(idFrom, symbolIndices[i] + 1);
-                idT = charIDToTypeID("T   ");
-                desc716.putInteger(idT, symbolIndices[i] + 2);
-                idTxtS = charIDToTypeID("TxtS");
-                var desc717 = new ActionDescriptor();
-                idfontPostScriptName = stringIDToTypeID("fontPostScriptName");
-                desc717.putString(idfontPostScriptName, font_name_ndpmtg);  // NDPMTG font name
-                idFntN = charIDToTypeID("FntN");
-                desc717.putString(idFntN, font_name_ndpmtg);  // NDPMTG font name
-                idSz = charIDToTypeID("Sz  ");
-                idPnt = charIDToTypeID("#Pnt");
-                desc717.putUnitDouble(idSz, idPnt, layer_font_size);
-                idautoLeading = stringIDToTypeID("autoLeading");
-                desc717.putBoolean(idautoLeading, false);
-                idLdng = charIDToTypeID("Ldng");
-                idPnt = charIDToTypeID("#Pnt");
-                desc717.putUnitDouble(idLdng, idPnt, layer_font_size);
-                idClr = charIDToTypeID("Clr ");
-                var desc718 = new ActionDescriptor();
-                idRd = charIDToTypeID("Rd  ");
-                desc718.putDouble(idRd, rgbValue1.rgb.red);  // rgb value 1.red
-                idGrn = charIDToTypeID("Grn ");
-                desc718.putDouble(idGrn, rgbValue1.rgb.green);  // rgb value 1.green
-                idBl = charIDToTypeID("Bl  ");
-                desc718.putDouble(idBl, rgbValue1.rgb.blue);  // rgb value 1.blue
-                idRGBC = charIDToTypeID("RGBC");
-                desc717.putObject(idClr, idRGBC, desc718);
-                idTxtS = charIDToTypeID("TxtS");
-                desc716.putObject(idTxtS, idTxtS, desc717);
-
-                // Character 3
-                idTxtt = charIDToTypeID("Txtt");
-                list12.putObject(idTxtt, desc716);
-                var desc720 = new ActionDescriptor();
-                idFrom = charIDToTypeID("From");
-                desc720.putInteger(idFrom, symbolIndices[i] + 2);
-                idT = charIDToTypeID("T   ");
-                desc720.putInteger(idT, symbolIndices[i] + 3);
-                idTxtS = charIDToTypeID("TxtS");
-                var desc721 = new ActionDescriptor();
-                idfontPostScriptName = stringIDToTypeID("fontPostScriptName");
-                desc721.putString(idfontPostScriptName, font_name_ndpmtg);  // NDPMTG font name
-                idFntN = charIDToTypeID("FntN");
-                desc721.putString(idFntN, font_name_ndpmtg);  // NDPMTG font name
-                idSz = charIDToTypeID("Sz  ");
-                idPnt = charIDToTypeID("#Pnt");
-                desc721.putUnitDouble(idSz, idPnt, layer_font_size);
-                idautoLeading = stringIDToTypeID("autoLeading");
-                desc721.putBoolean(idautoLeading, false);
-                idLdng = charIDToTypeID("Ldng");
-                idPnt = charIDToTypeID("#Pnt");
-                desc721.putUnitDouble(idLdng, idPnt, layer_font_size);
-                idClr = charIDToTypeID("Clr ");
-                var desc722 = new ActionDescriptor();
-                idRd = charIDToTypeID("Rd  ");
-                desc722.putDouble(idRd, rgb_black().rgb.red); // rgb black.red
-                idGrn = charIDToTypeID("Grn ");
-                desc722.putDouble(idGrn, rgb_black().rgb.green);  // rgb black.green
-                idBl = charIDToTypeID("Bl  ");
-                desc722.putDouble(idBl, rgb_black().rgb.blue);  // rgb black.blue
-                idRGBC = charIDToTypeID("RGBC");
-                desc721.putObject(idClr, idRGBC, desc722);
-                idTxtS = charIDToTypeID("TxtS");
-                desc720.putObject(idTxtS, idTxtS, desc721);
-
-                // Character 4
-                idTxtt = charIDToTypeID("Txtt");
-                list12.putObject(idTxtt, desc720);
-                var desc724 = new ActionDescriptor();
-                idFrom = charIDToTypeID("From");
-                desc724.putInteger(idFrom, symbolIndices[i] + 3);
-                idT = charIDToTypeID("T   ");
-                desc724.putInteger(idT, symbolIndices[i] + 4);
-                idTxtS = charIDToTypeID("TxtS");
-                var desc725 = new ActionDescriptor();
-                idfontPostScriptName = stringIDToTypeID("fontPostScriptName");
-                desc725.putString(idfontPostScriptName, font_name_ndpmtg);  // NDPMTG font name
-                idFntN = charIDToTypeID("FntN");
-                desc725.putString(idFntN, font_name_ndpmtg);  // NDPMTG font name
-                idSz = charIDToTypeID("Sz  ");
-                idPnt = charIDToTypeID("#Pnt");
-                desc725.putUnitDouble(idSz, idPnt, layer_font_size);
-                idautoLeading = stringIDToTypeID("autoLeading");
-                desc725.putBoolean(idautoLeading, false);
-                idLdng = charIDToTypeID("Ldng");
-                idPnt = charIDToTypeID("#Pnt");
-                desc725.putUnitDouble(idLdng, idPnt, layer_font_size);
-                idClr = charIDToTypeID("Clr ");
-                var desc726 = new ActionDescriptor();
-                idRd = charIDToTypeID("Rd  ");
-                desc726.putDouble(idRd, rgb_black().rgb.red); // rgb black.red
-                idGrn = charIDToTypeID("Grn ");
-                desc726.putDouble(idGrn, rgb_black().rgb.green);  // rgb black.green
-                idBl = charIDToTypeID("Bl  ");
-                desc726.putDouble(idBl, rgb_black().rgb.blue);  // rgb black.blue
-                idRGBC = charIDToTypeID("RGBC");
-                desc725.putObject(idClr, idRGBC, desc726);
-                idTxtS = charIDToTypeID("TxtS");
-                desc724.putObject(idTxtS, idTxtS, desc725);
-                idTxtt = charIDToTypeID("Txtt");
-                list12.putObject(idTxtt, desc724);
-                desc724.putList(idTxtt, list12);
-                currentLayerReference = desc724;
-
-            } else if (inputString.slice(symbolIndices[i], symbolIndices[i] + 3) == "omn") {
-                // Snow mana symbol
-
-                // Character 1
-                idTxtt = charIDToTypeID("Txtt");
-                list12.putObject(idTxtt, currentLayerReference);
-                var desc712 = new ActionDescriptor();
-                idFrom = charIDToTypeID("From");
-                desc712.putInteger(idFrom, symbolIndices[i]);
-                idT = charIDToTypeID("T   ");
-                desc712.putInteger(idT, symbolIndices[i] + 1);
-                idTxtS = charIDToTypeID("TxtS");
-                var desc713 = new ActionDescriptor();
-                idfontPostScriptName = stringIDToTypeID("fontPostScriptName");
-                desc713.putString(idfontPostScriptName, font_name_ndpmtg);  // NDPMTG font name
-                idFntN = charIDToTypeID("FntN");
-                desc713.putString(idFntN, font_name_ndpmtg);  // NDPMTG font name
-                idSz = charIDToTypeID("Sz  ");
-                idPnt = charIDToTypeID("#Pnt");
-                desc713.putUnitDouble(idSz, idPnt, layer_font_size);
-                idautoLeading = stringIDToTypeID("autoLeading");
-                desc713.putBoolean(idautoLeading, false);
-                idLdng = charIDToTypeID("Ldng");
-                idPnt = charIDToTypeID("#Pnt");
-                desc713.putUnitDouble(idLdng, idPnt, layer_font_size);
-                idClr = charIDToTypeID("Clr ");
-                var desc714 = new ActionDescriptor();
-                idRd = charIDToTypeID("Rd  ");
-                desc714.putDouble(idRd, rgb_c.rgb.red); // rgb colourless.red
-                idGrn = charIDToTypeID("Grn ");
-                desc714.putDouble(idGrn, rgb_c.rgb.green); // rgb colourless.green
-                idBl = charIDToTypeID("Bl  ");
-                desc714.putDouble(idBl, rgb_c.rgb.blue); // rgb colourless.blue
-                idRGBC = charIDToTypeID("RGBC");
-                desc713.putObject(idClr, idRGBC, desc714);
-                idTxtS = charIDToTypeID("TxtS");
-                desc712.putObject(idTxtS, idTxtS, desc713);
-
-                // Character 2
-                idTxtt = charIDToTypeID("Txtt");
-                list12.putObject(idTxtt, desc712);
-                var desc716 = new ActionDescriptor();
-                idFrom = charIDToTypeID("From");
-                desc716.putInteger(idFrom, symbolIndices[i] + 1);
-                idT = charIDToTypeID("T   ");
-                desc716.putInteger(idT, symbolIndices[i] + 2);
-                idTxtS = charIDToTypeID("TxtS");
-                var desc717 = new ActionDescriptor();
-                idfontPostScriptName = stringIDToTypeID("fontPostScriptName");
-                desc717.putString(idfontPostScriptName, font_name_ndpmtg);  // NDPMTG font name
-                idFntN = charIDToTypeID("FntN");
-                desc717.putString(idFntN, font_name_ndpmtg);  // NDPMTG font name
-                idSz = charIDToTypeID("Sz  ");
-                idPnt = charIDToTypeID("#Pnt");
-                desc717.putUnitDouble(idSz, idPnt, layer_font_size);
-                idautoLeading = stringIDToTypeID("autoLeading");
-                desc717.putBoolean(idautoLeading, false);
-                idLdng = charIDToTypeID("Ldng");
-                idPnt = charIDToTypeID("#Pnt");
-                desc717.putUnitDouble(idLdng, idPnt, layer_font_size);
-                idClr = charIDToTypeID("Clr ");
-                var desc718 = new ActionDescriptor();
-                idRd = charIDToTypeID("Rd  ");
-                desc718.putDouble(idRd, rgb_black().rgb.red);  // rgb black.red
-                idGrn = charIDToTypeID("Grn ");
-                desc718.putDouble(idGrn, rgb_black().rgb.green);  // rgb black.green
-                idBl = charIDToTypeID("Bl  ");
-                desc718.putDouble(idBl, rgb_black().rgb.blue);  // rgb black.blue
-                idRGBC = charIDToTypeID("RGBC");
-                desc717.putObject(idClr, idRGBC, desc718);
-                idTxtS = charIDToTypeID("TxtS");
-                desc716.putObject(idTxtS, idTxtS, desc717);
-
-                // Character 3
-                idTxtt = charIDToTypeID("Txtt");
-                list12.putObject(idTxtt, desc716);
-                var desc720 = new ActionDescriptor();
-                idFrom = charIDToTypeID("From");
-                desc720.putInteger(idFrom, symbolIndices[i] + 2);
-                idT = charIDToTypeID("T   ");
-                desc720.putInteger(idT, symbolIndices[i] + 3);
-                idTxtS = charIDToTypeID("TxtS");
-                var desc721 = new ActionDescriptor();
-                idfontPostScriptName = stringIDToTypeID("fontPostScriptName");
-                desc721.putString(idfontPostScriptName, font_name_ndpmtg);  // NDPMTG font name
-                idFntN = charIDToTypeID("FntN");
-                desc721.putString(idFntN, font_name_ndpmtg);  // NDPMTG font name
-                idSz = charIDToTypeID("Sz  ");
-                idPnt = charIDToTypeID("#Pnt");
-                desc721.putUnitDouble(idSz, idPnt, layer_font_size);
-                idautoLeading = stringIDToTypeID("autoLeading");
-                desc721.putBoolean(idautoLeading, false);
-                idLdng = charIDToTypeID("Ldng");
-                idPnt = charIDToTypeID("#Pnt");
-                desc721.putUnitDouble(idLdng, idPnt, layer_font_size);
-                idClr = charIDToTypeID("Clr ");
-                var desc722 = new ActionDescriptor();
-                idRd = charIDToTypeID("Rd  ");
-                desc722.putDouble(idRd, rgb_white().rgb.blue);  // rgb white.blue
-                idGrn = charIDToTypeID("Grn ");
-                desc722.putDouble(idGrn, rgb_white().rgb.green);  // rgb white.green
-                idBl = charIDToTypeID("Bl  ");
-                desc722.putDouble(idBl, rgb_white().rgb.blue);  // rgb white.blue
-                idRGBC = charIDToTypeID("RGBC");
-                desc721.putObject(idClr, idRGBC, desc722);
-                idTxtS = charIDToTypeID("TxtS");
-                desc720.putObject(idTxtS, idTxtS, desc721);
-
-                idTxtt = charIDToTypeID("Txtt");
-                list12.putObject(idTxtt, desc720);
-                desc720.putList(idTxtt, list12);
-                currentLayerReference = desc720;
-            } else {
-                // Handle normal symbols, composed of two characters
-                // Backing circle of the specified colour, followed by a black char
-
-                // Determine the colour of the symbol
-                var rgbValue = rgb_c;
-                if (inputString.slice(symbolIndices[i] + 1, symbolIndices[i] + 2) == "w") {
-                    rgbValue = rgb_w;
-                } else if (inputString.slice(symbolIndices[i] + 1, symbolIndices[i] + 2) == "u") {
-                    rgbValue = rgb_u;
-                } else if (inputString.slice(symbolIndices[i] + 1, symbolIndices[i] + 2) == "b") {
-                    rgbValue = rgb_c;
-                } else if (inputString.slice(symbolIndices[i] + 1, symbolIndices[i] + 2) == "r") {
-                    rgbValue = rgb_r;
-                } else if (inputString.slice(symbolIndices[i] + 1, symbolIndices[i] + 2) == "g") {
-                    rgbValue = rgb_g;
-                }
-
-                // If the text contains a Phyrexian mana symbol, change the colour of
-                // this symbol to the previously noted Phyrexian colour
-                if (inputString.slice(symbolIndices[i], symbolIndices[i] + 2) == "Qp" && phyrexianCard) {
-                    rgbValue = phyrexianColour;
-                }
-
-                // Untap symbols have black backing circles and white untap symbols
-                var rgbBlack = rgb_black();
-                if (inputString.slice(symbolIndices[i], symbolIndices[i] + 2) == "ol") {
-                    rgbValue = rgb_black();
-                    rgbBlack = rgb_white();
-                }
-
-                // Character 1
-                idTxtt = charIDToTypeID("Txtt");
-                list12.putObject(idTxtt, currentLayerReference);
-                desc129 = new ActionDescriptor();
-                idFrom = charIDToTypeID("From");
-                desc129.putInteger(idFrom, symbolIndices[i]);
-                idT = charIDToTypeID("T   ");
-                desc129.putInteger(idT, symbolIndices[i] + 1);
-                idTxtS = charIDToTypeID("TxtS");
-                desc130 = new ActionDescriptor();
-                idfontPostScriptName = stringIDToTypeID("fontPostScriptName");
-                desc130.putString(idfontPostScriptName, font_name_ndpmtg);  // NDPMTG font name
-                idFntN = charIDToTypeID("FntN");
-                desc130.putString(idFntN, font_name_ndpmtg);  // NDPMTG font name
-                idSz = charIDToTypeID("Sz  ");
-                idPnt = charIDToTypeID("#Pnt");
-                desc130.putUnitDouble(idSz, idPnt, layer_font_size);
-                idautoLeading = stringIDToTypeID("autoLeading");
-                desc130.putBoolean(idautoLeading, false);
-                idLdng = charIDToTypeID("Ldng");
-                idPnt = charIDToTypeID("#Pnt");
-                desc130.putUnitDouble(idLdng, idPnt, layer_font_size);
-                idClr = charIDToTypeID("Clr ");
-                desc131 = new ActionDescriptor();
-                idRd = charIDToTypeID("Rd  ");
-                desc131.putDouble(idRd, rgbValue.rgb.red);  // rgb value.red
-                idGrn = charIDToTypeID("Grn ");
-                desc131.putDouble(idGrn, rgbValue.rgb.green);  // rgb value.green
-                idBl = charIDToTypeID("Bl  ");
-                desc131.putDouble(idBl, rgbValue.rgb.blue);  // rgb value.blue
-                idRGBC = charIDToTypeID("RGBC");
-                desc130.putObject(idClr, idRGBC, desc131);
-                idTxtS = charIDToTypeID("TxtS");
-                desc129.putObject(idTxtS, idTxtS, desc130);
-
-                // Character 2
-                idTxtt = charIDToTypeID("Txtt");
-                list12.putObject(idTxtt, desc129);
-                desc133 = new ActionDescriptor();
-                idFrom = charIDToTypeID("From");
-                desc133.putInteger(idFrom, symbolIndices[i] + 1);
-                idT = charIDToTypeID("T   ");
-                desc133.putInteger(idT, symbolIndices[i] + 2);
-                idTxtS = charIDToTypeID("TxtS");
-                desc134 = new ActionDescriptor();
-                idfontPostScriptName = stringIDToTypeID("fontPostScriptName");
-                desc134.putString(idfontPostScriptName, font_name_ndpmtg);  // NDPMTG font name
-                idFntN = charIDToTypeID("FntN");
-                desc134.putString(idFntN, font_name_ndpmtg);  // NDPMTG font name
-                idSz = charIDToTypeID("Sz  ");
-                idPnt = charIDToTypeID("#Pnt");
-                desc134.putUnitDouble(idSz, idPnt, layer_font_size);
-                idautoLeading = stringIDToTypeID("autoLeading");
-                desc134.putBoolean(idautoLeading, false);
-                idLdng = charIDToTypeID("Ldng");
-                idPnt = charIDToTypeID("#Pnt");
-                desc134.putUnitDouble(idLdng, idPnt, layer_font_size);
-                idClr = charIDToTypeID("Clr ");
-                var desc135 = new ActionDescriptor();
-                idRd = charIDToTypeID("Rd  ");
-                desc135.putDouble(idRd, rgbBlack.rgb.red);  // rgb black.red
-                idGrn = charIDToTypeID("Grn ");
-                desc135.putDouble(idGrn, rgbBlack.rgb.green);  // rgb black.green
-                idBl = charIDToTypeID("Bl  ");
-                desc135.putDouble(idBl, rgbBlack.rgb.blue);  // rgb black.blue
-                idRGBC = charIDToTypeID("RGBC");
-                desc134.putObject(idClr, idRGBC, desc135);
-                idTxtS = charIDToTypeID("TxtS");
-                desc133.putObject(idTxtS, idTxtS, desc134);
-                currentLayerReference = desc133;
-            }
+            current_layer_ref = format_symbol(
+                primary_action_list=primary_action_list,
+                starting_layer_ref=current_layer_ref,
+                symbol_index=symbolIndices[i].index,
+                symbol_colours=symbolIndices[i].colours,
+                layer_font_size=layer_font_size,
+            );
         }
     }
 
     idTxtt = charIDToTypeID("Txtt");
-    list12.putObject(idTxtt, currentLayerReference);
+    primary_action_list.putObject(idTxtt, current_layer_ref);
     var desc137 = new ActionDescriptor();
     idFrom = charIDToTypeID("From");
     desc137.putInteger(idFrom, inputString.length);
@@ -803,8 +370,8 @@ function format_text(inputString, italicStrings, flavourIndex, centredText) {
     idTxtS = charIDToTypeID("TxtS");
     desc137.putObject(idTxtS, idTxtS, desc138);
     idTxtt = charIDToTypeID("Txtt");
-    list12.putObject(idTxtt, desc137);
-    desc120.putList(idTxtt, list12);
+    primary_action_list.putObject(idTxtt, desc137);
+    primary_action_descriptor.putList(idTxtt, primary_action_list);
 
     var idparagraphStyleRange = stringIDToTypeID("paragraphStyleRange");
     var list13 = new ActionList();
@@ -859,10 +426,10 @@ function format_text(inputString, italicStrings, flavourIndex, centredText) {
     desc144.putDouble(idBl, text_colour.rgb.blue);  // text colour.blue
     idRGBC = charIDToTypeID("RGBC");
     desc143.putObject(idClr, idRGBC, desc144);
-    desc120.putList(idparagraphStyleRange, list13);
+    primary_action_descriptor.putList(idparagraphStyleRange, list13);
     var idkerningRange = stringIDToTypeID("kerningRange");
     var list14 = new ActionList();
-    desc120.putList(idkerningRange, list14);
+    primary_action_descriptor.putList(idkerningRange, list14);
 
     list13 = new ActionList();
 
@@ -983,10 +550,10 @@ function format_text(inputString, italicStrings, flavourIndex, centredText) {
         desc141.putObject(idparagraphStyle, idparagraphStyle, desc142);
         idparagraphStyleRange = stringIDToTypeID("paragraphStyleRange");
         list13.putObject(idparagraphStyleRange, desc141);
-        desc120.putList(idparagraphStyleRange, list13);
+        primary_action_descriptor.putList(idparagraphStyleRange, list13);
         idkerningRange = stringIDToTypeID("kerningRange");
         list14 = new ActionList();
-        desc120.putList(idkerningRange, list14);
+        primary_action_descriptor.putList(idkerningRange, list14);
     }
 
     if (flavourIndex > 0) {
@@ -1016,10 +583,10 @@ function format_text(inputString, italicStrings, flavourIndex, centredText) {
         desc141.putObject(idparagraphStyle, idparagraphStyle, desc142);
         idparagraphStyleRange = stringIDToTypeID("paragraphStyleRange");
         list13.putObject(idparagraphStyleRange, desc141);
-        desc120.putList(idparagraphStyleRange, list13);
+        primary_action_descriptor.putList(idparagraphStyleRange, list13);
         idkerningRange = stringIDToTypeID("kerningRange");
         list14 = new ActionList();
-        desc120.putList(idkerningRange, list14);
+        primary_action_descriptor.putList(idkerningRange, list14);
     }
 
     if (quoteIndex > 0) {
@@ -1037,23 +604,19 @@ function format_text(inputString, italicStrings, flavourIndex, centredText) {
         desc141.putObject(idparagraphStyle, idparagraphStyle, desc142);
         idparagraphStyleRange = stringIDToTypeID("paragraphStyleRange");
         list13.putObject(idparagraphStyleRange, desc141);
-        desc120.putList(idparagraphStyleRange, list13);
+        primary_action_descriptor.putList(idparagraphStyleRange, list13);
         idkerningRange = stringIDToTypeID("kerningRange");
         list14 = new ActionList();
-        desc120.putList(idkerningRange, list14);
+        primary_action_descriptor.putList(idkerningRange, list14);
     }
 
     // Push changes to document
     idsetd = charIDToTypeID("setd");
     idTxLr = charIDToTypeID("TxLr");
-    desc119.putObject(idT, idTxLr, desc120);
+    desc119.putObject(idT, idTxLr, primary_action_descriptor);
     executeAction(idsetd, desc119, DialogModes.NO);
 }
 
-// TODO: anything that calls formatText should go through this step of italics text & keyword identification
-// also, the version of this code sitting in proxy.jsx has an extra step where it reverts words between asterisks in flavour text
-// back to non-italics - that should be here too
-// this code should only be written once - DRY! this is a temporary fix to allow me to make mutate cards but I don't have much free time atm
 function generate_italics(card_text) {
     /**
      * Generates italics text array from card text to italicise all text within (parentheses) and all ability words.

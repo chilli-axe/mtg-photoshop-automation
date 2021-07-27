@@ -169,10 +169,9 @@ var FormattedTextField = Class({
      * A TextField where the contents contain some number of symbols which should be replaced with glyphs from the NDPMTG font.
      * For example, if the text contents for an instance of this class is "{2}{R}", formatting this text with NDPMTG would correctly
      * show the mana cost 2R with text contents "o2or" with characters being appropriately coloured.
-     * Doesn't support flavour text or centred text.
      * The big boy version which supports centred text and flavour text. For use with card rules text.
      */
-    
+
     extends_: TextField,
     constructor: function (layer, text_contents, flavour_text, text_colour, is_centred) {
         this.super(layer, text_contents, text_colour);
