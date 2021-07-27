@@ -2,10 +2,11 @@ function rgb_black() {
     /**
      * Creates and returns a SolidColour with RGB values for solid black.
      */
+    
     var colour = new SolidColor();
     colour.rgb.red = 0;
-    colour.rgb.blue = 0;
     colour.rgb.green = 0;
+    colour.rgb.blue = 0;
     return colour;
 }
 
@@ -13,10 +14,11 @@ function rgb_white() {
     /**
      * Creates and returns a SolidColour with RGB values for solid white.
      */
+
     var colour = new SolidColor();
     colour.rgb.red = 255;
-    colour.rgb.blue = 255;
     colour.rgb.green = 255;
+    colour.rgb.blue = 255;
     return colour;
 }
 
@@ -48,6 +50,7 @@ function select_layer_pixels(layer) {
     /**
      * Select the bounding box of a given layer.
      */
+
     var left = layer.bounds[0].as("px");
     var top = layer.bounds[1].as("px");
     var right = layer.bounds[2].as("px");
@@ -65,6 +68,7 @@ function clear_selection() {
     /**
      * Clear the current selection.
      */
+
     app.activeDocument.selection.select([]);
 }
 
@@ -73,6 +77,7 @@ function align(align_type) {
      * Align the currently active layer with respect to the current selection, either vertically or horizontally.
      * Intended to be used with align_vertical() or align_horizontal().
      */
+
     var idAlgn = charIDToTypeID("Algn");
     var desc = new ActionDescriptor();
     var idnull = charIDToTypeID("null");
@@ -93,6 +98,7 @@ function align_vertical() {
     /**
      * Align the currently active layer vertically with respect to the current selection.
      */
+
     align("AdCV");
 }
 
@@ -100,6 +106,7 @@ function align_horizontal() {
     /**
      * Align the currently active layer horizontally with respect to the current selection.
      */
+
     align("AdCH");
 }
 
@@ -173,4 +180,26 @@ function save_and_close(filename) {
     executeAction(idsave, desc3, DialogModes.NO);
 
     app.activeDocument.close(SaveOptions.DONOTSAVECHANGES);
+}
+
+function occurrences(string, substring, allow_overlapping) {
+    /**
+     * Count the number of occurrances of a substring in a string.
+     */
+
+    string += "";
+    substring += "";
+    if (substring.length <= 0) return (string.length + 1);
+    var n = 0,
+        pos = 0,
+        step = allow_overlapping ? 1 : substring.length;
+
+    while (true) {
+        pos = string.indexOf(substring, pos);
+        if (pos >= 0) {
+            ++n;
+            pos += step;
+        } else break;
+    }
+    return n;
 }

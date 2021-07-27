@@ -1,5 +1,6 @@
 #include "es-class.js";
 #include "helpers.jsx";
+#include "format_text.jsx";
 
 /* Helper functions */
 
@@ -8,6 +9,7 @@ function scale_text_right_overlap(layer, reference_layer) {
      * Scales a text layer down (in 0.2 pt increments) until its right bound has a 24 px clearance from a reference
      * layer's left bound.
      */
+
     var step_size = new UnitValue(0.2, "pt");
     var reference_left_bound = reference_layer.bounds[0];
     var layer_right_bound = typelineLayer.bounds[2];
@@ -51,6 +53,7 @@ function vertically_align_text(layer, reference_layer) {
     /**
      * Rasterises a given text layer and centres it vertically with respect to the bounding box of a reference layer.
      */
+
     layer.rasterize(RasterizeType.TEXTCONTENTS);
     select_layer_pixels(reference_layer);
     app.activeDocument.activeLayer = layer;
@@ -111,13 +114,14 @@ var TextField = Class({
     /*
     A generic TextField, which allows you to set a text layer's contents and text colour.
     */
+
     constructor: function (layer, text_contents, text_colour) {
         this.layer = layer;
-        this.text_contents = text_contents;
+        this.text_contents = text_contents.replace(/\n/g, "\r");
         this.text_colour = text_colour;
     },
     insert: function () {
-        this.layer.textItem.contents = this.text_contents.replace(/\n/g, "\r");
+        this.layer.textItem.contents = this.text_contents;
         this.layer.textItem.color = this.text_colour;
     }
 });
@@ -141,20 +145,69 @@ var ScaledTextField = Class({
     }
 })
 
-var FormattedTextField = Class({
+var BasicFormattedTextField = Class({
     /**
      * A TextField where the contents contain some number of symbols which should be replaced with glyphs from the NDPMTG font.
      * For example, if the text contents for an instance of this class is "{2}{R}", formatting this text with NDPMTG would correctly
      * show the mana cost 2R with text contents "o2or" with characters being appropriately coloured.
+     * Doesn't support flavour text or centred text. For use with fields like mana costs and planeswalker abilities.
      */
 
     extends_: TextField,
     insert: function () {
         this.super();
 
-        // TODO: format text
+        // format text function call
+        app.activeDocument.activeLayer = this.layer;
+        var italic_text = generate_italics(this.text_contents);
+        format_text(this.text_contents, italic_text, -1, false);
     }
 });
+
+var FormattedTextField = Class({
+    /**
+     * A TextField where the contents contain some number of symbols which should be replaced with glyphs from the NDPMTG font.
+     * For example, if the text contents for an instance of this class is "{2}{R}", formatting this text with NDPMTG would correctly
+     * show the mana cost 2R with text contents "o2or" with characters being appropriately coloured.
+     * Doesn't support flavour text or centred text.
+     * The big boy version which supports centred text and flavour text. For use with card rules text.
+     */
+    
+    extends_: TextField,
+    constructor: function (layer, text_contents, flavour_text, text_colour, is_centred) {
+        this.super(layer, text_contents, text_colour);
+        this.flavour_text = flavour_text.replace(/\n/g, "\r");
+        this.is_centred = is_centred;
+    },
+    insert: function () {
+        this.super();
+
+        // generate italic text arrays from things in (parentheses), ability words, and the given flavour text
+        var italic_text = generate_italics(this.text_contents);
+        var flavour_index = -1;
+
+        if (this.flavour_text.length > 1) {
+            // remove things between asterisks from flavour text if necessary
+            var flavour_text_split = this.flavour_text.split("*");
+            if (flavour_text_split.length > 1) {
+                // asterisks present in flavour text
+                for (var i = 0; i < flavour_text_split.length; i += 2) {
+                    // add the parts of the flavour text not between asterisks to italic_text
+                    italic_text.push(flavour_text_split[i])
+                }
+                // reassemble flavourText without asterisks
+                this.flavour_text = flavour_text_split.join("");
+            } else {
+                // if no asterisks in flavour text, push the whole flavour text string instead
+                italic_text.push(this.flavour_text);
+            }
+            flavour_index = this.text_contents.length;
+        }
+
+        app.activeDocument.activeLayer = this.layer;
+        format_text(this.text_contents + "\r" + this.flavour_text, italic_text, flavour_index, this.is_centred);
+    }
+})
 
 var FormattedTextArea = Class({
     /**
@@ -164,8 +217,8 @@ var FormattedTextArea = Class({
      */
 
     extends_: FormattedTextField,
-    constructor: function (layer, text_contents, text_colour, reference_layer) {
-        this.super(layer, text_contents, text_colour);
+    constructor: function (layer, text_contents, flavour_text, text_colour, is_centred, reference_layer) {
+        this.super(layer, text_contents, flavour_text, text_colour, is_centred);
         this.reference_layer = reference_layer;
     },
     insert: function () {
@@ -187,8 +240,8 @@ var CreatureFormattedTextArea = Class({
      */
 
     extends_: FormattedTextArea,
-    constructor: function (layer, text_contents, text_colour, reference_layer, pt_reference_layer, pt_top_reference_layer) {
-        this.super(layer, text_contents, text_colour, reference_layer);
+    constructor: function (layer, text_contents, text_colour, reference_layer, is_centred, pt_reference_layer, pt_top_reference_layer) {
+        this.super(layer, text_contents, text_colour, reference_layer, is_centred);
         this.pt_reference_layer = pt_reference_layer;
         this.pt_top_reference_layer = pt_top_reference_layer;
     },
