@@ -1,7 +1,80 @@
 #include "constants.jsx";
 
-/* Formatting for different symbol types */
+/* Locating symbols and italics in the input string */
 
+function locate_symbols(input_string) {
+    /**
+     * Locate symbols in the input string, replace them with the characters we use to represent them in NDPMTG, and determine
+     * the colours those characters need to be. Returns an object with the modified input string and a list of symbol indices.
+     */
+
+    var symbol_regex = /(\{.*?\})/;
+    var symbol_indices = [];
+    var match = null;
+    while (true) {
+        match = symbol_regex.exec(input_string);
+        if (match === null) {
+            break;
+        } else {
+            var symbol = match[1];
+            var symbol_index = match.index;
+            var symbol_chars = symbols[symbol];
+            if (symbol_chars === null) {
+                // TODO: raise error about how symbol doesn't have character mapping
+                alert(symbol);
+                return;
+            }
+
+            input_string = input_string.replace(symbol, symbol_chars);
+            symbol_indices.push({
+                index: symbol_index,
+                colours: determine_symbol_colours(symbol, symbol_chars.length),
+            });
+        }
+    }
+
+    return {
+        input_string: input_string,
+        symbol_indices: symbol_indices,
+    }
+}
+
+function locate_italics(input_string, italics_strings) {
+    /**
+     * Locate all instances of italic strings in the input string and record their start and end indices.
+     * Returns a list of italic string indices (start and end).
+     */
+    var italics_indices = [];
+    var italics;
+    var pos;
+    var start_index;
+    var end_index;
+
+    for (var i = 0; i < italics_strings.length; i++) {
+        italics = italics_strings[i];
+        pos = 0;
+        start_index = 0;
+
+        while (true) {
+            start_index = input_string.indexOf(italics, pos);
+            end_index = start_index + italics.length;
+
+            if (start_index < 0) {
+                break;
+            }
+            italics_indices.push({
+                start_index: start_index,
+                end_index: end_index,
+            });
+            pos = end_index + 1;
+        }
+
+    }
+
+    return italics_indices;
+}
+
+/* Formatting for different symbol types */
 
 function determine_symbol_colours(symbol, symbol_length) {
     /**
@@ -116,13 +189,14 @@ function format_symbol(primary_action_list, starting_layer_ref, symbol_index, sy
     return current_ref;
 }
 
-function format_text(inputString, italicStrings, flavourIndex, centredText) {
+function format_text(input_string, italics_strings, flavour_index, is_centred) {
     /**
      * Inserts the given string into the active layer and formats it according to function parameters with symbols 
      * from the NDPMTG font.
+     * @param {str} input_string The string to insert into the active layer
      * @param {Array[str]} italic_strings An array containing strings that are present in the main input string and should be italicised
-     * @param {int} flavourIndex The index at which linebreak spacing should be increased (where the card's flavour text begins)
-     * @param {boolean} centredText Whether or not the input text should be centre-justified
+     * @param {int} flavour_index The index at which linebreak spacing should be increased and any subsequent chars should be italicised (where the card's flavour text begins)
+     * @param {boolean} is_centred Whether or not the input text should be centre-justified
      */
 
     // TODO: check that the active layer is a text layer, and raise an issue if not
@@ -132,108 +206,20 @@ function format_text(inputString, italicStrings, flavourIndex, centredText) {
         var text_colour = rgb_black();
     }
 
-    var phyrexianCard = false;
-    var phyrexianColour = rgb_g;
-
-    // Find and replace the mana symbols in {} in the string with their NDPMTG
-    // equivalents, and note their indices and stuff
-
-    if (flavourIndex > 0) {
-        var quoteIndex = inputString.indexOf("\r", flavourIndex + 3);
+    if (flavour_index > 0) {
+        var quote_index = input_string.indexOf("\r", flavour_index + 3);
     }
 
-    var startIndex = [];
-    var endIndex = [];
-    // Get the start and end indices of each given string
-    for (var i = 0; i < italicStrings.length; i++) {
-        var currentStartIndex = inputString.indexOf(italicStrings[i]);
-        if (currentStartIndex >= 0) {
-            startIndex.push(currentStartIndex);
-            endIndex.push(currentStartIndex + italicStrings[i].length);
-        }
-    }
-    startIndex = startIndex.sort(function (a, b) {
-        return a - b;
-    });
-    endIndex = endIndex.sort(function (a, b) {
-        return a - b;
-    });
+    // Locate symbols and update the input string
+    var ret = locate_symbols(input_string);
+    input_string = ret.input_string;
+    var symbol_indices = ret.symbol_indices;
 
-    // Offset each instance of flavour text by how many mana symbols appear before it
-    for (i = 0; i < startIndex.length; i++) {
-        // Start indices
-        var tempString = inputString.slice(0, startIndex[i]);
-        var numLines = 0;
-
-        for (var symbol in symbols) {
-            var numOccurrences = occurrences(tempString, symbol, false);
-            numLines += numOccurrences * (symbol.length - symbols[symbol].length);
-        }
-
-        if (startIndex[i] - (numLines) >= 0) {
-            startIndex[i] = startIndex[i] - numLines;
-        } else {
-            startIndex[i] = 0;
-        }
-
-        // End indices
-        tempString = inputString.slice(0, endIndex[i]);
-        numLines = 0;
-
-        for (symbol in symbols) {
-            var numOccurrences = occurrences(tempString, symbol, false);
-            numLines += numOccurrences * (symbol.length - symbols[symbol].length);
-        }
-
-        if (endIndex[i] - (numLines) >= 0) {
-            endIndex[i] = endIndex[i] - numLines;
-        } else {
-            endIndex[i] = 0;
-        }
-    }
-
-    var symbolIndices = [];
-    var startingIndex = 0;
-
-    // Find all instances of mana symbols in the text and replace them
-    while (true) {
-        // TODO: error handling if the input is malformed
-        var braceIndex1 = inputString.indexOf("{", startingIndex);
-        var braceIndex2 = inputString.indexOf("}", startingIndex);
-        if (braceIndex1 < 0) {
-            break;
-        } else {
-            var currentSymbol = inputString.slice(braceIndex1, braceIndex2 + 1);
-
-            // Check if phyrexian real quick
-            if (currentSymbol.indexOf("/P}") >= 0) {
-                phyrexianCard = true;
-                if (currentSymbol == "{W/P}") phyrexianColour = rgb_w;
-                else if (currentSymbol == "{U/P}") phyrexianColour = rgb_u;
-                else if (currentSymbol == "{B/P}") phyrexianColour = rgb_b;
-                else if (currentSymbol == "{R/P}") phyrexianColour = rgb_r;
-                else if (currentSymbol == "{G/P}") phyrexianColour = rgb_g;
-            }
-
-            for (symbol in symbols) {
-                if (currentSymbol.valueOf() == symbol.valueOf()) {
-                    inputString = inputString.replace(symbol, symbols[symbol]);
-
-                    // symbolIndices.push([braceIndex1, symbols[symbol].length]);  // insert the symbol index and its length into symbolIndices
-                    symbolIndices.push({
-                        index: braceIndex1,
-                        // size: symbols[symbol].length,
-                        colours: determine_symbol_colours(currentSymbol, symbols[symbol].length),
-                    })
-                    startingIndex = braceIndex1 + 1;
-                }
-            }
-        }
-    }
-
-    var layer_font_size = app.activeDocument.activeLayer.textItem.size;
+    // Locate italics text indices
+    var italics_indices = locate_italics(input_string, italics_strings);
 
     // Prepare action descriptor and reference variables
+    var layer_font_size = app.activeDocument.activeLayer.textItem.size;
     var desc119 = new ActionDescriptor();
     idnull = charIDToTypeID("null");
     var ref101 = new ActionReference();
@@ -244,14 +230,14 @@ function format_text(inputString, italicStrings, flavourIndex, centredText) {
     desc119.putReference(idnull, ref101);
     var primary_action_descriptor = new ActionDescriptor();
     var idTxt = charIDToTypeID("Txt ");
-    primary_action_descriptor.putString(idTxt, inputString);
+    primary_action_descriptor.putString(idTxt, input_string);
 
     var primary_action_list = new ActionList();
     desc25 = new ActionDescriptor();
     var idFrom = charIDToTypeID("From");
     desc25.putInteger(idFrom, 0);
     var idT = charIDToTypeID("T   ");
-    desc25.putInteger(idT, inputString.length);
+    desc25.putInteger(idT, input_string.length);
     var idTxtS = charIDToTypeID("TxtS");
     desc26 = new ActionDescriptor();
     var idfontPostScriptName = stringIDToTypeID("fontPostScriptName");
@@ -281,69 +267,65 @@ function format_text(inputString, italicStrings, flavourIndex, centredText) {
     desc25.putObject(idTxtS, idTxtS, desc26);
     var current_layer_ref = desc25;
 
-    if (startIndex.length > 0) {
-        for (i = 0; i < startIndex.length; i++) {
-            // Italics text
-            var idTxtt = charIDToTypeID("Txtt");
-            primary_action_list.putObject(idTxtt, current_layer_ref);
-            desc125 = new ActionDescriptor();
-            idFrom = charIDToTypeID("From");
-            desc125.putInteger(idFrom, startIndex[i]);
-            idT = charIDToTypeID("T   ");
-            desc125.putInteger(idT, endIndex[i]);
-            idTxtS = charIDToTypeID("TxtS");
-            desc126 = new ActionDescriptor();
-            var idstyleSheetHasParent = stringIDToTypeID("styleSheetHasParent");
-            desc126.putBoolean(idstyleSheetHasParent, true);
-            idfontPostScriptName = stringIDToTypeID("fontPostScriptName");
-            desc126.putString(idfontPostScriptName, font_name_mplantin_italic);  // MPlantin italic font name
-            idFntN = charIDToTypeID("FntN");
-            desc126.putString(idFntN, font_name_mplantin_italic);  // MPlantin italic font name
-            var idFntS = charIDToTypeID("FntS");
-            idSz = charIDToTypeID("Sz  ");
-            idPnt = charIDToTypeID("#Pnt");
-            desc126.putUnitDouble(idSz, idPnt, layer_font_size);
-            idautoLeading = stringIDToTypeID("autoLeading");
-            desc126.putBoolean(idautoLeading, false);
-            idLdng = charIDToTypeID("Ldng");
-            idPnt = charIDToTypeID("#Pnt");
-            desc126.putUnitDouble(idLdng, idPnt, layer_font_size);
-            idClr = charIDToTypeID("Clr ");
-            desc127 = new ActionDescriptor();
-            idRd = charIDToTypeID("Rd  ");
-            desc127.putDouble(idRd, text_colour.rgb.red);  // text colour.red
-            idGrn = charIDToTypeID("Grn ");
-            desc127.putDouble(idGrn, text_colour.rgb.green);  // text colour.green
-            idBl = charIDToTypeID("Bl  ");
-            desc127.putDouble(idBl, text_colour.rgb.blue);  // text colour.blue
-            idRGBC = charIDToTypeID("RGBC");
-            desc126.putObject(idClr, idRGBC, desc127);
-            idTxtS = charIDToTypeID("TxtS");
-            desc125.putObject(idTxtS, idTxtS, desc126);
-            current_layer_ref = desc125;
-        }
+    for (i = 0; i < italics_indices.length; i++) {
+        // Italics text
+        var idTxtt = charIDToTypeID("Txtt");
+        primary_action_list.putObject(idTxtt, current_layer_ref);
+        desc125 = new ActionDescriptor();
+        idFrom = charIDToTypeID("From");
+        desc125.putInteger(idFrom, italics_indices[i].start_index);  // italics start index
+        idT = charIDToTypeID("T   ");
+        desc125.putInteger(idT, italics_indices[i].end_index);  // italics end index
+        idTxtS = charIDToTypeID("TxtS");
+        desc126 = new ActionDescriptor();
+        var idstyleSheetHasParent = stringIDToTypeID("styleSheetHasParent");
+        desc126.putBoolean(idstyleSheetHasParent, true);
+        idfontPostScriptName = stringIDToTypeID("fontPostScriptName");
+        desc126.putString(idfontPostScriptName, font_name_mplantin_italic);  // MPlantin italic font name
+        idFntN = charIDToTypeID("FntN");
+        desc126.putString(idFntN, font_name_mplantin_italic);  // MPlantin italic font name
+        var idFntS = charIDToTypeID("FntS");
+        idSz = charIDToTypeID("Sz  ");
+        idPnt = charIDToTypeID("#Pnt");
+        desc126.putUnitDouble(idSz, idPnt, layer_font_size);
+        idautoLeading = stringIDToTypeID("autoLeading");
+        desc126.putBoolean(idautoLeading, false);
+        idLdng = charIDToTypeID("Ldng");
+        idPnt = charIDToTypeID("#Pnt");
+        desc126.putUnitDouble(idLdng, idPnt, layer_font_size);
+        idClr = charIDToTypeID("Clr ");
+        desc127 = new ActionDescriptor();
+        idRd = charIDToTypeID("Rd  ");
+        desc127.putDouble(idRd, text_colour.rgb.red);  // text colour.red
+        idGrn = charIDToTypeID("Grn ");
+        desc127.putDouble(idGrn, text_colour.rgb.green);  // text colour.green
+        idBl = charIDToTypeID("Bl  ");
+        desc127.putDouble(idBl, text_colour.rgb.blue);  // text colour.blue
+        idRGBC = charIDToTypeID("RGBC");
+        desc126.putObject(idClr, idRGBC, desc127);
+        idTxtS = charIDToTypeID("TxtS");
+        desc125.putObject(idTxtS, idTxtS, desc126);
+        current_layer_ref = desc125;
     }
 
     // Format each symbol correctly
-    if (symbolIndices.length > 0) {
-        for (i = 0; i < symbolIndices.length; i++) {
-            current_layer_ref = format_symbol(
-                primary_action_list=primary_action_list,
-                starting_layer_ref=current_layer_ref,
-                symbol_index=symbolIndices[i].index,
-                symbol_colours=symbolIndices[i].colours,
-                layer_font_size=layer_font_size,
-            );
-        }
+    for (i = 0; i < symbol_indices.length; i++) {
+        current_layer_ref = format_symbol(
+            primary_action_list = primary_action_list,
+            starting_layer_ref = current_layer_ref,
+            symbol_index = symbol_indices[i].index,
+            symbol_colours = symbol_indices[i].colours,
+            layer_font_size = layer_font_size,
+        );
     }
 
     idTxtt = charIDToTypeID("Txtt");
     primary_action_list.putObject(idTxtt, current_layer_ref);
     var desc137 = new ActionDescriptor();
     idFrom = charIDToTypeID("From");
-    desc137.putInteger(idFrom, inputString.length);
+    desc137.putInteger(idFrom, input_string.length);
     idT = charIDToTypeID("T   ");
-    desc137.putInteger(idT, inputString.length);
+    desc137.putInteger(idT, input_string.length);
     idTxtS = charIDToTypeID("TxtS");
     var desc138 = new ActionDescriptor();
     idfontPostScriptName = stringIDToTypeID("fontPostScriptName");
@@ -379,7 +361,7 @@ function format_text(inputString, italicStrings, flavourIndex, centredText) {
     idFrom = charIDToTypeID("From");
     desc141.putInteger(idFrom, 0);
     idT = charIDToTypeID("T   ");
-    desc141.putInteger(idT, inputString.length);
+    desc141.putInteger(idT, input_string.length);
     var idparagraphStyle = stringIDToTypeID("paragraphStyle");
     var desc142 = new ActionDescriptor();
     var idfirstLineIndent = stringIDToTypeID("firstLineIndent");
@@ -393,7 +375,7 @@ function format_text(inputString, italicStrings, flavourIndex, centredText) {
     desc142.putUnitDouble(idendIndent, idPnt, 0.000000);
     var idspaceBefore = stringIDToTypeID("spaceBefore");
     idPnt = charIDToTypeID("#Pnt");
-    if (centredText) {  // line break lead
+    if (is_centred) {  // line break lead
         desc142.putUnitDouble(idspaceBefore, idPnt, 0);
     } else {
         desc142.putUnitDouble(idspaceBefore, idPnt, line_break_lead);
@@ -433,10 +415,10 @@ function format_text(inputString, italicStrings, flavourIndex, centredText) {
 
     list13 = new ActionList();
 
-    if (inputString.indexOf("\u2022") >= 0) {
+    if (input_string.indexOf("\u2022") >= 0) {
         // Modal card with bullet points - adjust the formatting slightly
-        var startIndexBullet = inputString.indexOf("\u2022");
-        var endIndexBullet = inputString.lastIndexOf("\u2022");
+        var startIndexBullet = input_string.indexOf("\u2022");
+        var endIndexBullet = input_string.lastIndexOf("\u2022");
         idparagraphStyleRange = stringIDToTypeID("paragraphStyleRange");
         list13 = new ActionList();
         desc141 = new ActionDescriptor();
@@ -531,7 +513,7 @@ function format_text(inputString, italicStrings, flavourIndex, centredText) {
         desc143.putString(idFntN, font_name_mplantin);
         idSz = charIDToTypeID("Sz  ");
         idPnt = charIDToTypeID("#Pnt");
-        desc143.putUnitDouble(idSz, idPnt, 11.998500);
+        desc143.putUnitDouble(idSz, idPnt, 11.998500);  // TODO: what's this?
         idautoLeading = stringIDToTypeID("autoLeading");
         desc143.putBoolean(idautoLeading, false);
         idClr = charIDToTypeID("Clr ");
@@ -556,14 +538,14 @@ function format_text(inputString, italicStrings, flavourIndex, centredText) {
         primary_action_descriptor.putList(idkerningRange, list14);
     }
 
-    if (flavourIndex > 0) {
+    if (flavour_index > 0) {
         // Adjust line break spacing if there's a line break in the flavour text
         idparagraphStyleRange = stringIDToTypeID("paragraphStyleRange");
         desc141 = new ActionDescriptor();
         idFrom = charIDToTypeID("From");
-        desc141.putInteger(idFrom, flavourIndex + 3);
+        desc141.putInteger(idFrom, flavour_index + 3);
         idT = charIDToTypeID("T   ");
-        desc141.putInteger(idT, flavourIndex + 4);
+        desc141.putInteger(idT, flavour_index + 4);
         idfirstLineIndent = stringIDToTypeID("firstLineIndent");
         idPnt = charIDToTypeID("#Pnt");
         desc142.putUnitDouble(idfirstLineIndent, idPnt, 0);
@@ -589,14 +571,14 @@ function format_text(inputString, italicStrings, flavourIndex, centredText) {
         primary_action_descriptor.putList(idkerningRange, list14);
     }
 
-    if (quoteIndex > 0) {
+    if (quote_index > 0) {
         // Adjust line break spacing if there's a line break in the flavour text
         idparagraphStyleRange = stringIDToTypeID("paragraphStyleRange");
         desc141 = new ActionDescriptor();
         idFrom = charIDToTypeID("From");
-        desc141.putInteger(idFrom, quoteIndex + 3);
+        desc141.putInteger(idFrom, quote_index + 3);
         idT = charIDToTypeID("T   ");
-        desc141.putInteger(idT, inputString.length);
+        desc141.putInteger(idT, input_string.length);
         idspaceBefore = stringIDToTypeID("spaceBefore");
         idPnt = charIDToTypeID("#Pnt");
         desc142.putUnitDouble(idspaceBefore, idPnt, 0);
