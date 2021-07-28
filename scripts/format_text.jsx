@@ -44,6 +44,7 @@ function locate_italics(input_string, italics_strings) {
      * Locate all instances of italic strings in the input string and record their start and end indices.
      * Returns a list of italic string indices (start and end).
      */
+
     var italics_indices = [];
     var italics;
     var pos;
@@ -54,6 +55,13 @@ function locate_italics(input_string, italics_strings) {
         italics = italics_strings[i];
         pos = 0;
         start_index = 0;
+
+        // replace symbols with their character representations in the italic string
+        if (italics.indexOf("}") >= 0) {
+            for (var symbol in symbols) {
+                italics = italics.replace(symbol, symbols[symbol]);
+            }
+        }
 
         while (true) {
             start_index = input_string.indexOf(italics, pos);
@@ -238,7 +246,6 @@ function format_text(input_string, italics_strings, flavour_index, is_centred) {
     desc25.putInteger(idFrom, 0);
     var idT = charIDToTypeID("T   ");
     desc25.putInteger(idT, input_string.length);
-    var idTxtS = charIDToTypeID("TxtS");
     desc26 = new ActionDescriptor();
     var idfontPostScriptName = stringIDToTypeID("fontPostScriptName");
     desc26.putString(idfontPostScriptName, font_name_mplantin);  // MPlantin font name
@@ -278,8 +285,6 @@ function format_text(input_string, italics_strings, flavour_index, is_centred) {
         desc125.putInteger(idT, italics_indices[i].end_index);  // italics end index
         idTxtS = charIDToTypeID("TxtS");
         desc126 = new ActionDescriptor();
-        var idstyleSheetHasParent = stringIDToTypeID("styleSheetHasParent");
-        desc126.putBoolean(idstyleSheetHasParent, true);
         idfontPostScriptName = stringIDToTypeID("fontPostScriptName");
         desc126.putString(idfontPostScriptName, font_name_mplantin_italic);  // MPlantin italic font name
         idFntN = charIDToTypeID("FntN");
@@ -385,8 +390,6 @@ function format_text(input_string, italics_strings, flavour_index, is_centred) {
     desc142.putUnitDouble(idspaceAfter, idPnt, 0.000000);
     var iddropCapMultiplier = stringIDToTypeID("dropCapMultiplier");
     desc142.putInteger(iddropCapMultiplier, 1);
-    var idautoLeadingPercentage = stringIDToTypeID("autoLeadingPercentage");
-    desc142.putDouble(idautoLeadingPercentage, 1.200000);
     var idleadingType = stringIDToTypeID("leadingType");
     idleadingType = stringIDToTypeID("leadingType");
     var idleadingBelow = stringIDToTypeID("leadingBelow");
@@ -435,76 +438,10 @@ function format_text(input_string, italics_strings, flavour_index, is_centred) {
         desc142.putUnitDouble(idstartIndent, idPnt, modal_indent); // modal indent
         idspaceBefore = stringIDToTypeID("spaceBefore");
         idPnt = charIDToTypeID("#Pnt");
-        desc142.putUnitDouble(idspaceBefore, idPnt, 1.0); // 10
+        desc142.putUnitDouble(idspaceBefore, idPnt, 1.0);
         idspaceAfter = stringIDToTypeID("spaceAfter");
         idPnt = charIDToTypeID("#Pnt");
         desc142.putUnitDouble(idspaceAfter, idPnt, 0.000000);
-        iddropCapMultiplier = stringIDToTypeID("dropCapMultiplier");
-        desc142.putInteger(iddropCapMultiplier, 1);
-        idautoLeadingPercentage = stringIDToTypeID("autoLeadingPercentage");
-        desc142.putDouble(idautoLeadingPercentage, 1.200000);
-        idleadingType = stringIDToTypeID("leadingType");
-        idleadingType = stringIDToTypeID("leadingType");
-        idleadingBelow = stringIDToTypeID("leadingBelow");
-        desc142.putEnumerated(idleadingType, idleadingType, idleadingBelow);
-        idhyphenate = stringIDToTypeID("hyphenate");
-        desc142.putBoolean(idhyphenate, false);
-        idhyphenateWordSize = stringIDToTypeID("hyphenateWordSize");
-        desc142.putInteger(idhyphenateWordSize, 6);
-        idhyphenatePreLength = stringIDToTypeID("hyphenatePreLength");
-        desc142.putInteger(idhyphenatePreLength, 2);
-        idhyphenatePostLength = stringIDToTypeID("hyphenatePostLength");
-        desc142.putInteger(idhyphenatePostLength, 2);
-        idhyphenateLimit = stringIDToTypeID("hyphenateLimit");
-        desc142.putInteger(idhyphenateLimit, 0);
-        idhyphenationZone = stringIDToTypeID("hyphenationZone");
-        desc142.putDouble(idhyphenationZone, 36.000000);
-        idhyphenateCapitalized = stringIDToTypeID("hyphenateCapitalized");
-        desc142.putBoolean(idhyphenateCapitalized, true);
-        idhyphenationPreference = stringIDToTypeID("hyphenationPreference");
-        desc142.putDouble(idhyphenationPreference, 0.500000);
-        idjustificationWordMinimum = stringIDToTypeID("justificationWordMinimum");
-        desc142.putDouble(idjustificationWordMinimum, 0.800000);
-        idjustificationWordDesired = stringIDToTypeID("justificationWordDesired");
-        desc142.putDouble(idjustificationWordDesired, 1.000000);
-        idjustificationWordMaximum = stringIDToTypeID("justificationWordMaximum");
-        desc142.putDouble(idjustificationWordMaximum, 1.330000);
-        idjustificationLetterMinimum = stringIDToTypeID("justificationLetterMinimum");
-        desc142.putDouble(idjustificationLetterMinimum, 0.000000);
-        idjustificationLetterDesired = stringIDToTypeID("justificationLetterDesired");
-        desc142.putDouble(idjustificationLetterDesired, 0.000000);
-        idjustificationLetterMaximum = stringIDToTypeID("justificationLetterMaximum");
-        desc142.putDouble(idjustificationLetterMaximum, 0.000000);
-        idjustificationGlyphMinimum = stringIDToTypeID("justificationGlyphMinimum");
-        desc142.putDouble(idjustificationGlyphMinimum, 1.000000);
-        idjustificationGlyphDesired = stringIDToTypeID("justificationGlyphDesired");
-        desc142.putDouble(idjustificationGlyphDesired, 1.000000);
-        idjustificationGlyphMaximum = stringIDToTypeID("justificationGlyphMaximum");
-        desc142.putDouble(idjustificationGlyphMaximum, 1.000000);
-        idsingleWordJustification = stringIDToTypeID("singleWordJustification");
-        idAlg = charIDToTypeID("Alg ");
-        idJstA = charIDToTypeID("JstA");
-        desc142.putEnumerated(idsingleWordJustification, idAlg, idJstA);
-        idhangingRoman = stringIDToTypeID("hangingRoman");
-        desc142.putBoolean(idhangingRoman, false);
-        idautoTCY = stringIDToTypeID("autoTCY");
-        desc142.putInteger(idautoTCY, 1);
-        idkeepTogether = stringIDToTypeID("keepTogether");
-        desc142.putBoolean(idkeepTogether, false);
-        idburasagari = stringIDToTypeID("burasagari");
-        idburasagari = stringIDToTypeID("burasagari");
-        idburasagariNone = stringIDToTypeID("burasagariNone");
-        desc142.putEnumerated(idburasagari, idburasagari, idburasagariNone);
-        idpreferredKinsokuOrder = stringIDToTypeID("preferredKinsokuOrder");
-        idpreferredKinsokuOrder = stringIDToTypeID("preferredKinsokuOrder");
-        idpushIn = stringIDToTypeID("pushIn");
-        desc142.putEnumerated(idpreferredKinsokuOrder, idpreferredKinsokuOrder, idpushIn);
-        idkurikaeshiMojiShori = stringIDToTypeID("kurikaeshiMojiShori");
-        desc142.putBoolean(idkurikaeshiMojiShori, false);
-        idtextEveryLineComposer = stringIDToTypeID("textEveryLineComposer");
-        desc142.putBoolean(idtextEveryLineComposer, false);
-        iddefaultTabWidth = stringIDToTypeID("defaultTabWidth");
-        desc142.putDouble(iddefaultTabWidth, 36.000000);
         iddefaultStyle = stringIDToTypeID("defaultStyle");
         desc143 = new ActionDescriptor();
         idfontPostScriptName = stringIDToTypeID("fontPostScriptName");
@@ -603,8 +540,8 @@ function generate_italics(card_text) {
     /**
      * Generates italics text array from card text to italicise all text within (parentheses) and all ability words.
      */
-    var reminder_text = true;
 
+    var reminder_text = true;
     var italic_text = [];
     end_index = 0;
     while (reminder_text) {
@@ -631,6 +568,7 @@ function format_text_wrapper() {
      * Flavour text index and centred text not supported.
      * Super useful to add as a script action in Photoshop for making cards manually!
      */
+
     var card_text = app.activeDocument.activeLayer.textItem.contents;
     var italic_text = generate_italics(card_text);
 
