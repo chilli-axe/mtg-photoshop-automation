@@ -49,6 +49,8 @@ function scale_text_to_fit_reference(layer, reference_layer) {
     return scaled;
 }
 
+// TODO: multiple layers, each with their own references, that scale down together until they all fit within their references
+
 function vertically_align_text(layer, reference_layer) {
     /**
      * Rasterises a given text layer and centres it vertically with respect to the bounding box of a reference layer.
@@ -120,7 +122,7 @@ var TextField = Class({
         this.text_contents = text_contents.replace(/\n/g, "\r");
         this.text_colour = text_colour;
     },
-    insert: function () {
+    execute: function () {
         this.layer.textItem.contents = this.text_contents;
         this.layer.textItem.color = this.text_colour;
     }
@@ -137,7 +139,7 @@ var ScaledTextField = Class({
         this.super(layer, text_contents, text_colour);
         this.reference_layer = reference_layer;
     },
-    insert: function () {
+    execute: function () {
         this.super();
 
         // scale down the text layer until it doesn't overlap with the reference layer (e.g. card name overlapping with mana cost)
@@ -154,7 +156,7 @@ var BasicFormattedTextField = Class({
      */
 
     extends_: TextField,
-    insert: function () {
+    execute: function () {
         this.super();
 
         // format text function call
@@ -178,7 +180,7 @@ var FormattedTextField = Class({
         this.flavour_text = flavour_text.replace(/\n/g, "\r");
         this.is_centred = is_centred;
     },
-    insert: function () {
+    execute: function () {
         this.super();
 
         // generate italic text arrays from things in (parentheses), ability words, and the given flavour text
@@ -220,7 +222,7 @@ var FormattedTextArea = Class({
         this.super(layer, text_contents, flavour_text, text_colour, is_centred);
         this.reference_layer = reference_layer;
     },
-    insert: function () {
+    execute: function () {
         this.super();
 
         // resize the text until it fits into the reference layer
@@ -244,7 +246,7 @@ var CreatureFormattedTextArea = Class({
         this.pt_reference_layer = pt_reference_layer;
         this.pt_top_reference_layer = pt_top_reference_layer;
     },
-    insert: function () {
+    execute: function () {
         this.super();
 
         // shift vertically if the text overlaps the PT box

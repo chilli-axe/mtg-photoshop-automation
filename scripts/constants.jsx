@@ -22,6 +22,26 @@ var LayerNames = {
     VEHICLE: "Vehicle",
 };
 
+var BasicLandNames = [
+    "Plains",
+    "Island",
+    "Swamp",
+    "Mountain",
+    "Forest",
+    "Wastes",
+    "Snow-Covered Plains",
+    "Snow-Covered Island",
+    "Snow-Covered Swamp",
+    "Snow-Covered Mountain",
+    "Snow-Covered Forest"
+];
+
+// Card faces
+var Faces = {
+    FRONT: 0,
+    BACK: 1,
+}
+
 // Font names
 const font_name_mplantin = "MPlantin";
 const font_name_mplantin_italic = "MPlantin-Italic";
