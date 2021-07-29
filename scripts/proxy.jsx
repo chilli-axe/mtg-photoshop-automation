@@ -77,9 +77,6 @@ function proxy_new(file) {
     var card_name = ret.card_name;
     var artist = ret.artist;
 
-    var card_name = "Embereth Shieldbreaker";
-    var artist = "steve";
-
     call_python(card_name, file_path);
 
     var scryfall = read_json(file_path);

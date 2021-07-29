@@ -2,7 +2,13 @@
 #include "frame_logic.jsx";
 
 function determine_card_face(scryfall, card_name) {
-    return Faces.FRONT;
+    if (scryfall.card_faces[0].name == card_name) {
+        return Faces.FRONT;
+    } else if (scryfall.card_faces[1].name == card_name) {
+        return Faces.BACK;
+    }
+    // TODO: error
+    alert("Shit broke")
 }
 
 var BaseLayout = Class({
@@ -59,16 +65,18 @@ var TransformLayout = Class({
     unpack_scryfall: function () {
         // TODO: determine which face the card we're dealing with belongs to
 
-        this.face = determine_card_face(scryfall, card_name);
+        this.face = determine_card_face(this.scryfall, this.card_name_raw);
 
-        this.name = unpack_scryfallscryfall.card_faces[this.face].name;
-        this.mana_cost = unpack_scryfallscryfall.card_faces[this.face].mana_cost;
-        this.type_line = unpack_scryfallscryfall.card_faces[this.face].type_line;
-        this.oracle_text = unpack_scryfallscryfall.card_faces[this.face].oracle_text;
+        this.name = this.scryfall.card_faces[this.face].name;
+        this.mana_cost = this.scryfall.card_faces[this.face].mana_cost;
+        this.type_line = this.scryfall.card_faces[this.face].type_line;
+        this.oracle_text = this.scryfall.card_faces[this.face].oracle_text;
         this.flavour_text = this.scryfall.card_faces[this.face].flavor_text;
         this.power = this.scryfall.card_faces[this.face].power;
         this.toughness = this.scryfall.card_faces[this.face].toughness;
         this.colour_indicator = this.scryfall.card_faces[this.face].color_indicator;  // comes as an array from scryfall
+
+        // TODO: frame effects for icon in top-left
 
         this.super();
     },
