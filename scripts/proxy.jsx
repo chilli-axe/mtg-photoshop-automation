@@ -1,5 +1,7 @@
 #include "json2.js";
 #include "layouts.jsx";
+#include "templates.jsx";
+#include "constants.jsx";
 
 // Settings
 // Switch from the default template by uncommenting a line here
@@ -27,11 +29,11 @@ function retrieve_card_name_and_artist(file) {
     /**
      * Retrieve card name and (if specified) artist from the input file.
      */
-    var filename = decodeURI(file.name);
+    var filename = decodeURI(file[0].name);
     var filename_no_ext = filename.slice(0, filename.lastIndexOf("."));
 
-    var open_index = fullCardName.lastIndexOf(" (");
-    var close_index = fullCardName.lastIndexOf(")");
+    var open_index = filename_no_ext.lastIndexOf(" (");
+    var close_index = filename_no_ext.lastIndexOf(")");
 
     var card_name = filename_no_ext;
     var artist = "";
@@ -61,6 +63,16 @@ function call_python(cardname, filepath) {
     }
 }
 
+function select_template(layout, file, file_path) {
+    /**
+     * Instantiate a template object based on the card layout and user settings.
+     */
+    var template = new BaseTemplate(layout, file, file_path);
+    // TODO
+
+    return template;
+}
+
 function read_json(file_path) {
     var json_file = new File(file_path + "/scripts/card.json");
     json_file.open('r');
@@ -77,20 +89,36 @@ function proxy_new(file) {
     var card_name = ret.card_name;
     var artist = ret.artist;
 
-    call_python(card_name, file_path);
-
-    var scryfall = read_json(file_path);
-    var layout_name = scryfall.layout;
-
-    if (layout_name in layout_map) {
-        var layout = new layout_map[layout_name](scryfall, card_name);
+    if (card_name in BasicLandNames) {
+        // TODO: instantiate basic land template obj
+        var template = null;
     } else {
-        alert("Layout" + layout_name + " is not supported. Sorry!");
+        call_python(card_name, file_path);
+
+        var scryfall = read_json(file_path);
+        var layout_name = scryfall.layout;
+
+        // instantiate layout obj (unpacks scryfall json and stores relevant parts in obj properties)
+        if (layout_name in layout_map) {
+            var layout = new layout_map[layout_name](scryfall, card_name);
+        } else {
+            alert("Layout" + layout_name + " is not supported. Sorry!");
+        }
+
+        // if artist specified in file name, insert the specified artist into layout obj
+        if (artist !== "") {
+            layout.artist = artist;
+        }
+
+        var template = select_template(layout, file, file_path);
     }
+
+    // execute the template - insert text fields, set visibility of layers, etc. - and save to disk
+    var file_name = template.execute();
+    // save_and_close(file_name, file_path);
 }
 
 function proxy(file, ye) {
-    var expansionSymbol = ""; // Cube
     var filePath = File($.fileName).parent.parent.fsName;
     $.evalFile(filePath + "/scripts/json2.js");
 

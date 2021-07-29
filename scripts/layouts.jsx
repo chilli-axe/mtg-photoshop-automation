@@ -1,6 +1,8 @@
 #include "es-class.js";
 #include "frame_logic.jsx";
 
+/* Helper functions */
+
 function determine_card_face(scryfall, card_name) {
     if (scryfall.card_faces[0].name == card_name) {
         return Faces.FRONT;
@@ -10,6 +12,8 @@ function determine_card_face(scryfall, card_name) {
     // TODO: error
     alert("Shit broke")
 }
+
+/* Class definitions */
 
 var BaseLayout = Class({
     constructor: function (scryfall, card_name) {
@@ -45,7 +49,6 @@ var BaseLayout = Class({
 var NormalLayout = Class({
     extends_: BaseLayout,
     unpack_scryfall: function () {
-        alert("unpackin");
         alert(this.scryfall.type_line);
         this.name = this.scryfall.name;
         this.mana_cost = this.scryfall.mana_cost;

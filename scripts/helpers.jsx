@@ -155,7 +155,7 @@ function enable_active_layer_mask() {
     executeAction(idsetd, desc3078, DialogModes.NO);
 }
 
-function save_and_close(filename) {
+function save_and_close(file_name, file_path) {
     /**
      * Saves the current document to the output folder (/out/) as a PNG and closes the document without saving.
      */
@@ -173,33 +173,11 @@ function save_and_close(filename) {
     var idPNGF = charIDToTypeID("PNGF");
     desc3.putObject(idAs, idPNGF, desc4);
     var idIn = charIDToTypeID("In  ");
-    var filename_full = filePath + '/out/' + filename + '.png';
-    desc3.putPath(idIn, new File(filename_full));
+    var file_name_with_path = file_path + '/out/' + file_name + '.png';
+    desc3.putPath(idIn, new File(file_name_with_path));
     var idCpy = charIDToTypeID("Cpy ");
     desc3.putBoolean(idCpy, true);
     executeAction(idsave, desc3, DialogModes.NO);
 
     app.activeDocument.close(SaveOptions.DONOTSAVECHANGES);
-}
-
-function occurrences(string, substring, allow_overlapping) {
-    /**
-     * Count the number of occurrances of a substring in a string.
-     */
-
-    string += "";
-    substring += "";
-    if (substring.length <= 0) return (string.length + 1);
-    var n = 0,
-        pos = 0,
-        step = allow_overlapping ? 1 : substring.length;
-
-    while (true) {
-        pos = string.indexOf(substring, pos);
-        if (pos >= 0) {
-            ++n;
-            pos += step;
-        } else break;
-    }
-    return n;
 }

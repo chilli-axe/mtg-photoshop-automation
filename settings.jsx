@@ -1,0 +1,1 @@
+var expansion_symbol = "";  // Cube
