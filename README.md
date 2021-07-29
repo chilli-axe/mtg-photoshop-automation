@@ -25,11 +25,7 @@ Example printed through http://makeplayingcards.com
     * [Keyrune](https://andrewgioia.github.io/Keyrune/index.html) and [Mana](https://andrewgioia.github.io/Mana/), for the expansion symbol and transform symbols,
     * Relay Medium and Calibri.
   * [json2.js](https://github.com/douglascrockford/JSON-js), included but you may need to download a more recent version.
-
- As well as the Python packages (I tested the script using Python 3.6.3):
- * json
- * Scrython
- * requests
+  * A standard installation of Python 3.
 
 # Install / Usage Guide
 * Clone to a folder of your choice, referred to as the *working directory*.
