@@ -12,7 +12,7 @@ function scale_text_right_overlap(layer, reference_layer) {
 
     var step_size = new UnitValue(0.2, "pt");
     var reference_left_bound = reference_layer.bounds[0];
-    var layer_right_bound = typelineLayer.bounds[2];
+    var layer_right_bound = layer.bounds[2];
     var layer_font_size = layer.textItem.size;  // returns unit value
     while (layer_right_bound > reference_left_bound - new UnitValue(24, "px")) {  // minimum 24 px gap
         layer_font_size = layer_font_size - step_size;

@@ -29,7 +29,7 @@ function retrieve_card_name_and_artist(file) {
     /**
      * Retrieve card name and (if specified) artist from the input file.
      */
-    var filename = decodeURI(file[0].name);
+    var filename = decodeURI(file.name);
     var filename_no_ext = filename.slice(0, filename.lastIndexOf("."));
 
     var open_index = filename_no_ext.lastIndexOf(" (");
@@ -67,7 +67,7 @@ function select_template(layout, file, file_path) {
     /**
      * Instantiate a template object based on the card layout and user settings.
      */
-    var template = new BaseTemplate(layout, file, file_path);
+    var template = new NormalTemplate(layout, file, file_path);
     // TODO
 
     return template;
@@ -110,6 +110,7 @@ function proxy_new(file) {
             layout.artist = artist;
         }
 
+        // TODO: support manually specifying the template
         var template = select_template(layout, file, file_path);
     }
 
@@ -117,6 +118,21 @@ function proxy_new(file) {
     var file_name = template.execute();
     // save_and_close(file_name, file_path);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function proxy(file, ye) {
     var filePath = File($.fileName).parent.parent.fsName;

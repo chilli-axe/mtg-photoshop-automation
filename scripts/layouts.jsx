@@ -49,7 +49,6 @@ var BaseLayout = Class({
 var NormalLayout = Class({
     extends_: BaseLayout,
     unpack_scryfall: function () {
-        alert(this.scryfall.type_line);
         this.name = this.scryfall.name;
         this.mana_cost = this.scryfall.mana_cost;
         this.type_line = this.scryfall.type_line;

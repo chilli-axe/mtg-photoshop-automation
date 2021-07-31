@@ -17,14 +17,11 @@ var BaseTemplate = Class({
         this.file = file;
 
         this.load_template(file_path);
-
-        var docref = app.activeDocument;  // shorthand
         
-        this.art_layer = docref.layers.getByName(default_layer);
-        this.art_reference = docref.layers.getByName("Art Frame");  // TODO: remove
+        this.art_layer = app.activeDocument.layers.getByName(default_layer);
         this.text_layers = {
             artist: new TextField(
-                layer=docref.layers.getByName("Legal").layers.getByName("Artist"),
+                layer=app.activeDocument.layers.getByName("Legal").layers.getByName("Artist"),
                 text_contents=this.layout.artist,
                 text_colour=rgb_white(),
             ),
@@ -36,7 +33,8 @@ var BaseTemplate = Class({
         /**
          * Return the file name (no extension) for the template .psd file in the /templates folder.
          */
-        return "normal";
+
+        throw new Error("Template name not specified!");
     },
     load_template: function(file_path) {
         /**
@@ -63,6 +61,7 @@ var BaseTemplate = Class({
         // note context switch back to template
         app.activeDocument.paste();
 
+        // return document to previous state
         app.activeDocument.activeLayer = prev_active_layer;
     },
     execute: function () {
@@ -77,5 +76,62 @@ var BaseTemplate = Class({
 });
 
 var NormalTemplate = Class({
+    /**
+     * Normal M15-style template.
+     */
+    
+    extends_: BaseTemplate,
+    template_file_name: function () {
+        return "normal";
+    },
+    constructor: function(layout, file, file_path) {
+        this.super(layout, file, file_path);
+        var docref = app.activeDocument;
 
+        this.art_reference = docref.layers.getByName("Art Frame");
+
+        // Mana cost and card name (card name is scaled until it doesn't overlap with mana cost)
+        var text_and_icons = docref.layers.getByName("Text and Icons");
+        var mana_cost = text_and_icons.layers.getByName("Mana Cost");
+        this.text_layers.mana_cost = new BasicFormattedTextField(
+            layer=mana_cost,
+            text_contents=this.layout.mana_cost,
+            text_colour=rgb_black(),
+        );
+        this.text_layers.name = new ScaledTextField(
+            layer=text_and_icons.layers.getByName("Card Name"),
+            text_contents=this.layout.name,
+            text_colour=rgb_black(),
+            reference_layer=mana_cost,
+        )
+    },
+    execute: function () {
+        this.super();
+
+        // Execute mana cost and name (in that order)
+        this.text_layers.mana_cost.execute();
+        this.text_layers.name.execute();
+    }
 });
+
+
+
+/* Template boilerplate class
+var Template = Class({
+    extends_: BaseTemplate,
+    template_file_name: function() {
+        return "";
+    },
+    constructor: function(layout, file, file_path) {
+        this.super(layout, file, file_path);
+        this.docref = app.activeDocument;
+
+        // do stuff, including setting this.art_reference
+    },
+    execute: function () {
+        this.super();
+
+        // do stuff
+    },
+});
+*/

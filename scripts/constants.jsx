@@ -1,3 +1,4 @@
+// TODO: consistency between camelcase and snakecase
 // Layer names
 var LayerNames = {
     WHITE: "W",
@@ -22,6 +23,8 @@ var LayerNames = {
     VEHICLE: "Vehicle",
 };
 
+var default_layer = "Layer 1";
+
 var BasicLandNames = [
     "Plains",
     "Island",
@@ -43,14 +46,14 @@ var Faces = {
 }
 
 // Font names
-const font_name_mplantin = "MPlantin";
-const font_name_mplantin_italic = "MPlantin-Italic";
-const font_name_ndpmtg = "NDPMTG";
+var font_name_mplantin = "MPlantin";
+var font_name_mplantin_italic = "MPlantin-Italic";
+var font_name_ndpmtg = "NDPMTG";
 
 // Font spacing
-const modal_indent = 5.7;
-const line_break_lead = 2.4;
-const flavour_text_lead = 4.4;
+var modal_indent = 5.7;
+var line_break_lead = 2.4;
+var flavour_text_lead = 4.4;
 
 // Symbol colours
 var rgb_c = new SolidColor();
@@ -84,7 +87,7 @@ rgb_g.rgb.green = 211;
 rgb_g.rgb.blue = 175;
 
 // NDPMTG font dictionary to translate Scryfall symbols to font character sequences
-const symbols = {
+var symbols = {
     "{W/P}": "Qp",
     "{U/P}": "Qp",
     "{B/P}": "Qp",
@@ -138,7 +141,7 @@ const symbols = {
 };
 
 // Ability words which should be italicised in formatted text
-const ability_words = [
+var ability_words = [
     "Adamant",
     "Addendum",
     "Battalion",
@@ -146,7 +149,7 @@ const ability_words = [
     "Channel",
     "Chroma",
     "Cohort",
-    "Constellation",
+    "varellation",
     "Converge",
     "Council's dilemma",
     "Delirium",
