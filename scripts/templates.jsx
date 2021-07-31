@@ -203,16 +203,17 @@ var NormalTemplate = Class({
         var power_toughness = text_and_icons.layers.getByName("Power / Toughness");
         if (this.is_creature) {
             // creature card - set up creature layer for rules text and insert power & toughness
+            var rules_text = text_and_icons.layers.getByName("Rules Text - Creature");
             this.text_layers = this.text_layers.concat([
                 new TextField(
                     layer = power_toughness,
                     text_contents = this.layout.power.toString() + "/" + this.layout.toughness.toString(),
-                    text_colour = rgb_black(),
+                    text_colour = power_toughness.textItem.color,
                 ),
                 new CreatureFormattedTextArea(
-                    layer = text_and_icons.layers.getByName("Rules Text - Creature"),
+                    layer = rules_text,
                     text_contents = this.layout.oracle_text,
-                    text_colour = rgb_black(),
+                    text_colour = rules_text.textItem.color,
                     flavour_text = this.layout.flavour_text,
                     reference_layer = text_and_icons.layers.getByName("Textbox Reference"),
                     is_centred = is_centred,
@@ -225,11 +226,12 @@ var NormalTemplate = Class({
             creature_signature.visible = true;
         } else {
             // noncreature card - use the normal rules text layer and disable the power/toughness layer
+            var rules_text = text_and_icons.layers.getByName("Rules Text - Noncreature");
             this.text_layers.push(
                 new FormattedTextArea(
-                    layer = text_and_icons.layers.getByName("Rules Text - Noncreature"),
+                    layer = rules_text,
                     text_contents = this.layout.oracle_text,
-                    this.text_colour = rgb_black(),
+                    this.text_colour = rules_text.textItem.color,
                     flavour_text = this.layout.flavour_text,
                     is_centred = is_centred,
                     reference_layer = text_and_icons.layers.getByName("Textbox Reference"),
@@ -246,9 +248,9 @@ var NormalTemplate = Class({
 
         this.art_reference = docref.layers.getByName("Art Frame");
         if (this.layout.is_colourless) this.art_reference = docref.layers.getByName("Full Art Frame");
-        
+
         this.is_creature = this.layout.power !== undefined && this.layout.toughness !== undefined;
-        this.is_legendary = this.layout.frame_effects.indexOf("legendary") >= 0;
+        this.is_legendary = this.layout.type_line.indexOf("Legendary") >= 0;
         this.is_land = this.layout.type_line.indexOf("Land") >= 0;
         this.is_companion = this.layout.frame_effects.indexOf("companion") >= 0;
 
@@ -313,7 +315,6 @@ var NormalExtendedTemplate = Class({
      * An extended-art version of the normal template. The layer structure of this template and NormalTemplate are identical.
      */
 
-    // TODO: remove reminder text?
     extends_: NormalTemplate,
     template_file_name: function () {
         return "normal-extended";
@@ -321,6 +322,31 @@ var NormalExtendedTemplate = Class({
     template_suffix: function () {
         return "Extended";
     },
+    constructor: function (layout, file, file_path) {
+        // strip out reminder text for extended cards
+        layout.oracle_text = strip_reminder_text(layout.oracle_text);
+        this.super(layout, file, file_path);
+    }
+});
+
+var StargazingTemplate = Class({
+    /**
+     * Stargazing template from Theros: Beyond Death showcase cards. The layer structure of this template and NormalTemplate are largely 
+     * identical, but this template doesn't have normal background textures, only the Nyxtouched ones.
+     */
+
+    extends_: NormalTemplate,
+    template_file_name: function () {
+        return "stargazing";
+    },
+    template_suffix: function () {
+        return "Stargazing";
+    },
+    constructor: function (layout, file, file_path) {
+        layout.oracle_text = strip_reminder_text(layout.oracle_text);
+        layout.is_nyx = true;
+        this.super(layout, file, file_path);
+    }
 });
 
 var SnowTemplate = Class({
@@ -405,7 +431,7 @@ var AdventureTemplate = Class({
             new FormattedTextArea(
                 layer = rules_text,
                 text_contents = this.layout.adventure.oracle_text,
-                this.text_colour = rgb_black(),
+                this.text_colour = rules_text.textItem.color,
                 flavour_text = "",
                 is_centred = false,
                 reference_layer = text_and_icons.layers.getByName("Textbox Reference - Adventure"),
@@ -433,11 +459,12 @@ var MiracleTemplate = new Class({
     rules_text_and_pt_layers: function () {
         // overriding this because the miracle template doesn't have power/toughness layers
         var text_and_icons = app.activeDocument.layers.getByName("Text and Icons");
+        var rules_text = text_and_icons.layers.getByName("Rules Text - Noncreature")
         this.text_layers.push(
             new FormattedTextArea(
-                layer = text_and_icons.layers.getByName("Rules Text - Noncreature"),
+                layer = rules_text,
                 text_contents = this.layout.oracle_text,
-                this.text_colour = rgb_black(),
+                this.text_colour = rules_text.textItem.color,
                 flavour_text = this.layout.flavour_text,
                 is_centred = false,
                 reference_layer = text_and_icons.layers.getByName("Textbox Reference"),

@@ -122,6 +122,7 @@ var TextField = Class({
         this.text_colour = text_colour;
     },
     execute: function () {
+        this.layer.visible = true;
         this.layer.textItem.contents = this.text_contents;
         this.layer.textItem.color = this.text_colour;
     }

@@ -71,7 +71,6 @@ function locate_italics(input_string, italics_strings) {
                 end_index: end_index,
             });
         }
-
     }
 
     return italics_indices;
@@ -156,7 +155,6 @@ function format_symbol(primary_action_list, starting_layer_ref, symbol_index, sy
      */
 
     var current_ref = starting_layer_ref;
-
     for (var i = 0; i < symbol_colours.length; i++) {
         idTxtt = charIDToTypeID("Txtt");
         primary_action_list.putObject(idTxtt, current_ref);
@@ -221,6 +219,7 @@ function format_text(input_string, italics_strings, flavour_index, is_centred) {
 
     // Prepare action descriptor and reference variables
     var layer_font_size = app.activeDocument.activeLayer.textItem.size;
+    var layer_text_colour = app.activeDocument.activeLayer.textItem.color;
     var desc119 = new ActionDescriptor();
     idnull = charIDToTypeID("null");
     var ref101 = new ActionReference();
@@ -246,6 +245,16 @@ function format_text(input_string, italics_strings, flavour_index, is_centred) {
     var idSz = charIDToTypeID("Sz  ");
     var idPnt = charIDToTypeID("#Pnt");
     desc26.putUnitDouble(idSz, idPnt, layer_font_size);
+    var idClr = charIDToTypeID("Clr ");
+    desc27 = new ActionDescriptor();
+    var idRd = charIDToTypeID("Rd  ");
+    desc27.putDouble(idRd, layer_text_colour.rgb.red);  // text colour.red
+    var idGrn = charIDToTypeID("Grn ");
+    desc27.putDouble(idGrn, layer_text_colour.rgb.green);  // text colour.green
+    var idBl = charIDToTypeID("Bl  ");
+    desc27.putDouble(idBl, layer_text_colour.rgb.blue);  // text colour.blue
+    var idRGBC = charIDToTypeID("RGBC");
+    desc26.putObject(idClr, idRGBC, desc27);
     var idHrzS = charIDToTypeID("HrzS");
     var idautoLeading = stringIDToTypeID("autoLeading");
     desc26.putBoolean(idautoLeading, false);

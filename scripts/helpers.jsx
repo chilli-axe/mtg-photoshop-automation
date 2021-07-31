@@ -2,7 +2,7 @@ function rgb_black() {
     /**
      * Creates and returns a SolidColour with RGB values for solid black.
      */
-    
+
     var colour = new SolidColor();
     colour.rgb.red = 0;
     colour.rgb.green = 0;
@@ -241,4 +241,19 @@ function save_and_close(file_name, file_path) {
     executeAction(idsave, desc3, DialogModes.NO);
 
     app.activeDocument.close(SaveOptions.DONOTSAVECHANGES);
+}
+
+function strip_reminder_text(oracle_text) {
+    /**
+     * Strip out any reminder text that a card's oracle text has (reminder text in parentheses).
+     */
+
+    var parentheses_regex = /\(.*?\)/;
+    oracle_text = oracle_text.replace(parentheses_regex, "");
+
+    // ensure we didn't add any double whitespace by doing that
+    var whitespace_regex = / +/g;
+    oracle_text = oracle_text.replace(whitespace_regex, " ");
+
+    return oracle_text;
 }

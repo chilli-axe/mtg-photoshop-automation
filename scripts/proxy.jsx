@@ -98,6 +98,7 @@ function read_json(file_path) {
 }
 
 function proxy_new(file) {
+    // TODO: specify the desired template for a card in the filename?
     var file_path = File($.fileName).parent.parent.fsName;
 
     var ret = retrieve_card_name_and_artist(file);
@@ -120,7 +121,7 @@ function proxy_new(file) {
         if (layout_name in layout_map) {
             var layout = new layout_map[layout_name](scryfall, card_name);
         } else {
-            alert("Layout" + layout_name + " is not supported. Sorry!");
+            throw new Error("Layout" + layout_name + " is not supported. Sorry!");
         }
 
         // if artist specified in file name, insert the specified artist into layout obj
