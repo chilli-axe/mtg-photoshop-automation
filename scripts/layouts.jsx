@@ -45,10 +45,13 @@ var BaseLayout = Class({
         this.rarity = this.scryfall.rarity;
         this.artist = this.scryfall.artist;
         this.colour_identity = this.scryfall.color_identity;
-        // this.keywords = this.scryfall.keywords;
-        this.frame_effects = [];
+        this.keywords = "";
+        if (this.scryfall.keywords !== undefined) {
+            this.keywords = this.scryfall.keywords.toString()
+        }
+        this.frame_effects = "";
         if (this.scryfall.frame_effects !== undefined) {
-            this.frame_effects = this.scryfall.frame_effects;
+            this.frame_effects = this.scryfall.frame_effects.toString();  // TODO: ES doesn't have an array method for indexOf so I'm converting to str for now
         }
     }
 })

@@ -142,6 +142,8 @@ var NormalTemplate = Class({
      * Normal M15-style template.
      */
 
+    // TODO: colour indicator dot and typeline shift
+
     extends_: BaseTemplate,
     template_file_name: function () {
         return "normal";
@@ -152,9 +154,9 @@ var NormalTemplate = Class({
 
         // TODO: don't convert frame effects array to string
         this.is_creature = this.layout.power !== undefined && this.layout.toughness !== undefined;
-        this.is_legendary = this.layout.frame_effects.toString().indexOf("legendary") >= 0;
+        this.is_legendary = this.layout.frame_effects.indexOf("legendary") >= 0;
         this.is_land = this.layout.type_line.indexOf("Land") >= 0;
-        this.is_companion = this.layout.frame_effects.toString().indexOf("companion") >= 0;
+        this.is_companion = this.layout.frame_effects.indexOf("companion") >= 0;
 
         this.art_reference = docref.layers.getByName("Art Frame");
         if (this.layout.is_colourless) this.art_reference = docref.layers.getByName("Full Art Frame");
@@ -287,11 +289,62 @@ var NormalTemplate = Class({
 });
 
 var NormalExtendedTemplate = Class({
+    /**
+     * An extended-art version of the normal template. The layer structure of this template and NormalTemplate are identical.
+     */
+
+    // TODO: remove reminder text?
     extends_: NormalTemplate,
     template_file_name: function () {
         return "normal-extended";
     },
     template_suffix: function () {
         return "Extended";
+    },
+});
+
+var SnowTemplate = Class({
+    /**
+     * A snow template with textures from Kaldheim's snow cards. The layer structure of this template and NormalTemplate are identical.
+     */
+
+    extends_: NormalTemplate,
+    template_file_name: function () {
+        return "snow";
+    },
+});
+
+var MutateTemplate = Class({
+    /**
+     * A template for Ikoria's mutate cards.  The layer structure of this template and NormalTemplate are close to identical, but this
+     * template has a couple more text and reference layers for the top half of the textbox. It also doesn't include layers for Nyx 
+     * backgrounds or Companion crowns, but no mutate cards exist that would require these layers.
+     */
+
+    extends_: NormalTemplate,
+    template_file_name: function () {
+        return "mutate";
+    },
+    constructor: function (layout, file, file_path) {
+        // split this.oracle_text between mutate text and actual text before calling this.super()
+        var split_rules_text = layout.oracle_text.split("\n");
+        layout.mutate_text = split_rules_text[0];
+        layout.oracle_text = split_rules_text.slice(1, split_rules_text.length).join("\n");
+
+        this.super(layout, file, file_path);
+
+        var docref = app.activeDocument;
+        var text_and_icons = docref.layers.getByName("Text and Icons");
+        var mutate = text_and_icons.layers.getByName("Mutate");
+        this.text_layers.push(
+            new FormattedTextArea(
+                layer = mutate,
+                text_contents = this.layout.mutate_text,
+                text_colour = mutate.textItem.color,
+                flavour_text = this.layout.flavour_text,
+                is_centred = false,
+                reference_layer = text_and_icons.layers.getByName("Mutate Reference"),
+            )
+        );
     }
-})
+});

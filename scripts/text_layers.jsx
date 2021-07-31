@@ -154,15 +154,15 @@ var ExpansionSymbolField = Class({
      */
 
     extends_: TextField,
-    constructor: function(layer, text_contents, rarity) {
+    constructor: function (layer, text_contents, rarity) {
         this.super(layer, text_contents, rgb_black());
-        
+
         this.rarity = rarity;
         if (rarity === rarity_bonus || rarity === rarity_special) {
             this.rarity = rarity_mythic;
         }
     },
-    execute: function() {
+    execute: function () {
         this.super();
 
         var stroke_weight = 6;  // pixels

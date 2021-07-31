@@ -68,7 +68,14 @@ function select_template(layout, file, file_path) {
     /**
      * Instantiate a template object based on the card layout and user settings.
      */
-    var template = new NormalTemplate(layout, file, file_path);
+
+    var template;
+    if (layout.keywords.indexOf("Mutate") >= 0) {
+        template = new MutateTemplate(layout, file, file_path);
+    } else {
+        template = new NormalTemplate(layout, file, file_path);
+    }
+    
     // TODO
 
     return template;
