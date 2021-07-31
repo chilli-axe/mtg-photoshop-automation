@@ -6,6 +6,40 @@
 
 /* Class definitions */
 
+/* Template boilerplate class
+Your entrypoint to customising this project for automating your own templates. You should:
+* Override the method template_file_name() to return your template's file name (without extension). It should be located in the
+  directory /scripts for the project to find it correctly.
+* Extend the constructor (make sure you call this.super() in the constructor). Define the text fields you need to populate in your
+  template. Do this by creating new instances of the project's text field classes (see my templates for examples) and append them
+  to the array self.text_layers. The constructor also needs to set the property this.art_reference to a layer in your template, and
+  your card art will be scaled to match the size of this layer.
+* Override the method enable_frame_layers. This method should use information about the card's layout to determine which layers to
+  turn on in your template to complete the card's frame. this.layout contains information about the card's twins colour (name and title 
+  boxes), pinlines and textbox colour(s), and background colour(s), so you'll be mainly using this. You also know if the card is colourless
+  (as in full-art like Eldrazi cards) and whether or not the card is nyx-touched (uses the nyx background).
+You should also modify the function select_template() in proxy.jsx to point to your template class(es).
+
+var Template = Class({
+    extends_: BaseTemplate,
+    template_file_name: function() {
+        return "";
+    },
+    constructor: function(layout, file, file_path) {
+        this.super(layout, file, file_path);
+        var docref = app.activeDocument;
+
+        // do stuff, including setting this.art_reference
+        // add text layers to the array this.text_layers (will be executed automatically)
+    },
+    enable_frame_layers: function () {
+        var docref = app.activeDocument;
+
+        // do stuff
+    },
+});
+*/
+
 var BaseTemplate = Class({
     constructor: function (layout, file, file_path) {
         /**
@@ -130,8 +164,10 @@ var NormalTemplate = Class({
         // Mana cost and card name (card name is scaled until it doesn't overlap with mana cost),
         // and expansion symbol and type line (type line is scaled until it doesn't overlap with expansion symbol)
         var text_and_icons = docref.layers.getByName("Text and Icons");
+        var name = text_and_icons.layers.getByName("Card Name")
         var mana_cost = text_and_icons.layers.getByName("Mana Cost");
         var expansion_symbol = text_and_icons.layers.getByName("Expansion Symbol");
+        var type_line = text_and_icons.layers.getByName("Typeline")
         this.text_layers = this.text_layers.concat([
             new BasicFormattedTextField(
                 layer = mana_cost,
@@ -139,24 +175,24 @@ var NormalTemplate = Class({
                 text_colour = rgb_black(),
             ),
             new ScaledTextField(
-                layer = text_and_icons.layers.getByName("Card Name"),
+                layer = name,
                 text_contents = this.layout.name,
-                text_colour = rgb_black(),
+                text_colour = name.textItem.color,
                 reference_layer = mana_cost,
             ),
             new ExpansionSymbolField(
-                layer=text_and_icons.layers.getByName("Expansion Symbol"),
-                text_contents=expansion_symbol_character,
-                rarity=this.layout.rarity,
+                layer = expansion_symbol,
+                text_contents = expansion_symbol_character,
+                rarity = this.layout.rarity,
             ),
             new ScaledTextField(
-                layer = text_and_icons.layers.getByName("Typeline"),
+                layer = type_line,
                 text_contents = this.layout.type_line,
-                text_colour = rgb_black(),
+                text_colour = type_line.textItem.color,
                 reference_layer = expansion_symbol,
             ),
         ]);
-        
+
         var power_toughness = text_and_icons.layers.getByName("Power / Toughness");
         if (this.is_creature) {
             // creature card - set up creature layer for rules text and insert power & toughness
@@ -221,8 +257,8 @@ var NormalTemplate = Class({
             background = docref.layers.getByName("Nyx");
         }
         background.layers.getByName(this.layout.background).visible = true;
-        
-        if(this.is_legendary) {
+
+        if (this.is_legendary) {
             // legendary crown
             var crown = docref.layers.getByName("Legendary Crown");
             crown.layers.getByName(this.layout.pinlines).visible = true;
@@ -231,8 +267,16 @@ var NormalTemplate = Class({
             border.layers.getByName("Legendary Border").visible = true;
         }
 
+        if (this.is_companion) {
+            // enable companion texture
+            var companion = docref.layers.getByName("Companion");
+            companion.layers.getByName(this.layout.pinlines).visible = true;
+        }
+
         if ((this.is_legendary && this.layout.is_nyx) || this.is_companion) {
-            // legendary crown on nyx background - enable the hollow crown shadow and layer mask on pinlines and shadows
+            // legendary crown on nyx background - enable the hollow crown shadow and layer mask on crown, pinlines, and shadows
+            docref.activeLayer = crown;
+            enable_active_layer_mask();
             docref.activeLayer = pinlines;
             enable_active_layer_mask();
             docref.activeLayer = docref.layers.getByName("Shadows");
@@ -242,25 +286,12 @@ var NormalTemplate = Class({
     },
 });
 
-
-
-/* Template boilerplate class
-var Template = Class({
-    extends_: BaseTemplate,
-    template_file_name: function() {
-        return "";
+var NormalExtendedTemplate = Class({
+    extends_: NormalTemplate,
+    template_file_name: function () {
+        return "normal-extended";
     },
-    constructor: function(layout, file, file_path) {
-        this.super(layout, file, file_path);
-        this.docref = app.activeDocument;
-
-        // do stuff, including setting this.art_reference
-        // add text layers to the array this.text_layers (will be executed automatically)
-    },
-    enable_frame_layers: function () {
-        var docref = app.activeDocument;
-
-        // do stuff
-    },
-});
-*/
+    template_suffix: function () {
+        return "Extended";
+    }
+})

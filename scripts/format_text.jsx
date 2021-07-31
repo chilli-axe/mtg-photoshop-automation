@@ -20,9 +20,7 @@ function locate_symbols(input_string) {
             var symbol_index = match.index;
             var symbol_chars = symbols[symbol];
             if (symbol_chars === null) {
-                // TODO: raise error about how symbol doesn't have character mapping
-                alert(symbol);
-                return;
+                throw new Error("Encountered a formatted character in braces that doesn't map to characters: " + symbol);
             }
 
             input_string = input_string.replace(symbol, symbol_chars);
@@ -65,7 +63,6 @@ function locate_italics(input_string, italics_strings) {
         while (true) {
             start_index = input_string.indexOf(italics, end_index);
             end_index = start_index + italics.length;
-
             if (start_index < 0) {
                 break;
             }
@@ -149,8 +146,7 @@ function determine_symbol_colours(symbol, symbol_length) {
         return [rgb_c, rgb_black()];
     }
 
-    // TODO: raise error
-    alert(symbol);
+    throw new Error("Encountered a symbol that I don't know how to colour: " + symbol);
 }
 
 
@@ -195,7 +191,6 @@ function format_symbol(primary_action_list, starting_layer_ref, symbol_index, sy
         desc2.putObject(idClr, idRGBC, desc3);
         idTxtS = charIDToTypeID("TxtS");
         desc1.putObject(idTxtS, idTxtS, desc2);
-
         current_ref = desc1;
     }
     return current_ref;
@@ -237,7 +232,6 @@ function format_text(input_string, italics_strings, flavour_index, is_centred) {
     var primary_action_descriptor = new ActionDescriptor();
     var idTxt = charIDToTypeID("Txt ");
     primary_action_descriptor.putString(idTxt, input_string);
-
     var primary_action_list = new ActionList();
     desc25 = new ActionDescriptor();
     var idFrom = charIDToTypeID("From");
@@ -258,7 +252,6 @@ function format_text(input_string, italics_strings, flavour_index, is_centred) {
     var idLdng = charIDToTypeID("Ldng");
     idPnt = charIDToTypeID("#Pnt");
     desc26.putUnitDouble(idLdng, idPnt, layer_font_size);
-
     idTxtS = charIDToTypeID("TxtS");
     desc25.putObject(idTxtS, idTxtS, desc26);
     var current_layer_ref = desc25;
@@ -353,7 +346,6 @@ function format_text(input_string, italics_strings, flavour_index, is_centred) {
     var idkerningRange = stringIDToTypeID("kerningRange");
     var list14 = new ActionList();
     primary_action_descriptor.putList(idkerningRange, list14);
-
     list13 = new ActionList();
 
     if (input_string.indexOf("\u2022") >= 0) {
@@ -499,6 +491,5 @@ function format_text_wrapper() {
 
     var card_text = app.activeDocument.activeLayer.textItem.contents;
     var italic_text = generate_italics(card_text);
-
     format_text(card_text, italic_text, -1, false);
 }
