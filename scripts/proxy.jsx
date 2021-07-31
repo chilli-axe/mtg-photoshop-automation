@@ -69,7 +69,6 @@ function select_template(layout, file, file_path) {
      * Instantiate a template object based on the card layout and user settings.
      */
 
-    var template;
     var cls;
     if (layout.scryfall.layout === "adventure") {
         cls = AdventureTemplate;
@@ -79,6 +78,8 @@ function select_template(layout, file, file_path) {
     }
     else if (layout.keywords.indexOf("Mutate") >= 0) {
         cls = MutateTemplate;
+    } else if (layout.frame_effects.indexOf("miracle") >= 0) {
+        cls = MiracleTemplate;
     } else {
         cls = NormalTemplate;
     }
@@ -889,6 +890,7 @@ function proxyNormal(jsonParsed, ye, cardName, cardArtist, expansionSymbol, layo
     if (!isIxalan) {
         var ptLayer = textAndIcons.layers.getByName("Power / Toughness");
         if (isCreature) {
+            alert("is creature?");
             ptLayer.textItem.contents = cardPower + "/" + cardTough;
             // also switch mpcautofill.com lines
             legalLayer.layers.getByName("Noncreature MPC Autofill").visible = false;

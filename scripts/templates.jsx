@@ -2,12 +2,9 @@
 #include "text_layers.jsx";
 #include "constants.jsx";
 
-/* Helper functions */
-
-/* Class definitions */
-
 /* Template boilerplate class
-Your entrypoint to customising this project for automating your own templates. You should:
+Your entrypoint to customising this project for automating your own templates. You should write classes that extend BaseTemplate for your 
+templates, and:
 * Override the method template_file_name() to return your template's file name (without extension). It should be located in the
   directory /scripts for the project to find it correctly.
 * Extend the constructor (make sure you call this.super() in the constructor). Define the text fields you need to populate in your
@@ -40,10 +37,12 @@ var Template = Class({
 });
 */
 
+/* Class definitions for Chilli_Axe templates */
+
 var BaseTemplate = Class({
     constructor: function (layout, file, file_path) {
         /**
-         * Set up variables for things which are common to all templates.
+         * Set up variables for things which are common to all templates (artwork and artist credit).
          * Classes extending this base class are expected to populate the following properties at minimum: this.art_reference
          */
 
@@ -148,24 +147,14 @@ var NormalTemplate = Class({
     template_file_name: function () {
         return "normal";
     },
-    constructor: function (layout, file, file_path) {
-        this.super(layout, file, file_path);
+    basic_text_layers: function () {
+        /**
+         * Set up the card's mana cost, name (scaled to not overlap with mana cost), expansion symbol, and type line
+         * (scaled to not overlap with the expansion symbol).
+         */
         var docref = app.activeDocument;
-
-        // TODO: don't convert frame effects array to string
-        this.is_creature = this.layout.power !== undefined && this.layout.toughness !== undefined;
-        this.is_legendary = this.layout.frame_effects.indexOf("legendary") >= 0;
-        this.is_land = this.layout.type_line.indexOf("Land") >= 0;
-        this.is_companion = this.layout.frame_effects.indexOf("companion") >= 0;
-
-        this.art_reference = docref.layers.getByName("Art Frame");
-        if (this.layout.is_colourless) this.art_reference = docref.layers.getByName("Full Art Frame");
-        this.noncreature_signature = this.legal.layers.getByName("Noncreature MPC Autofill");
-        this.creature_signature = this.legal.layers.getByName("Creature MPC Autofill");
-
-        // Mana cost and card name (card name is scaled until it doesn't overlap with mana cost),
-        // and expansion symbol and type line (type line is scaled until it doesn't overlap with expansion symbol)
         var text_and_icons = docref.layers.getByName("Text and Icons");
+
         var name = text_and_icons.layers.getByName("Card Name");
         var mana_cost = text_and_icons.layers.getByName("Mana Cost");
         var expansion_symbol = text_and_icons.layers.getByName("Expansion Symbol");
@@ -194,6 +183,18 @@ var NormalTemplate = Class({
                 reference_layer = expansion_symbol,
             ),
         ]);
+    },
+    rules_text_and_pt_layers: function () {
+        /**
+         * Set up the card's rules text and power/toughness according to whether or not the card is a creature.
+         * You're encouraged to override this method if a template extending this one doesn't have the option for
+         * creating creature cards (e.g. miracles).
+         */
+        var docref = app.activeDocument;
+        var text_and_icons = docref.layers.getByName("Text and Icons");
+
+        var noncreature_signature = this.legal.layers.getByName("Noncreature MPC Autofill");
+        var creature_signature = this.legal.layers.getByName("Creature MPC Autofill");
 
         var power_toughness = text_and_icons.layers.getByName("Power / Toughness");
         if (this.is_creature) {
@@ -216,9 +217,8 @@ var NormalTemplate = Class({
                 ),
             ]);
 
-            // disable noncreature signature and enable creature signature
-            this.noncreature_signature.visible = false;
-            this.creature_signature.visible = true;
+            noncreature_signature.visible = false;
+            creature_signature.visible = true;
         } else {
             // noncreature card - use the normal rules text layer and disable the power/toughness layer
             this.text_layers.push(
@@ -234,6 +234,22 @@ var NormalTemplate = Class({
 
             power_toughness.visible = false;
         }
+    },
+    constructor: function (layout, file, file_path) {
+        this.super(layout, file, file_path);
+
+        var docref = app.activeDocument;
+
+        this.art_reference = docref.layers.getByName("Art Frame");
+        if (this.layout.is_colourless) this.art_reference = docref.layers.getByName("Full Art Frame");
+        
+        this.is_creature = this.layout.power !== undefined && this.layout.toughness !== undefined;
+        this.is_legendary = this.layout.frame_effects.indexOf("legendary") >= 0;
+        this.is_land = this.layout.type_line.indexOf("Land") >= 0;
+        this.is_companion = this.layout.frame_effects.indexOf("companion") >= 0;
+
+        this.basic_text_layers();
+        this.rules_text_and_pt_layers();
     },
     enable_frame_layers: function () {
         var docref = app.activeDocument;
@@ -397,4 +413,31 @@ var AdventureTemplate = Class({
             ),
         ]);
     }
+});
+
+var MiracleTemplate = new Class({
+    /**
+     * A template for miracle cards. The layer structure of this template and NormalTemplate are close to identical, but this
+     * template is stripped down to only include mono-coloured layers and no land layers or other special layers, but no miracle
+     * cards exist that require these templates.
+     */
+
+    extends_: NormalTemplate,
+    template_file_name: function () {
+        return "miracle";
+    },
+    rules_text_and_pt_layers: function () {
+        // overriding this because the miracle template doesn't have power/toughness layers
+        var text_and_icons = app.activeDocument.layers.getByName("Text and Icons");
+        this.text_layers.push(
+            new FormattedTextArea(
+                layer = text_and_icons.layers.getByName("Rules Text - Noncreature"),
+                text_contents = this.layout.oracle_text,
+                this.text_colour = rgb_black(),
+                flavour_text = this.layout.flavour_text,
+                is_centred = false,
+                reference_layer = text_and_icons.layers.getByName("Textbox Reference"),
+            ),
+        );
+    },
 });
