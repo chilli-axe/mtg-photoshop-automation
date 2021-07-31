@@ -56,7 +56,7 @@ function call_python(cardname, filepath) {
      */
     if ($.os.search(/windows/i) != -1) {
         // Windows
-        app.system("python get_card_info.py \"" + cardname + "\"");
+        app.system("python \"" + filepath + "\\scripts\\get_card_info.py\" \"" + cardname + "\"");
     } else {
         // macOS
         app.system("/usr/local/bin/python3 " + filepath + "/scripts/get_card_info.py \"" + cardname + "\" >> " + filepath + "/scripts/debug.log 2>&1");

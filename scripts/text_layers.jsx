@@ -69,7 +69,7 @@ function vertically_nudge_creature_text(layer, reference_layer, top_reference_la
      */
 
     // if the layer needs to be nudged
-    if (textLayer.bounds[2] >= reference_layer.bounds[0]) {
+    if (layer.bounds[2] >= reference_layer.bounds[0]) {
         select_layer_pixels(reference_layer);
         app.activeDocument.activeLayer = layer;
 
@@ -98,12 +98,11 @@ function vertically_nudge_creature_text(layer, reference_layer, top_reference_la
 
         // determine how much the rules text overlaps the power/toughness by
         var extra_bit_layer = layer.parent.layers.getByName(extra_bit_layer_name);
-        var overlap = extra_bit_layer.bounds[3].as("px") - top_reference_layer.bounds[3].as("px");
-        var overlap_unit = new UnitValue(-1 * overlap, "px");
+        var delta = top_reference_layer.bounds[3] - extra_bit_layer.bounds[3];
         extra_bit_layer.visible = false;
 
-        if (overlap > 0) {
-            layer.applyOffset(0, overlap_unit, OffsetUndefinedAreas.SETTOBACKGROUND);
+        if (delta.as("px") < 0) {
+            layer.applyOffset(0, delta, OffsetUndefinedAreas.SETTOBACKGROUND);
         }
 
         clear_selection();
@@ -143,7 +142,7 @@ var ScaledTextField = Class({
         this.super();
 
         // scale down the text layer until it doesn't overlap with the reference layer (e.g. card name overlapping with mana cost)
-        scale_text_right_overlap(layer, reference_layer);
+        scale_text_right_overlap(this.layer, this.reference_layer);
     }
 })
 
@@ -175,9 +174,12 @@ var FormattedTextField = Class({
      */
 
     extends_: TextField,
-    constructor: function (layer, text_contents, flavour_text, text_colour, is_centred) {
+    constructor: function (layer, text_contents, text_colour, flavour_text, is_centred) {
         this.super(layer, text_contents, text_colour);
-        this.flavour_text = flavour_text.replace(/\n/g, "\r");
+        this.flavour_text = "";
+        if (flavour_text !== null && flavour_text !== undefined) {
+            this.flavour_text = flavour_text.replace(/\n/g, "\r");
+        }
         this.is_centred = is_centred;
     },
     execute: function () {
@@ -218,8 +220,8 @@ var FormattedTextArea = Class({
      */
 
     extends_: FormattedTextField,
-    constructor: function (layer, text_contents, flavour_text, text_colour, is_centred, reference_layer) {
-        this.super(layer, text_contents, flavour_text, text_colour, is_centred);
+    constructor: function (layer, text_contents, text_colour, flavour_text, is_centred, reference_layer) {
+        this.super(layer, text_contents, text_colour, flavour_text, is_centred);
         this.reference_layer = reference_layer;
     },
     execute: function () {
@@ -241,8 +243,8 @@ var CreatureFormattedTextArea = Class({
      */
 
     extends_: FormattedTextArea,
-    constructor: function (layer, text_contents, text_colour, reference_layer, is_centred, pt_reference_layer, pt_top_reference_layer) {
-        this.super(layer, text_contents, text_colour, reference_layer, is_centred);
+    constructor: function (layer, text_contents, text_colour, flavour_text, reference_layer, is_centred, pt_reference_layer, pt_top_reference_layer) {
+        this.super(layer, text_contents, text_colour, flavour_text, is_centred, reference_layer);
         this.pt_reference_layer = pt_reference_layer;
         this.pt_top_reference_layer = pt_top_reference_layer;
     },
@@ -250,6 +252,6 @@ var CreatureFormattedTextArea = Class({
         this.super();
 
         // shift vertically if the text overlaps the PT box
-        vertically_nudge_creature_text(this.layer, this.reference_layer, this.pt_reference_layer, this.pt_top_reference_layer);
+        vertically_nudge_creature_text(this.layer, this.pt_reference_layer, this.pt_top_reference_layer);
     }
 })
