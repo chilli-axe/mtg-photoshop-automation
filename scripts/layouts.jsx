@@ -62,7 +62,7 @@ var NormalLayout = Class({
         this.name = this.scryfall.name;
         this.mana_cost = this.scryfall.mana_cost;
         this.type_line = this.scryfall.type_line;
-        this.oracle_text = this.scryfall.oracle_text;
+        this.oracle_text = this.scryfall.oracle_text.replace(/\u2212/g, "-");  // for planeswalkers
         this.flavour_text = "";
         if (this.scryfall.flavor_text !== undefined) {
             this.flavour_text = this.scryfall.flavor_text;
@@ -85,7 +85,7 @@ var TransformLayout = Class({
         this.name = this.scryfall.card_faces[this.face].name;
         this.mana_cost = this.scryfall.card_faces[this.face].mana_cost;
         this.type_line = this.scryfall.card_faces[this.face].type_line;
-        this.oracle_text = this.scryfall.card_faces[this.face].oracle_text;
+        this.oracle_text = this.scryfall.card_faces[this.face].oracle_text.replace(/\u2212/g, "-");  // for planeswalkers
         this.flavour_text = "";
         if (this.scryfall.card_faces[this.face].flavour_text !== undefined) {
             this.flavour_text = this.scryfall.card_faces[this.face].flavor_text;
@@ -113,7 +113,7 @@ var MeldLayout = Class({
         this.name = this.scryfall.card_faces[this.face].name;
         this.mana_cost = this.scryfall.card_faces[this.face].mana_cost;
         this.type_line = this.scryfall.card_faces[this.face].type_line;
-        this.oracle_text = this.scryfall.card_faces[this.face].oracle_text;
+        this.oracle_text = this.scryfall.card_faces[this.face].oracle_text.replace(/\u2212/g, "-");  // for planeswalkers
         this.flavour_text = "";
         if (this.scryfall.card_faces[this.face].flavour_text !== undefined) {
             this.flavour_text = this.scryfall.card_faces[this.face].flavor_text;

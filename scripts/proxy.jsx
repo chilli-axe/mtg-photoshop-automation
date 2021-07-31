@@ -72,6 +72,8 @@ function select_template(layout, file, file_path) {
     var cls;
     if (layout.scryfall.layout === "adventure") {
         cls = AdventureTemplate;
+    } else if (layout.type_line.indexOf("Planeswalker") >= 0) {
+        cls = PlaneswalkerTemplate;
     }
     else if (layout.type_line.indexOf("Snow") >= 0) {  // frame_effects doesn't contain "snow" for pre-KHM snow cards
         cls = SnowTemplate;

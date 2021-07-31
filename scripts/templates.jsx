@@ -136,24 +136,19 @@ var BaseTemplate = Class({
     },
 });
 
-var NormalTemplate = Class({
+var ChilliBaseTemplate = Class({
     /**
-     * Normal M15-style template.
+     * A BaseTemplate with a few extra features I didn't want to pollute the base template for other people with.
      */
 
-    // TODO: colour indicator dot and typeline shift
-
     extends_: BaseTemplate,
-    template_file_name: function () {
-        return "normal";
-    },
-    basic_text_layers: function () {
+    // TODO: add code for transform and mdfc stuff here (since both normal and planeswalker templates need to inherit them)
+    basic_text_layers: function (text_and_icons) {
         /**
          * Set up the card's mana cost, name (scaled to not overlap with mana cost), expansion symbol, and type line
          * (scaled to not overlap with the expansion symbol).
          */
         var docref = app.activeDocument;
-        var text_and_icons = docref.layers.getByName("Text and Icons");
 
         var name = text_and_icons.layers.getByName("Card Name");
         var mana_cost = text_and_icons.layers.getByName("Mana Cost");
@@ -184,15 +179,40 @@ var NormalTemplate = Class({
             ),
         ]);
     },
-    rules_text_and_pt_layers: function () {
+    enable_hollow_crown: function (crown, pinlines) {
+        /**
+         * Enable the hollow legendary crown for this card given layer groups for the crown and pinlines.
+         */
+
+        var docref = app.activeDocument;
+        docref.activeLayer = crown;
+        enable_active_layer_mask();
+        docref.activeLayer = pinlines;
+        enable_active_layer_mask();
+        docref.activeLayer = docref.layers.getByName("Shadows");
+        enable_active_layer_mask();
+        docref.layers.getByName("Hollow Crown Shadow").visible = true;
+    },
+
+})
+
+var NormalTemplate = Class({
+    /**
+     * Normal M15-style template.
+     */
+
+    // TODO: colour indicator dot and typeline shift
+
+    extends_: ChilliBaseTemplate,
+    template_file_name: function () {
+        return "normal";
+    },
+    rules_text_and_pt_layers: function (text_and_icons) {
         /**
          * Set up the card's rules text and power/toughness according to whether or not the card is a creature.
          * You're encouraged to override this method if a template extending this one doesn't have the option for
          * creating creature cards (e.g. miracles).
          */
-
-        var docref = app.activeDocument;
-        var text_and_icons = docref.layers.getByName("Text and Icons");
 
         // centre the rules text if the card has no flavour text, text is all on one line, and that line is fairly short
         var is_centred = this.layout.flavour_text.length <= 1 && this.layout.oracle_text.length <= 70 && this.layout.oracle_text.indexOf("\r") < 0;
@@ -254,22 +274,9 @@ var NormalTemplate = Class({
         this.is_land = this.layout.type_line.indexOf("Land") >= 0;
         this.is_companion = this.layout.frame_effects.indexOf("companion") >= 0;
 
-        this.basic_text_layers();
-        this.rules_text_and_pt_layers();
-    },
-    enable_hollow_crown: function (crown, pinlines) {
-        /**
-         * Enable the hollow legendary crown for this card given layer groups for the crown and pinlines.
-         */
-
-        var docref = app.activeDocument;
-        docref.activeLayer = crown;
-        enable_active_layer_mask();
-        docref.activeLayer = pinlines;
-        enable_active_layer_mask();
-        docref.activeLayer = docref.layers.getByName("Shadows");
-        enable_active_layer_mask();
-        docref.layers.getByName("Hollow Crown Shadow").visible = true;
+        var text_and_icons = docref.layers.getByName("Text and Icons");
+        this.basic_text_layers(text_and_icons);
+        this.rules_text_and_pt_layers(text_and_icons);
     },
     enable_frame_layers: function () {
         var docref = app.activeDocument;
@@ -317,6 +324,8 @@ var NormalTemplate = Class({
         }
     },
 });
+
+/* Templates similar to NormalTemplate but with aesthetic differences */
 
 var NormalExtendedTemplate = Class({
     /**
@@ -397,6 +406,36 @@ var SnowTemplate = Class({
         return "snow";
     },
 });
+
+var MiracleTemplate = new Class({
+    /**
+     * A template for miracle cards. The layer structure of this template and NormalTemplate are close to identical, but this
+     * template is stripped down to only include mono-coloured layers and no land layers or other special layers, but no miracle
+     * cards exist that require these templates.
+     */
+
+    extends_: NormalTemplate,
+    template_file_name: function () {
+        return "miracle";
+    },
+    rules_text_and_pt_layers: function (text_and_icons) {
+        // overriding this because the miracle template doesn't have power/toughness layers
+        var rules_text = text_and_icons.layers.getByName("Rules Text - Noncreature")
+        this.text_layers.push(
+            new FormattedTextArea(
+                layer = rules_text,
+                text_contents = this.layout.oracle_text,
+                text_colour = rules_text.textItem.color,
+                flavour_text = this.layout.flavour_text,
+                is_centred = false,
+                reference_layer = text_and_icons.layers.getByName("Textbox Reference"),
+            ),
+        );
+    },
+});
+
+
+/* Templates similar to NormalTemplate with new features */
 
 var MutateTemplate = Class({
     /**
@@ -483,32 +522,123 @@ var AdventureTemplate = Class({
     }
 });
 
-var MiracleTemplate = new Class({
+/* Planeswalker templates */
+
+var PlaneswalkerTemplate = Class({
     /**
-     * A template for miracle cards. The layer structure of this template and NormalTemplate are close to identical, but this
-     * template is stripped down to only include mono-coloured layers and no land layers or other special layers, but no miracle
-     * cards exist that require these templates.
+     * Planeswalker template - 3 or 4 loyalty abilities.
      */
 
-    extends_: NormalTemplate,
+    extends_: ChilliBaseTemplate,
     template_file_name: function () {
-        return "miracle";
+        return "pw";
     },
-    rules_text_and_pt_layers: function () {
-        // overriding this because the miracle template doesn't have power/toughness layers
-        var text_and_icons = app.activeDocument.layers.getByName("Text and Icons");
-        var rules_text = text_and_icons.layers.getByName("Rules Text - Noncreature")
+    constructor: function (layout, file, file_path) {
+        this.super(layout, file, file_path);
+
+        this.art_reference = app.activeDocument.layers.getByName("Planeswalker Art Frame");
+        if (this.layout.is_colourless) this.art_reference = app.activeDocument.layers.getByName("Full Art Frame");
+
+        var ability_array = this.layout.oracle_text.split("\n");
+        var num_abilities = 3;
+        if (ability_array.length > 3) num_abilities = 4;
+
+        // docref for everything but legal and art reference is based on number of abilities
+        this.docref = app.activeDocument.layers.getByName("pw-" + num_abilities.toString());
+        this.docref.visible = true;
+
+        var text_and_icons = this.docref.layers.getByName("Text and Icons");
+        this.basic_text_layers(text_and_icons);
+
+        // planeswalker ability layers
+        var group_names = ["First Ability", "Second Ability", "Third Ability", "Fourth Ability"];
+        var loyalty_group = this.docref.layers.getByName("Loyalty Graphics");
+        var ability_group;
+
+        for (var i = 0; i < ability_array.length; i++) {
+            ability_group = loyalty_group.layers.getByName(group_names[i]);
+
+            var ability_text = ability_array[i];
+            var static_text_layer = ability_group.layers.getByName("Static Text");
+            var ability_text_layer = ability_group.layers.getByName("Ability Text");
+            var ability_layer = ability_text_layer;
+            var colon_index = ability_text.indexOf(": ");
+
+            // determine if this is a static or activated ability by the presence of ":" in the start of the ability
+            if (colon_index > 0 && colon_index < 5) {
+                // activated ability
+
+                // determine which loyalty group to enable, and set the loyalty symbol's text
+                var loyalty_graphic = ability_group.layers.getByName(ability_text[0]);
+                loyalty_graphic.visible = true;
+                this.text_layers.push(
+                    new TextField(
+                        layer = loyalty_graphic.layers.getByName("Cost"),
+                        text_contents = ability_text.slice(0, colon_index),
+                        text_colour = rgb_white(),
+                    )
+                );
+
+                ability_text = ability_text.slice(colon_index + 2);
+
+            } else {
+                // static ability
+                ability_layer = static_text_layer;
+                ability_text_layer.visible = false;
+                static_text_layer.visible = true;
+            }
+            try {
+                var ability_layer_text_colour = ability_layer.textItem.color;
+            } catch (err) {
+                var ability_layer_text_colour = rgb_black();
+            }
+            this.text_layers.push(
+                new BasicFormattedTextField(
+                    layer = ability_layer,
+                    text_contents = ability_text,
+                    text_colour = ability_layer_text_colour,
+                )
+            );
+        }
+
+        // starting loyalty
         this.text_layers.push(
-            new FormattedTextArea(
-                layer = rules_text,
-                text_contents = this.layout.oracle_text,
-                text_colour = rules_text.textItem.color,
-                flavour_text = this.layout.flavour_text,
-                is_centred = false,
-                reference_layer = text_and_icons.layers.getByName("Textbox Reference"),
+            new TextField(
+                layer = loyalty_group.layers.getByName("Starting Loyalty").layers.getByName("Text"),
+                text_contents = this.layout.scryfall.loyalty,
+                text_colour = rgb_white()
             ),
         );
     },
+    enable_frame_layers: function () {
+        // twins and pt box
+        var twins = this.docref.layers.getByName("Name & Title Boxes");
+        twins.layers.getByName(this.layout.twins).visible = true;
+
+        // pinlines
+        var pinlines = this.docref.layers.getByName("Pinlines");
+        pinlines.layers.getByName(this.layout.pinlines).visible = true;
+
+        // background
+        this.enable_background();
+
+    },
+    enable_background: function () {
+        var background = this.docref.layers.getByName("Background");
+        background.layers.getByName(this.layout.background).visible = true;
+    }
+});
+
+var PlaneswalkerExtendedTemplate = Class({
+    /**
+     * An extended version of PlaneswalkerTemplate. Functionally identical except for the lack of background textures.
+     */
+
+    extends_: PlaneswalkerTemplate,
+    template_file_name: function () {
+        return "pw-extended";
+    },
+    enable_background: function () { },
 });
 
 /* Basic land templates */
