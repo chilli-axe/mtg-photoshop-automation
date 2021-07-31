@@ -1,1 +1,1 @@
-var expansion_symbol = "";  // Cube
+var expansion_symbol_character = "";  // Cube

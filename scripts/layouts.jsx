@@ -27,11 +27,13 @@ var BaseLayout = Class({
 
         this.unpack_scryfall();
 
-        var ret = select_frame_layers(this.oracle_text, this.type_line, this.mana_cost, this.colour_identity);
+        var ret = select_frame_layers(this.mana_cost, this.type_line, this.oracle_text, this.colour_identity);
 
         this.twins = ret.twins;
         this.pinlines = ret.pinlines;
         this.background = ret.background;
+        this.is_nyx = ret.is_nyx;
+        this.is_colourless = ret.is_colourless;
     },
     unpack_scryfall: function () {
         /**
@@ -43,6 +45,11 @@ var BaseLayout = Class({
         this.rarity = this.scryfall.rarity;
         this.artist = this.scryfall.artist;
         this.colour_identity = this.scryfall.color_identity;
+        // this.keywords = this.scryfall.keywords;
+        this.frame_effects = [];
+        if (this.scryfall.frame_effects !== undefined) {
+            this.frame_effects = this.scryfall.frame_effects;
+        }
     }
 })
 

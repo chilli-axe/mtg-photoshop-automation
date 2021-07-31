@@ -144,6 +144,37 @@ var ScaledTextField = Class({
         // scale down the text layer until it doesn't overlap with the reference layer (e.g. card name overlapping with mana cost)
         scale_text_right_overlap(this.layer, this.reference_layer);
     }
+});
+
+var ExpansionSymbolField = Class({
+    /**
+     * A TextField which represents a card's expansion symbol. Expansion symbol layers have a series of clipping masks (uncommon, rare, mythic),
+     * one of which will need to be enabled according to the card's rarity. A 6 px outer stroke should be applied to the layer as well, white if 
+     * the card is of common rarity and black otherwise.
+     */
+
+    extends_: TextField,
+    constructor: function(layer, text_contents, rarity) {
+        this.super(layer, text_contents, rgb_black());
+        
+        this.rarity = rarity;
+        if (rarity === rarity_bonus || rarity === rarity_special) {
+            this.rarity = rarity_mythic;
+        }
+    },
+    execute: function() {
+        this.super();
+
+        var stroke_weight = 6;  // pixels
+        app.activeDocument.activeLayer = this.layer;
+        if (this.rarity === rarity_common) {
+            apply_stroke(stroke_weight, rgb_white());
+        } else {
+            var mask_layer = this.layer.parent.layers.getByName(this.rarity);
+            mask_layer.visible = true;
+            apply_stroke(stroke_weight, rgb_black());
+        }
+    }
 })
 
 var BasicFormattedTextField = Class({

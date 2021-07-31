@@ -35,6 +35,15 @@ var BaseTemplate = Class({
 
         throw new Error("Template name not specified!");
     },
+    template_suffix: function () {
+        /**
+         * Templates can optionally specify strings to append to the end of cards created by them.
+         * For example, extended templates can be set up to automatically append " (Extended)" to the end of 
+         * image file names by setting the return value of this method to "Extended";
+         */
+
+        return "";
+    },
     load_template: function (file_path) {
         /**
          * Opens the template's PSD file in Photoshop.
@@ -73,6 +82,9 @@ var BaseTemplate = Class({
     execute: function () {
         /**
          * Perform actions to populate this template. Load and frame artwork, enable frame layers, and execute all text layers.
+         * Returns the file name of the image w/ the template's suffix if it specified one.
+         * Don't override this method! You should be able to specify the full behaviour of the template in the constructor (making 
+         * sure to call this.super()) and enable_frame_layers().
          */
 
         this.load_artwork();
@@ -81,6 +93,13 @@ var BaseTemplate = Class({
         for (var i = 0; i < this.text_layers.length; i++) {
             this.text_layers[i].execute();
         }
+        var file_name = this.layout.name;
+        var suffix = this.template_suffix();
+        if (suffix !== "") {
+            file_name = file_name + " (" + suffix + ")";
+        }
+
+        return file_name;
     },
 });
 
@@ -97,44 +116,47 @@ var NormalTemplate = Class({
         this.super(layout, file, file_path);
         var docref = app.activeDocument;
 
-        this.is_creature = this.layout.power !== null && this.layout.toughness !== 0;
-        this.is_legendary = this.layout.type_line.indexOf("Legendary") > 0;
+        // TODO: don't convert frame effects array to string
+        this.is_creature = this.layout.power !== undefined && this.layout.toughness !== undefined;
+        this.is_legendary = this.layout.frame_effects.toString().indexOf("legendary") >= 0;
+        this.is_land = this.layout.type_line.indexOf("Land") >= 0;
+        this.is_companion = this.layout.frame_effects.toString().indexOf("companion") >= 0;
 
         this.art_reference = docref.layers.getByName("Art Frame");
+        if (this.layout.is_colourless) this.art_reference = docref.layers.getByName("Full Art Frame");
         this.noncreature_signature = this.legal.layers.getByName("Noncreature MPC Autofill");
         this.creature_signature = this.legal.layers.getByName("Creature MPC Autofill");
 
-        // Mana cost and card name (card name is scaled until it doesn't overlap with mana cost)
+        // Mana cost and card name (card name is scaled until it doesn't overlap with mana cost),
+        // and expansion symbol and type line (type line is scaled until it doesn't overlap with expansion symbol)
         var text_and_icons = docref.layers.getByName("Text and Icons");
         var mana_cost = text_and_icons.layers.getByName("Mana Cost");
-        this.text_layers.push(
+        var expansion_symbol = text_and_icons.layers.getByName("Expansion Symbol");
+        this.text_layers = this.text_layers.concat([
             new BasicFormattedTextField(
                 layer = mana_cost,
                 text_contents = this.layout.mana_cost,
                 text_colour = rgb_black(),
-            )
-        );
-        this.text_layers.push(
+            ),
             new ScaledTextField(
                 layer = text_and_icons.layers.getByName("Card Name"),
                 text_contents = this.layout.name,
                 text_colour = rgb_black(),
                 reference_layer = mana_cost,
-            )
-        );
-
-        // Expansion symbol and typeline
-        var expansion_symbol = text_and_icons.layers.getByName("Expansion Symbol");
-        // TODO: expansion symbol
-        this.text_layers.push(
+            ),
+            new ExpansionSymbolField(
+                layer=text_and_icons.layers.getByName("Expansion Symbol"),
+                text_contents=expansion_symbol_character,
+                rarity=this.layout.rarity,
+            ),
             new ScaledTextField(
                 layer = text_and_icons.layers.getByName("Typeline"),
                 text_contents = this.layout.type_line,
                 text_colour = rgb_black(),
                 reference_layer = expansion_symbol,
-            )
-        );
-
+            ),
+        ]);
+        
         var power_toughness = text_and_icons.layers.getByName("Power / Toughness");
         if (this.is_creature) {
             // creature card - set up creature layer for rules text and insert power & toughness
@@ -167,7 +189,6 @@ var NormalTemplate = Class({
                     text_contents = this.layout.oracle_text,
                     this.text_colour = rgb_black(),
                     flavour_text = this.layout.flavour_text,
-                    text_colour = rgb_black(),
                     is_centred = false,
                     reference_layer = text_and_icons.layers.getByName("Textbox Reference"),
                 )
@@ -177,7 +198,47 @@ var NormalTemplate = Class({
         }
     },
     enable_frame_layers: function () {
-        alert("Placeholder");
+        var docref = app.activeDocument;
+
+        // twins and pt box
+        var twins = docref.layers.getByName("Name & Title Boxes");
+        twins.layers.getByName(this.layout.twins).visible = true;
+        if (this.is_creature) {
+            var pt_box = docref.layers.getByName("PT Box");
+            pt_box.layers.getByName(this.layout.twins).visible = true;
+        }
+
+        // pinlines
+        var pinlines = docref.layers.getByName("Pinlines & Textbox");
+        if (this.is_land) {
+            pinlines = docref.layers.getByName("Land Pinlines & Textbox");
+        }
+        pinlines.layers.getByName(this.layout.pinlines).visible = true;
+
+        // background
+        var background = docref.layers.getByName("Background");
+        if (this.layout.is_nyx) {
+            background = docref.layers.getByName("Nyx");
+        }
+        background.layers.getByName(this.layout.background).visible = true;
+        
+        if(this.is_legendary) {
+            // legendary crown
+            var crown = docref.layers.getByName("Legendary Crown");
+            crown.layers.getByName(this.layout.pinlines).visible = true;
+            border = docref.layers.getByName("Border");
+            border.layers.getByName("Normal Border").visible = false;
+            border.layers.getByName("Legendary Border").visible = true;
+        }
+
+        if ((this.is_legendary && this.layout.is_nyx) || this.is_companion) {
+            // legendary crown on nyx background - enable the hollow crown shadow and layer mask on pinlines and shadows
+            docref.activeLayer = pinlines;
+            enable_active_layer_mask();
+            docref.activeLayer = docref.layers.getByName("Shadows");
+            enable_active_layer_mask();
+            docref.layers.getByName("Hollow Crown Shadow").visible = true;
+        }
     },
 });
 
@@ -197,7 +258,7 @@ var Template = Class({
         // add text layers to the array this.text_layers (will be executed automatically)
     },
     enable_frame_layers: function () {
-        this.super();
+        var docref = app.activeDocument;
 
         // do stuff
     },

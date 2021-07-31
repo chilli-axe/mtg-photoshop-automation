@@ -11,7 +11,7 @@ function fixColourPair(input) {
 }
 
 function select_frame_layers(mana_cost, type_line, oracle_text, colour_identity_array) {
-    // return [selectedBackground, selectedPinlines, selectedNamebox, isNyx, eldrazi];
+    // return [selectedBackground, selectedPinlines, selectedNamebox, isNyx, colourless];
 
     const colours = ["W", "U", "B", "R", "G"];
     const basicColours = { "Plains": "W", "Island": "U", "Swamp": "B", "Mountain": "R", "Forest": "G" };
@@ -46,7 +46,7 @@ function select_frame_layers(mana_cost, type_line, oracle_text, colour_identity_
                 pinlines: basicIdentity,
                 twins: "Land",
                 is_nyx: false,
-                is_eldrazi: false,
+                is_colourless: false,
             };
         }
 
@@ -79,7 +79,7 @@ function select_frame_layers(mana_cost, type_line, oracle_text, colour_identity_
                         pinlines: basicIdentity,
                         twins: basicIdentity,
                         is_nyx: false,
-                        is_eldrazi: false,
+                        is_colourless: false,
                     };
                 } else if (basicIdentity.length == 2) {
                     // Two basics mentioned - the land should use the land name box and those pinlines
@@ -89,7 +89,7 @@ function select_frame_layers(mana_cost, type_line, oracle_text, colour_identity_
                         pinlines: basicIdentity,
                         twins: "Land",
                         is_nyx: false,
-                        is_eldrazi: false,
+                        is_colourless: false,
                     };
                 } else if (basicIdentity.length == 3) {
                     // Three basic mentioned - panorama land
@@ -98,7 +98,7 @@ function select_frame_layers(mana_cost, type_line, oracle_text, colour_identity_
                         pinlines: "Land",
                         twins: "Land",
                         is_nyx: false,
-                        is_eldrazi: false,
+                        is_colourless: false,
                     };
                 } else if (line.indexOf("land") >= 0) {
                     // Assume we get here when the land fetches for any basic
@@ -109,7 +109,7 @@ function select_frame_layers(mana_cost, type_line, oracle_text, colour_identity_
                             pinlines: "Gold",
                             twins: "Gold",
                             is_nyx: false,
-                            is_eldrazi: false,
+                            is_colourless: false,
                         };
                     } else {
                         // Colourless fetchland
@@ -118,7 +118,7 @@ function select_frame_layers(mana_cost, type_line, oracle_text, colour_identity_
                             pinlines: "Land",
                             twins: "Land",
                             is_nyx: false,
-                            is_eldrazi: false,
+                            is_colourless: false,
                         };
                     }
                 }
@@ -140,7 +140,7 @@ function select_frame_layers(mana_cost, type_line, oracle_text, colour_identity_
                         pinlines: "Gold",
                         twins: "Gold",
                         is_nyx: false,
-                        is_eldrazi: false,
+                        is_colourless: false,
                     };
                 }
             }
@@ -182,7 +182,7 @@ function select_frame_layers(mana_cost, type_line, oracle_text, colour_identity_
             pinlines: selectedPinlines,
             twins: selectedNamebox,
             is_nyx: false,
-            is_eldrazi: false,
+            is_colourless: false,
         };
     }
     else {
@@ -219,11 +219,11 @@ function select_frame_layers(mana_cost, type_line, oracle_text, colour_identity_
         // Handle Transguild Courier case - cards that explicitly state that they're all colours
         if (oracle_text.indexOf(" is all colors.") > 0) colourIdentity = "WUBRG";
 
-        // Identify if the card is a full-art colourless card, e.g. Eldrazi
-        // Assume all non-land cards with the word "Devoid" in their rules text use the BFZ Eldrazi frame
+        // Identify if the card is a full-art colourless card, e.g. colourless
+        // Assume all non-land cards with the word "Devoid" in their rules text use the BFZ colourless frame
         var devoid = oracle_text.indexOf("Devoid") >= 0 && colourIdentity.length > 0;
         if ((colourIdentity.length <= 0 && type_line.indexOf("Artifact") < 0) || devoid) {
-            // Eldrazi-style card identified
+            // colourless-style card identified
             selectedBackground = "Colourless";
             selectedPinlines = "Colourless";
             selectedNamebox = "Colourless";
@@ -246,7 +246,7 @@ function select_frame_layers(mana_cost, type_line, oracle_text, colour_identity_
                 pinlines: selectedPinlines,
                 twins: selectedNamebox,
                 is_nyx: false,
-                is_eldrazi: true,
+                is_colourless: true,
             };
         }
 
@@ -307,7 +307,7 @@ function select_frame_layers(mana_cost, type_line, oracle_text, colour_identity_
             pinlines: selectedPinlines,
             twins: selectedNamebox,
             is_nyx: isNyx,
-            is_eldrazi: false,
+            is_colourless: false,
         };
     }
 }

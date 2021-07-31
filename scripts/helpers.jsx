@@ -155,6 +155,67 @@ function enable_active_layer_mask() {
     executeAction(idsetd, desc3078, DialogModes.NO);
 }
 
+function apply_stroke(stroke_weight, stroke_colour) {
+    /**
+     * Applies an outer stroke to the active layer with the specified weight and colour.
+     */
+
+    idsetd = charIDToTypeID("setd");
+    var desc608 = new ActionDescriptor();
+    idnull = charIDToTypeID("null");
+    var ref149 = new ActionReference();
+    var idPrpr = charIDToTypeID("Prpr");
+    idLefx = charIDToTypeID("Lefx");
+    ref149.putProperty(idPrpr, idLefx);
+    idLyr = charIDToTypeID("Lyr ");
+    idOrdn = charIDToTypeID("Ordn");
+    idTrgt = charIDToTypeID("Trgt");
+    ref149.putEnumerated(idLyr, idOrdn, idTrgt);
+    desc608.putReference(idnull, ref149);
+    idT = charIDToTypeID("T   ");
+    var desc609 = new ActionDescriptor();
+    var idScl = charIDToTypeID("Scl ");
+    idPrc = charIDToTypeID("#Prc");
+    desc609.putUnitDouble(idScl, idPrc, 200.000000);
+    idFrFX = charIDToTypeID("FrFX");
+    var desc610 = new ActionDescriptor();
+    var idenab = charIDToTypeID("enab");
+    desc610.putBoolean(idenab, true);
+    var idStyl = charIDToTypeID("Styl");
+    var idFStl = charIDToTypeID("FStl");
+    var idInsF = charIDToTypeID("OutF");
+    desc610.putEnumerated(idStyl, idFStl, idInsF);
+    idPntT = charIDToTypeID("PntT");
+    var idFrFl = charIDToTypeID("FrFl");
+    var idSClr = charIDToTypeID("SClr");
+    desc610.putEnumerated(idPntT, idFrFl, idSClr);
+    var idMd = charIDToTypeID("Md  ");
+    idBlnM = charIDToTypeID("BlnM");
+    var idNrml = charIDToTypeID("Nrml");
+    desc610.putEnumerated(idMd, idBlnM, idNrml);
+    idOpct = charIDToTypeID("Opct");
+    idPrc = charIDToTypeID("#Prc");
+    desc610.putUnitDouble(idOpct, idPrc, 100.000000);
+    var idSz = charIDToTypeID("Sz  ");
+    var idPxl = charIDToTypeID("#Pxl");
+    desc610.putUnitDouble(idSz, idPxl, stroke_weight);
+    idClr = charIDToTypeID("Clr ");
+    var desc611 = new ActionDescriptor();
+    idRd = charIDToTypeID("Rd  ");
+    desc611.putDouble(idRd, stroke_colour.rgb.red);
+    idGrn = charIDToTypeID("Grn ");
+    desc611.putDouble(idGrn, stroke_colour.rgb.green);
+    idBl = charIDToTypeID("Bl  ");
+    desc611.putDouble(idBl, stroke_colour.rgb.blue);
+    idRGBC = charIDToTypeID("RGBC");
+    desc610.putObject(idClr, idRGBC, desc611);
+    idFrFX = charIDToTypeID("FrFX");
+    desc609.putObject(idFrFX, idFrFX, desc610);
+    idLefx = charIDToTypeID("Lefx");
+    desc608.putObject(idT, idLefx, desc609);
+    executeAction(idsetd, desc608, DialogModes.NO);
+}
+
 function save_and_close(file_name, file_path) {
     /**
      * Saves the current document to the output folder (/out/) as a PNG and closes the document without saving.

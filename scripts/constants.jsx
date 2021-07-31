@@ -184,3 +184,11 @@ var ability_words = [
     "Will of the council",
     "Magecraft"
 ];
+
+// Card rarities
+rarity_common = "common";
+rarity_uncommon = "uncommon";
+rarity_rare = "rare";
+rarity_mythic = "mythic";
+rarity_special = "special";
+rarity_bonus = "bonus";

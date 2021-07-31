@@ -2,6 +2,7 @@
 #include "layouts.jsx";
 #include "templates.jsx";
 #include "constants.jsx";
+#include "..\\settings.jsx";
 
 // Settings
 // Switch from the default template by uncommenting a line here
@@ -82,7 +83,6 @@ function read_json(file_path) {
 }
 
 function proxy_new(file) {
-    var expansion_symbol = "";  // Cube
     var file_path = File($.fileName).parent.parent.fsName;
 
     var ret = retrieve_card_name_and_artist(file);
@@ -116,7 +116,7 @@ function proxy_new(file) {
 
     // execute the template - insert text fields, set visibility of layers, etc. - and save to disk
     var file_name = template.execute();
-    // save_and_close(file_name, file_path);
+    save_and_close(file_name, file_path);
 }
 
 

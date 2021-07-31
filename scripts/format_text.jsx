@@ -93,9 +93,10 @@ function determine_symbol_colours(symbol, symbol_length) {
         "B": rgb_c,
         "R": rgb_r,
         "G": rgb_g,
+        "2": rgb_c,
     }
 
-    // for hybrid symbols, use the black symbol colour rather than colourless for B
+    // for hybrid symbols with generic mana, use the black symbol colour rather than colourless for B
     const hybrid_symbol_colour_map = {
         "W": rgb_w,
         "U": rgb_u,
@@ -125,9 +126,14 @@ function determine_symbol_colours(symbol, symbol_length) {
     var hybrid_regex = /^\{([2,W,U,B,R,G])\/([W,U,B,R,G])\}$/;
     var hybrid_match = symbol.match(hybrid_regex);
     if (hybrid_match !== null) {
+        var colour_map = symbol_colour_map;
+        if (hybrid_match[1] == "2") {
+            // Use the darker colour for black's symbols for 2/B hybrid symbols
+            colour_map = hybrid_symbol_colour_map;
+        }
         return [
-            hybrid_symbol_colour_map[hybrid_match[2]],
-            hybrid_symbol_colour_map[hybrid_match[1]],
+            colour_map[hybrid_match[2]],
+            colour_map[hybrid_match[1]],
             rgb_black(),
             rgb_black()
         ];
