@@ -166,10 +166,10 @@ var NormalTemplate = Class({
         // Mana cost and card name (card name is scaled until it doesn't overlap with mana cost),
         // and expansion symbol and type line (type line is scaled until it doesn't overlap with expansion symbol)
         var text_and_icons = docref.layers.getByName("Text and Icons");
-        var name = text_and_icons.layers.getByName("Card Name")
+        var name = text_and_icons.layers.getByName("Card Name");
         var mana_cost = text_and_icons.layers.getByName("Mana Cost");
         var expansion_symbol = text_and_icons.layers.getByName("Expansion Symbol");
-        var type_line = text_and_icons.layers.getByName("Typeline")
+        var type_line = text_and_icons.layers.getByName("Typeline");
         this.text_layers = this.text_layers.concat([
             new BasicFormattedTextField(
                 layer = mana_cost,
@@ -229,7 +229,7 @@ var NormalTemplate = Class({
                     flavour_text = this.layout.flavour_text,
                     is_centred = false,
                     reference_layer = text_and_icons.layers.getByName("Textbox Reference"),
-                )
+                ),
             );
 
             power_toughness.visible = false;
@@ -317,7 +317,7 @@ var SnowTemplate = Class({
 var MutateTemplate = Class({
     /**
      * A template for Ikoria's mutate cards.  The layer structure of this template and NormalTemplate are close to identical, but this
-     * template has a couple more text and reference layers for the top half of the textbox. It also doesn't include layers for Nyx 
+     * template has a couple more text and reference layers for the top half of the textbox. It also doesn't include layers for Nyx
      * backgrounds or Companion crowns, but no mutate cards exist that would require these layers.
      */
 
@@ -346,5 +346,55 @@ var MutateTemplate = Class({
                 reference_layer = text_and_icons.layers.getByName("Mutate Reference"),
             )
         );
+    }
+});
+
+var AdventureTemplate = Class({
+    /**
+     * A template for Eldraine adventure cards. The layer structure of this template and NormalTemplate are close to identical, but this
+     * template has a couple more text and reference layers for the left half of the textbox. It also doesn't include layers for Nyx 
+     * backgrounds or Companion crowns, but no adventure cards exist that would require these layers.
+     */
+
+    extends_: NormalTemplate,
+    template_file_name: function () {
+        return "adventure";
+    },
+    constructor: function (layout, file, file_path) {
+        this.super(layout, file, file_path);
+
+        // add adventure name, mana cost, type line, and rules text fields to this.text_layers
+        var docref = app.activeDocument;
+        var text_and_icons = docref.layers.getByName("Text and Icons");
+        var name = text_and_icons.layers.getByName("Card Name - Adventure");
+        var mana_cost = text_and_icons.layers.getByName("Mana Cost - Adventure");
+        var rules_text = text_and_icons.layers.getByName("Rules Text - Adventure");
+        var type_line = text_and_icons.layers.getByName("Typeline - Adventure");
+        this.text_layers = this.text_layers.concat([
+            new BasicFormattedTextField(
+                layer = mana_cost,
+                text_contents = this.layout.adventure.mana_cost,
+                text_colour = rgb_black(),
+            ),
+            new ScaledTextField(
+                layer = name,
+                text_contents = this.layout.adventure.name,
+                text_colour = name.textItem.color,
+                reference_layer = mana_cost,
+            ),
+            new FormattedTextArea(
+                layer = rules_text,
+                text_contents = this.layout.adventure.oracle_text,
+                this.text_colour = rgb_black(),
+                flavour_text = "",
+                is_centred = false,
+                reference_layer = text_and_icons.layers.getByName("Textbox Reference - Adventure"),
+            ),
+            new TextField(
+                layer = type_line,
+                text_contents = this.layout.adventure.type_line,
+                text_colour = type_line.textItem.color,
+            ),
+        ]);
     }
 });

@@ -47,7 +47,7 @@ var BaseLayout = Class({
         this.colour_identity = this.scryfall.color_identity;
         this.keywords = "";
         if (this.scryfall.keywords !== undefined) {
-            this.keywords = this.scryfall.keywords.toString()
+            this.keywords = this.scryfall.keywords.toString();
         }
         this.frame_effects = "";
         if (this.scryfall.frame_effects !== undefined) {

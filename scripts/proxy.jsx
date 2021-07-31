@@ -70,15 +70,22 @@ function select_template(layout, file, file_path) {
      */
 
     var template;
-    if (layout.keywords.indexOf("Mutate") >= 0) {
-        template = new MutateTemplate(layout, file, file_path);
-    } else {
-        template = new NormalTemplate(layout, file, file_path);
+    var cls;
+    if (layout.scryfall.layout === "adventure") {
+        cls = AdventureTemplate;
     }
-    
+    else if (layout.type_line.indexOf("Snow") >= 0) {  // frame_effects doesn't contain "snow" for pre-KHM snow cards
+        cls = SnowTemplate;
+    }
+    else if (layout.keywords.indexOf("Mutate") >= 0) {
+        cls = MutateTemplate;
+    } else {
+        cls = NormalTemplate;
+    }
+
     // TODO
 
-    return template;
+    return new cls(layout, file, file_path);
 }
 
 function read_json(file_path) {
