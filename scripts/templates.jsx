@@ -441,3 +441,49 @@ var MiracleTemplate = new Class({
         );
     },
 });
+
+/* Basic land templates */
+
+var BasicLandTemplate = Class({
+    /**
+     * Basic land template - no text and icons (aside from legal), just a layer for each of the eleven basic lands.
+     */
+
+    extends_: BaseTemplate,
+    template_file_name: function () {
+        return "basic";
+    },
+    template_suffix: function () {
+        return this.layout.artist;
+    },
+    constructor: function (layout, file, file_path) {
+        this.super(layout, file, file_path);
+
+        this.art_reference = app.activeDocument.layers.getByName("Basic Art Frame");
+    },
+    enable_frame_layers: function () {
+        app.activeDocument.layers.getByName(this.layout.name).visible = true;
+    },
+});
+
+var BasicLandTherosTemplate = Class({
+    /**
+     * Basic land template for the full-art Nyx basics from Theros: Beyond Death.
+     */
+
+    extends_: BasicLandTemplate,
+    template_file_name: function () {
+        return "basic-theros";
+    },
+});
+
+var BasicLandUnstableTemplate = Class({
+    /**
+     * Basic land template for the borderless basics from Unstable.
+     */
+
+    extends_: BasicLandTemplate,
+    template_file_name: function () {
+        return "basic-unstable";
+    },
+});

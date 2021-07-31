@@ -104,9 +104,12 @@ function proxy_new(file) {
     var card_name = ret.card_name;
     var artist = ret.artist;
 
-    if (card_name in BasicLandNames) {
-        // TODO: instantiate basic land template obj
-        var template = null;
+    if (BasicLandNames.toString().indexOf(card_name) >= 0) {
+        var layout = {
+            artist: artist,
+            name: card_name,
+        };
+        var template = new BasicLandTemplate(layout, file, file_path);
     } else {
         call_python(card_name, file_path);
 
