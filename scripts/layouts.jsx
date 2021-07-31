@@ -18,8 +18,8 @@ function determine_card_face(scryfall, card_name) {
 var BaseLayout = Class({
     constructor: function (scryfall, card_name) {
         /**
-         * Constructor for base layout parses Scryfall JSON, calls the JSON unpacker to set object parameters from the contents of the JSON (each extending 
-         * class needs to implement this), and determines frame colours for the card.
+         * Constructor for base layout calls the JSON unpacker to set object parameters from the contents of the JSON (each extending 
+         * class needs to implement this) and determines frame colours for the card.
          */
 
         this.scryfall = scryfall;
@@ -32,14 +32,14 @@ var BaseLayout = Class({
         this.twins = ret.twins;
         this.pinlines = ret.pinlines;
         this.background = ret.background;
-        this.is_nyx = ret.is_nyx;
+        this.is_nyx = ret.is_nyx;  // TODO: determine from frame_effects
         this.is_colourless = ret.is_colourless;
     },
     unpack_scryfall: function () {
         /**
          * Extending classes should implement this method, unpack more information from the provided JSON, and call super(). This base method only unpacks 
          * fields which are common to all layouts.
-         * At minimum, the extending class should set this.oracle_text, this.type_line, and this.mana_cost.
+         * At minimum, the extending class should set this.name, this.oracle_text, this.type_line, and this.mana_cost.
          */
 
         this.rarity = this.scryfall.rarity;
@@ -63,7 +63,10 @@ var NormalLayout = Class({
         this.mana_cost = this.scryfall.mana_cost;
         this.type_line = this.scryfall.type_line;
         this.oracle_text = this.scryfall.oracle_text;
-        this.flavour_text = this.scryfall.flavor_text;
+        this.flavour_text = "";
+        if (this.scryfall.flavour_text !== undefined) {
+            this.flavour_text = this.scryfall.flavor_text;
+        }
         this.power = this.scryfall.power;
         this.toughness = this.scryfall.toughness;
         this.colour_indicator = this.scryfall.color_indicator;  // comes as an array from scryfall
@@ -83,7 +86,10 @@ var TransformLayout = Class({
         this.mana_cost = this.scryfall.card_faces[this.face].mana_cost;
         this.type_line = this.scryfall.card_faces[this.face].type_line;
         this.oracle_text = this.scryfall.card_faces[this.face].oracle_text;
-        this.flavour_text = this.scryfall.card_faces[this.face].flavor_text;
+        this.flavour_text = "";
+        if (this.scryfall.card_faces[this.face].flavour_text !== undefined) {
+            this.flavour_text = this.scryfall.card_faces[this.face].flavor_text;
+        }
         this.power = this.scryfall.card_faces[this.face].power;
         this.toughness = this.scryfall.card_faces[this.face].toughness;
         this.colour_indicator = this.scryfall.card_faces[this.face].color_indicator;  // comes as an array from scryfall
@@ -108,7 +114,10 @@ var MeldLayout = Class({
         this.mana_cost = this.scryfall.card_faces[this.face].mana_cost;
         this.type_line = this.scryfall.card_faces[this.face].type_line;
         this.oracle_text = this.scryfall.card_faces[this.face].oracle_text;
-        this.flavour_text = this.scryfall.card_faces[this.face].flavor_text;
+        this.flavour_text = "";
+        if (this.scryfall.card_faces[this.face].flavour_text !== undefined) {
+            this.flavour_text = this.scryfall.card_faces[this.face].flavor_text;
+        }
         this.power = this.scryfall.card_faces[this.face].power;
         this.toughness = this.scryfall.card_faces[this.face].toughness;
         this.colour_indicator = this.scryfall.card_faces[this.face].color_indicator;  // comes as an array from scryfall
@@ -147,7 +156,10 @@ var AdventureLayout = Class({
             oracle_text: this.scryfall.card_faces[1].oracle_text,
         };
 
-        this.flavour_text = this.scryfall.card_faces[0].flavor_text;
+        this.flavour_text = "";
+        if (this.scryfall.card_faces[0].flavour_text !== undefined) {
+            this.flavour_text = this.scryfall.card_faces[0].flavor_text;
+        }
         this.power = this.scryfall.power;
         this.toughness = this.scryfall.toughness;
         this.rarity = this.scryfall.rarity;

@@ -190,8 +190,12 @@ var NormalTemplate = Class({
          * You're encouraged to override this method if a template extending this one doesn't have the option for
          * creating creature cards (e.g. miracles).
          */
+
         var docref = app.activeDocument;
         var text_and_icons = docref.layers.getByName("Text and Icons");
+
+        // centre the rules text if the card has no flavour text, text is all on one line, and that line is fairly short
+        var is_centred = this.layout.flavour_text.length <= 1 && this.layout.oracle_text.length <= 70 && this.layout.oracle_text.indexOf("\r") < 0;
 
         var noncreature_signature = this.legal.layers.getByName("Noncreature MPC Autofill");
         var creature_signature = this.legal.layers.getByName("Creature MPC Autofill");
@@ -211,7 +215,7 @@ var NormalTemplate = Class({
                     text_colour = rgb_black(),
                     flavour_text = this.layout.flavour_text,
                     reference_layer = text_and_icons.layers.getByName("Textbox Reference"),
-                    is_centred = false,
+                    is_centred = is_centred,
                     pt_reference_layer = text_and_icons.layers.getByName("PT Adjustment Reference"),
                     pt_top_reference_layer = text_and_icons.layers.getByName("PT Top Reference"),
                 ),
@@ -227,7 +231,7 @@ var NormalTemplate = Class({
                     text_contents = this.layout.oracle_text,
                     this.text_colour = rgb_black(),
                     flavour_text = this.layout.flavour_text,
-                    is_centred = false,
+                    is_centred = is_centred,
                     reference_layer = text_and_icons.layers.getByName("Textbox Reference"),
                 ),
             );

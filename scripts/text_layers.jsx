@@ -240,6 +240,9 @@ var FormattedTextField = Class({
 
         app.activeDocument.activeLayer = this.layer;
         format_text(this.text_contents + "\r" + this.flavour_text, italic_text, flavour_index, this.is_centred);
+        if (this.is_centred) {
+            this.layer.textItem.justification = Justification.CENTER;
+        }
     }
 })
 
@@ -263,6 +266,14 @@ var FormattedTextArea = Class({
 
         // rasterise and centre vertically
         vertically_align_text(this.layer, this.reference_layer);
+
+        if (this.is_centred) {
+            // ensure the layer is centred horizontally as well
+            app.activeDocument.selection.selectAll();
+            app.activeDocument.activeLayer = this.layer;
+            align_horizontal();
+            clear_selection();
+        }
     }
 });
 
