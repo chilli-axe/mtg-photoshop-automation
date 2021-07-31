@@ -64,7 +64,7 @@ var NormalLayout = Class({
         this.type_line = this.scryfall.type_line;
         this.oracle_text = this.scryfall.oracle_text;
         this.flavour_text = "";
-        if (this.scryfall.flavour_text !== undefined) {
+        if (this.scryfall.flavor_text !== undefined) {
             this.flavour_text = this.scryfall.flavor_text;
         }
         this.power = this.scryfall.power;

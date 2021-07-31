@@ -231,7 +231,7 @@ var NormalTemplate = Class({
                 new FormattedTextArea(
                     layer = rules_text,
                     text_contents = this.layout.oracle_text,
-                    this.text_colour = rules_text.textItem.color,
+                    text_colour = rules_text.textItem.color,
                     flavour_text = this.layout.flavour_text,
                     is_centred = is_centred,
                     reference_layer = text_and_icons.layers.getByName("Textbox Reference"),
@@ -256,6 +256,20 @@ var NormalTemplate = Class({
 
         this.basic_text_layers();
         this.rules_text_and_pt_layers();
+    },
+    enable_hollow_crown: function (crown, pinlines) {
+        /**
+         * Enable the hollow legendary crown for this card given layer groups for the crown and pinlines.
+         */
+
+        var docref = app.activeDocument;
+        docref.activeLayer = crown;
+        enable_active_layer_mask();
+        docref.activeLayer = pinlines;
+        enable_active_layer_mask();
+        docref.activeLayer = docref.layers.getByName("Shadows");
+        enable_active_layer_mask();
+        docref.layers.getByName("Hollow Crown Shadow").visible = true;
     },
     enable_frame_layers: function () {
         var docref = app.activeDocument;
@@ -299,13 +313,7 @@ var NormalTemplate = Class({
 
         if ((this.is_legendary && this.layout.is_nyx) || this.is_companion) {
             // legendary crown on nyx background - enable the hollow crown shadow and layer mask on crown, pinlines, and shadows
-            docref.activeLayer = crown;
-            enable_active_layer_mask();
-            docref.activeLayer = pinlines;
-            enable_active_layer_mask();
-            docref.activeLayer = docref.layers.getByName("Shadows");
-            enable_active_layer_mask();
-            docref.layers.getByName("Hollow Crown Shadow").visible = true;
+            this.enable_hollow_crown(crown, pinlines);
         }
     },
 });
@@ -348,6 +356,36 @@ var StargazingTemplate = Class({
         this.super(layout, file, file_path);
     }
 });
+
+var MasterpieceTemplate = Class({
+    /**
+     * Kaladesh Invention template. This template has stripped-down layers compared to NormalTemplate but is otherwise similar.
+     */
+
+    extends_: NormalTemplate,
+    template_file_name: function () {
+        return "masterpiece";
+    },
+    template_suffix: function () {
+        return "Masterpiece";
+    },
+    constructor: function (layout, file, file_name) {
+        is_colourless = false;
+        // force to use bronze twins and background
+        layout.twins = "Bronze";
+        layout.background = "Bronze";
+        this.super(layout, file, file_name);
+    },
+    enable_frame_layers: function () {
+        this.super();
+        if (this.is_legendary) {
+            // always enable hollow crown for this template
+            var crown = app.activeDocument.layers.getByName("Legendary Crown");
+            var pinlines = app.activeDocument.layers.getByName("Pinlines & Textbox");
+            this.enable_hollow_crown(crown, pinlines);
+        }
+    }
+})
 
 var SnowTemplate = Class({
     /**
@@ -431,7 +469,7 @@ var AdventureTemplate = Class({
             new FormattedTextArea(
                 layer = rules_text,
                 text_contents = this.layout.adventure.oracle_text,
-                this.text_colour = rules_text.textItem.color,
+                text_colour = rules_text.textItem.color,
                 flavour_text = "",
                 is_centred = false,
                 reference_layer = text_and_icons.layers.getByName("Textbox Reference - Adventure"),
@@ -464,7 +502,7 @@ var MiracleTemplate = new Class({
             new FormattedTextArea(
                 layer = rules_text,
                 text_contents = this.layout.oracle_text,
-                this.text_colour = rules_text.textItem.color,
+                text_colour = rules_text.textItem.color,
                 flavour_text = this.layout.flavour_text,
                 is_centred = false,
                 reference_layer = text_and_icons.layers.getByName("Textbox Reference"),
