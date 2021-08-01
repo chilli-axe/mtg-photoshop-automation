@@ -359,6 +359,53 @@ var NormalExtendedTemplate = Class({
     }
 });
 
+var WomensDayTemplate = Class({
+    /**
+     * The showcase template first used on the Women's Day Secret Lair. The layer structure of this template and NormalTemplate are
+     * similar, but this template doesn't have any background layers, and a layer mask on the pinlines group needs to be enabled when
+     * the card is legendary.
+     */
+
+    extends_: NormalTemplate,
+    template_file_name: function () {
+        return "womensday";
+    },
+    template_suffix: function () {
+        return "Showcase";
+    },
+    constructor: function (layout, file, file_path) {
+        // strip out reminder text
+        layout.oracle_text = strip_reminder_text(layout.oracle_text);
+        this.super(layout, file, file_path);
+    },
+    enable_frame_layers: function () {
+        var docref = app.activeDocument;
+
+        // twins and pt box
+        var twins = docref.layers.getByName("Name & Title Boxes");
+        twins.layers.getByName(this.layout.twins).visible = true;
+        if (this.is_creature) {
+            var pt_box = docref.layers.getByName("PT Box");
+            pt_box.layers.getByName(this.layout.twins).visible = true;
+        }
+
+        // pinlines
+        var pinlines = docref.layers.getByName("Pinlines & Textbox");
+        if (this.is_land) {
+            pinlines = docref.layers.getByName("Land Pinlines & Textbox");
+        }
+        pinlines.layers.getByName(this.layout.pinlines).visible = true;
+
+        if (this.is_legendary) {
+            // legendary crown
+            var crown = docref.layers.getByName("Legendary Crown");
+            crown.layers.getByName(this.layout.pinlines).visible = true;
+            docref.activeLayer = pinlines; 
+            enable_active_layer_mask();
+        }
+    },
+});
+
 var StargazingTemplate = Class({
     /**
      * Stargazing template from Theros: Beyond Death showcase cards. The layer structure of this template and NormalTemplate are largely 
@@ -396,18 +443,98 @@ var MasterpieceTemplate = Class({
         // force to use bronze twins and background
         layout.twins = "Bronze";
         layout.background = "Bronze";
+        layout.oracle_text = strip_reminder_text(layout.oracle_text);
         this.super(layout, file, file_name);
     },
     enable_frame_layers: function () {
         this.super();
         if (this.is_legendary) {
-            // always enable hollow crown for this template
+            // always enable hollow crown for legendary cards in this template
             var crown = app.activeDocument.layers.getByName("Legendary Crown");
             var pinlines = app.activeDocument.layers.getByName("Pinlines & Textbox");
             this.enable_hollow_crown(crown, pinlines);
         }
     }
-})
+});
+
+var ExpeditionTemplate = Class({
+    /**
+     * Zendikar Rising Expedition template. Doesn't have a mana cost layer, support creature cards, masks pinlines for legendary
+     * cards like WomensDayTemplate, and has a single static background layer.
+     */
+
+    extends_: NormalTemplate,
+    template_file_name: function () {
+        return "znrexp";
+    },
+    template_suffix: function () {
+        return "Expedition";
+    },
+    constructor: function (layout, file, file_path) {
+        // strip out reminder text
+        layout.oracle_text = strip_reminder_text(layout.oracle_text);
+        this.super(layout, file, file_path);
+    },
+    basic_text_layers: function (text_and_icons) {
+        var name = text_and_icons.layers.getByName("Card Name");
+        var expansion_symbol = text_and_icons.layers.getByName("Expansion Symbol");
+        var type_line = text_and_icons.layers.getByName("Typeline");
+        this.text_layers = this.text_layers.concat([
+            new TextField(
+                layer = name,
+                text_contents = this.layout.name,
+                text_colour = get_text_layer_colour(name),
+            ),
+            new ExpansionSymbolField(
+                layer = expansion_symbol,
+                text_contents = expansion_symbol_character,
+                rarity = this.layout.rarity,
+            ),
+            new ScaledTextField(
+                layer = type_line,
+                text_contents = this.layout.type_line,
+                text_colour = get_text_layer_colour(type_line),
+                reference_layer = expansion_symbol,
+            ),
+        ]);
+    },
+    rules_text_and_pt_layers: function (text_and_icons) {
+        // overriding this because the miracle template doesn't have power/toughness layers
+        var rules_text = text_and_icons.layers.getByName("Rules Text - Noncreature")
+        this.text_layers.push(
+            new FormattedTextArea(
+                layer = rules_text,
+                text_contents = this.layout.oracle_text,
+                text_colour = get_text_layer_colour(rules_text),
+                flavour_text = this.layout.flavour_text,
+                is_centred = false,
+                reference_layer = text_and_icons.layers.getByName("Textbox Reference"),
+            ),
+        );
+    },
+    enable_frame_layers: function () {
+        var docref = app.activeDocument;
+
+        // twins and pt box
+        var twins = docref.layers.getByName("Name & Title Boxes");
+        twins.layers.getByName(this.layout.twins).visible = true;
+
+        // pinlines
+        var pinlines = docref.layers.getByName("Land Pinlines & Textbox");
+        pinlines.layers.getByName(this.layout.pinlines).visible = true;
+
+        if (this.is_legendary) {
+            // legendary crown
+            var crown = docref.layers.getByName("Legendary Crown");
+            crown.layers.getByName(this.layout.pinlines).visible = true;
+            docref.activeLayer = pinlines; 
+            enable_active_layer_mask();
+            border = docref.layers.getByName("Border");
+            border.layers.getByName("Normal Border").visible = false;
+            border.layers.getByName("Legendary Border").visible = true;
+        }
+    },
+});
 
 var SnowTemplate = Class({
     /**
@@ -424,7 +551,7 @@ var MiracleTemplate = new Class({
     /**
      * A template for miracle cards. The layer structure of this template and NormalTemplate are close to identical, but this
      * template is stripped down to only include mono-coloured layers and no land layers or other special layers, but no miracle
-     * cards exist that require these templates.
+     * cards exist that require these layers.
      */
 
     extends_: NormalTemplate,
