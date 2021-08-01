@@ -37,8 +37,6 @@ var Template = Class({
 });
 */
 
-/* Class definitions for Chilli_Axe templates */
-
 var BaseTemplate = Class({
     constructor: function (layout, file, file_path) {
         /**
@@ -136,6 +134,8 @@ var BaseTemplate = Class({
     },
 });
 
+/* Class definitions for Chilli_Axe templates */
+
 var ChilliBaseTemplate = Class({
     /**
      * A BaseTemplate with a few extra features I didn't want to pollute the base template for other people with.
@@ -148,14 +148,26 @@ var ChilliBaseTemplate = Class({
          * Set up the card's mana cost, name (scaled to not overlap with mana cost), expansion symbol, and type line
          * (scaled to not overlap with the expansion symbol).
          */
-        var docref = app.activeDocument;
 
         var name = text_and_icons.layers.getByName("Card Name");
+        if (this.name_shifted) {
+            name.visible = false;
+            name = text_and_icons.layers.getByName("Card Name Shift");
+            name.visible = true;
+        }
         var mana_cost = text_and_icons.layers.getByName("Mana Cost");
         var expansion_symbol = text_and_icons.layers.getByName("Expansion Symbol");
         var type_line = text_and_icons.layers.getByName("Typeline");
+        if (this.typeline_shifted) {
+            type_line.visible = false;
+            type_line = text_and_icons.layers.getByName("Typeline Shift");
+            type_line.visible = true;
+
+            // enable colour indicator dot
+            app.activeDocument.layers.getByName("Colour Indicator").layers.getByName(this.layout.pinlines).visible = true;
+        }
         this.text_layers = this.text_layers.concat([
-            new BasicFormattedTextField(
+            new TextField(
                 layer = mana_cost,
                 text_contents = this.layout.mana_cost,
                 text_colour = rgb_black(),
@@ -163,7 +175,7 @@ var ChilliBaseTemplate = Class({
             new ScaledTextField(
                 layer = name,
                 text_contents = this.layout.name,
-                text_colour = name.textItem.color,
+                text_colour = get_text_layer_colour(name),
                 reference_layer = mana_cost,
             ),
             new ExpansionSymbolField(
@@ -174,7 +186,7 @@ var ChilliBaseTemplate = Class({
             new ScaledTextField(
                 layer = type_line,
                 text_contents = this.layout.type_line,
-                text_colour = type_line.textItem.color,
+                text_colour = get_text_layer_colour(type_line),
                 reference_layer = expansion_symbol,
             ),
         ]);
@@ -201,8 +213,6 @@ var NormalTemplate = Class({
      * Normal M15-style template.
      */
 
-    // TODO: colour indicator dot and typeline shift
-
     extends_: ChilliBaseTemplate,
     template_file_name: function () {
         return "normal";
@@ -228,12 +238,12 @@ var NormalTemplate = Class({
                 new TextField(
                     layer = power_toughness,
                     text_contents = this.layout.power.toString() + "/" + this.layout.toughness.toString(),
-                    text_colour = power_toughness.textItem.color,
+                    text_colour = get_text_layer_colour(power_toughness),
                 ),
                 new CreatureFormattedTextArea(
                     layer = rules_text,
                     text_contents = this.layout.oracle_text,
-                    text_colour = rules_text.textItem.color,
+                    text_colour = get_text_layer_colour(rules_text),
                     flavour_text = this.layout.flavour_text,
                     reference_layer = text_and_icons.layers.getByName("Textbox Reference"),
                     is_centred = is_centred,
@@ -251,7 +261,7 @@ var NormalTemplate = Class({
                 new FormattedTextArea(
                     layer = rules_text,
                     text_contents = this.layout.oracle_text,
-                    text_colour = rules_text.textItem.color,
+                    text_colour = get_text_layer_colour(rules_text),
                     flavour_text = this.layout.flavour_text,
                     is_centred = is_centred,
                     reference_layer = text_and_icons.layers.getByName("Textbox Reference"),
@@ -273,6 +283,9 @@ var NormalTemplate = Class({
         this.is_legendary = this.layout.type_line.indexOf("Legendary") >= 0;
         this.is_land = this.layout.type_line.indexOf("Land") >= 0;
         this.is_companion = this.layout.frame_effects.indexOf("companion") >= 0;
+
+        this.name_shifted = false;  // override and set this to true for transform cards
+        this.typeline_shifted = this.layout.colour_indicator !== null && this.layout.colour_indicator !== undefined;
 
         var text_and_icons = docref.layers.getByName("Text and Icons");
         this.basic_text_layers(text_and_icons);
@@ -425,7 +438,7 @@ var MiracleTemplate = new Class({
             new FormattedTextArea(
                 layer = rules_text,
                 text_contents = this.layout.oracle_text,
-                text_colour = rules_text.textItem.color,
+                text_colour = get_text_layer_colour(rules_text),
                 flavour_text = this.layout.flavour_text,
                 is_centred = false,
                 reference_layer = text_and_icons.layers.getByName("Textbox Reference"),
@@ -463,7 +476,7 @@ var MutateTemplate = Class({
             new FormattedTextArea(
                 layer = mutate,
                 text_contents = this.layout.mutate_text,
-                text_colour = mutate.textItem.color,
+                text_colour = get_text_layer_colour(mutate),
                 flavour_text = this.layout.flavour_text,
                 is_centred = false,
                 reference_layer = text_and_icons.layers.getByName("Mutate Reference"),
@@ -502,13 +515,13 @@ var AdventureTemplate = Class({
             new ScaledTextField(
                 layer = name,
                 text_contents = this.layout.adventure.name,
-                text_colour = name.textItem.color,
+                text_colour = get_text_layer_colour(name),
                 reference_layer = mana_cost,
             ),
             new FormattedTextArea(
                 layer = rules_text,
                 text_contents = this.layout.adventure.oracle_text,
-                text_colour = rules_text.textItem.color,
+                text_colour = get_text_layer_colour(rules_text),
                 flavour_text = "",
                 is_centred = false,
                 reference_layer = text_and_icons.layers.getByName("Textbox Reference - Adventure"),
@@ -516,7 +529,7 @@ var AdventureTemplate = Class({
             new TextField(
                 layer = type_line,
                 text_contents = this.layout.adventure.type_line,
-                text_colour = type_line.textItem.color,
+                text_colour = get_text_layer_colour(type_line),
             ),
         ]);
     }
@@ -587,16 +600,11 @@ var PlaneswalkerTemplate = Class({
                 ability_text_layer.visible = false;
                 static_text_layer.visible = true;
             }
-            try {
-                var ability_layer_text_colour = ability_layer.textItem.color;
-            } catch (err) {
-                var ability_layer_text_colour = rgb_black();
-            }
             this.text_layers.push(
                 new BasicFormattedTextField(
                     layer = ability_layer,
                     text_contents = ability_text,
-                    text_colour = ability_layer_text_colour,
+                    text_colour = get_text_layer_colour(ability_layer),
                 )
             );
         }
@@ -606,7 +614,7 @@ var PlaneswalkerTemplate = Class({
             new TextField(
                 layer = loyalty_group.layers.getByName("Starting Loyalty").layers.getByName("Text"),
                 text_contents = this.layout.scryfall.loyalty,
-                text_colour = rgb_white()
+                text_colour = rgb_white(),
             ),
         );
     },

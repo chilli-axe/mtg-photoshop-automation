@@ -257,3 +257,21 @@ function strip_reminder_text(oracle_text) {
 
     return oracle_text;
 }
+
+function get_text_layer_colour(layer) {
+    /**
+     * Occasionally, Photoshop has issues with retrieving the colour of a text layer. This helper guards
+     * against errors and null values by defaulting to rgb_black() in the event of a problem.
+     */
+
+    var text_layer_colour;
+    try {
+        text_layer_colour = layer.textItem.color;
+        if (text_layer_colour === undefined || text_layer_colour === null) {
+            text_layer_colour = rgb_black();
+        }
+    } catch (err) {
+        text_layer_colour = rgb_black();
+    }
+    return text_layer_colour;
+}
