@@ -10,11 +10,11 @@ If you found this tool and/or my renders useful, you could shout me a cup of cof
 # Examples
 [Video demonstration](https://www.youtube.com/watch?v=jSuH7CY8HIM)
 
-Original digital render example
-![img1](https://i.imgur.com/p6jJ8Mu.jpg)
+Output from this project
+![img1](https://i.imgur.com/hGkFpxc.jpg)
 
-Example printed through http://makeplayingcards.com
-![img2](https://i.imgur.com/fP9S81O.jpg)
+Printed through http://makeplayingcards.com
+![img2](https://i.imgur.com/sMOSU84.jpg)
 
 # What You'll Need
   * A copy of Photoshop. I tested the system using CS5 and CC 2018, but other versions may work as well.
@@ -27,28 +27,24 @@ Example printed through http://makeplayingcards.com
   * [json2.js](https://github.com/douglascrockford/JSON-js), included but you may need to download a more recent version.
   * A standard installation of Python 3.
 
-# Install / Usage Guide
+# Install and Usage Guide
 * Clone to a folder of your choice, referred to as the *working directory*.
 * Install the included font and the other fonts specified above.
 * Download the Photoshop templates, create a folder called `templates` in the working directory, and extract them into the folder.
-* Create a folder called `art` in the working directory, and another called `out`. Create a folder called `border` inside `out`.
-* Move all of your card artwork to the `art` folder. File names should be structured as `<CARDNAME> (<ARTIST NAME>).jpg`.
-* Run the script `proxyAll` to render each card in the `art` folder, and store the results in the `out` folder. `proxyTarget` does the same but only for a specific art image.
-* Run the script `borderifyAll` to pad each card render with a black border, such that it's ready to order through sites like http://makeplayingcards.com, and store the results in the `border` folder inside the `out` folder. `borderifyTarget` does the same but only for a specific render.
-* Toggle comments on the first couple of lines of `proxy.jsx` to switch between the normal template and box topper template. Box topper renders don't need to be borderified.
+* Create a folder called `art` in the working directory, and another called `out`.
+* Move all of your card artwork to the `art` folder. File names should be structured as `<CARDNAME> (<ARTIST NAME>).jpg`. Artist name is optional - if ommitted, it will be retrieved from Scryfall.
+* Run the script `proxy_all` to render each card in the `art` folder, and store the results in the `out` folder. `proxy_target` does the same but for a single image.
+* Comment or modify `settings.jsx` to change how the scripts behave.
 
 # FAQ
-Photoshop scripting works within an outdated version of JavaScript and has more than its share of idiosyncrasies. There are unfortunately bugs that don't occur on my system and that I can't recreate, but others have found ways to fix them.
 * *When I load the template, Photoshop tells me I'm  missing a font called MTG2016.* Try updating your templates - this should be fixed for everyone now. Feel free to raise an issue if it's not though!
-* *When I render a card, the artwork is twice as big as it should be.* Open `excessFunctions.jsx`, and at the top there should be the line `var artScaleFactor = 100;`. Change this to equal 50 instead of 100, and that typically fixes it.
-* *My set symbols don't have the proper gradient to them.* Clone the latest version of the repo, and download the most recent version of the templates - this should hopefully be fixed for everyone now. Feel free to raise an issue if it's not though!
-* *I want to change the set symbol to something else.* Head over to https://andrewgioia.github.io/Keyrune/cheatsheet.html - you can use any of these symbols for the set symbol for your cards. Copy the text of the symbol you want on the cheatsheet, then hop into `proxy.jsx` and look about 10 lines down. Replace the square character in quotations with the character you copied.
-* *The script doesn't seem to be saving `card.json` properly. The `get_card_info.py` script works properly from the command line.* Seems like this issue arises from PS running the Python script in a different directory, and running into permissions issues. Clone the latest version of the repo if you haven't already, because I'm fairly certain I've fixed the root cause of this issue. Failing that, a couple of users have had success with modifying file permissions - try `chmod 777 card.json`, or `sudo chmod a+rw .` in the root work directory.
-* *I'm getting an error that looks like `"error 23: ) does not have a value. Line: 1"`* This is usually related to the above issue.
+* *I want to disable the signature in the bottom-right of the card.* TODO
+* *I want to change the set symbol to something else.* Head over to https://andrewgioia.github.io/Keyrune/cheatsheet.html - you can use any of these symbols for the set symbol for your cards. Copy the text of the symbol you want on the cheatsheet, then hop into `settings.jsx` and look about 10 lines down. Replace the square character in quotations with the character you copied.
+* *I'm getting an error that looks like `"error 23: ) does not have a value. Line: 1"`* Seems like this issue arises from PS running the Python script in a different directory - check out `call_python()` in `proxy.jsx` and make sure the command it's calling matches how Python should be invoked on your computer. Fairly sure I've fixed this for most people as of August 2021 but you never know.
 
-# Limitations
-As of this release, the script can't handle:
-* Automation of cards that aren't one of the following: cards with the normal frame, transform cards (fronts and backs, including Ixalan transform lands), meld cards, planeswalker cards, or basic lands. Included in the Templates drive, however, I have templates for the following which you can use manually: Sagas, level-up cards, adventure cards, full-art promos (e.g. Lightning Bolt, Path to Exile), and Kaladesh Invention masterpieces.
-* Full automation of planeswalkers. The script does most of the heavy lifting, but requires the user to manually position the text as a final step. My typical workflow for planeswalkers is to run the script up until it errors, then position the inserted Scryfall scan to fill the canvas. From here, I resize the text layers until they line up with the real card, then reposition the art if necessary. *Save As* and saving as a PNG with the default settings is fine.
-* Devoid-style frames, miracle-style frames, and draft-matters frames - these will be added eventually but they're not a high priority.
-* Quoting something in a card's flavour text without italics. See: Yarok the Desecrated, Phyrexian Altar.
+# Scope
+* Modern style cards, normal and extended; transform and mdfc, front and back; basic lands, normal, Theros, and Unstable styles; planeswalkers, normal and extended; mutate, adventure, miracle, and snow cards; and various flavours of fancy frames - stargazing, universes beyond, masterpiece, ZNE expedition, and womensday.
+* Planeswalkers require manual intervention to position text layers and the ragged textbox divider, but are automated up until that point.
+
+# Customisation
+The repo includes a set of helper functions and boilerplate classes which make automating any given template straight-forward. You'll need reference layers (check out my templates on google drive for examples) for artwork to be positioned against, and for any text layers that need to be positioned vertically within a textbox. Check out the comments at the top of `templates.jsx` for more info, and you can review how I've automated my templates there for reference as well. You'll also need to adjust the function `select_template()` in `proxy.jsx` to point to your template class(es).
