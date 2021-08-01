@@ -87,7 +87,7 @@ var TransformLayout = Class({
         this.type_line = this.scryfall.card_faces[this.face].type_line;
         this.oracle_text = this.scryfall.card_faces[this.face].oracle_text.replace(/\u2212/g, "-");  // for planeswalkers
         this.flavour_text = "";
-        if (this.scryfall.card_faces[this.face].flavour_text !== undefined) {
+        if (this.scryfall.card_faces[this.face].flavor_text !== undefined) {
             this.flavour_text = this.scryfall.card_faces[this.face].flavor_text;
         }
         this.power = this.scryfall.card_faces[this.face].power;
@@ -115,7 +115,7 @@ var MeldLayout = Class({
         this.type_line = this.scryfall.card_faces[this.face].type_line;
         this.oracle_text = this.scryfall.card_faces[this.face].oracle_text.replace(/\u2212/g, "-");  // for planeswalkers
         this.flavour_text = "";
-        if (this.scryfall.card_faces[this.face].flavour_text !== undefined) {
+        if (this.scryfall.card_faces[this.face].flavor_text !== undefined) {
             this.flavour_text = this.scryfall.card_faces[this.face].flavor_text;
         }
         this.power = this.scryfall.card_faces[this.face].power;
@@ -157,7 +157,7 @@ var AdventureLayout = Class({
         };
 
         this.flavour_text = "";
-        if (this.scryfall.card_faces[0].flavour_text !== undefined) {
+        if (this.scryfall.card_faces[0].flavor_text !== undefined) {
             this.flavour_text = this.scryfall.card_faces[0].flavor_text;
         }
         this.power = this.scryfall.power;

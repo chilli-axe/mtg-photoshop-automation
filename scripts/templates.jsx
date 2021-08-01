@@ -400,7 +400,7 @@ var WomensDayTemplate = Class({
             // legendary crown
             var crown = docref.layers.getByName("Legendary Crown");
             crown.layers.getByName(this.layout.pinlines).visible = true;
-            docref.activeLayer = pinlines; 
+            docref.activeLayer = pinlines;
             enable_active_layer_mask();
         }
     },
@@ -499,7 +499,7 @@ var ExpeditionTemplate = Class({
         ]);
     },
     rules_text_and_pt_layers: function (text_and_icons) {
-        // overriding this because the miracle template doesn't have power/toughness layers
+        // overriding this because the expedition template doesn't have power/toughness layers
         var rules_text = text_and_icons.layers.getByName("Rules Text - Noncreature")
         this.text_layers.push(
             new FormattedTextArea(
@@ -527,12 +527,64 @@ var ExpeditionTemplate = Class({
             // legendary crown
             var crown = docref.layers.getByName("Legendary Crown");
             crown.layers.getByName(this.layout.pinlines).visible = true;
-            docref.activeLayer = pinlines; 
+            docref.activeLayer = pinlines;
             enable_active_layer_mask();
             border = docref.layers.getByName("Border");
             border.layers.getByName("Normal Border").visible = false;
             border.layers.getByName("Legendary Border").visible = true;
         }
+    },
+});
+
+var IxalanTemplate = Class({
+    /**
+     * Template for the back faces of transforming cards from Ixalan block.
+     */
+
+    extends_: NormalTemplate,
+    template_file_name: function () {
+        return "ixalan";
+    },
+    basic_text_layers: function (text_and_icons) {
+        // typeline doesn't scale down with expansion symbol, and no mana cost layer
+        var name = text_and_icons.layers.getByName("Card Name");
+        var expansion_symbol = text_and_icons.layers.getByName("Expansion Symbol");
+        var type_line = text_and_icons.layers.getByName("Typeline");
+        this.text_layers = this.text_layers.concat([
+            new TextField(
+                layer = name,
+                text_contents = this.layout.name,
+                text_colour = get_text_layer_colour(name),
+            ),
+            new ExpansionSymbolField(
+                layer = expansion_symbol,
+                text_contents = expansion_symbol_character,
+                rarity = this.layout.rarity,
+            ),
+            new TextField(
+                layer = type_line,
+                text_contents = this.layout.type_line,
+                text_colour = get_text_layer_colour(type_line),
+            ),
+        ]);
+    },
+    rules_text_and_pt_layers: function (text_and_icons) {
+        // overriding this because the ixalan template doesn't have power/toughness layers
+        var rules_text = text_and_icons.layers.getByName("Rules Text - Noncreature");
+        this.text_layers.push(
+            new FormattedTextArea(
+                layer = rules_text,
+                text_contents = this.layout.oracle_text,
+                text_colour = get_text_layer_colour(rules_text),
+                flavour_text = this.layout.flavour_text,
+                is_centred = false,
+                reference_layer = text_and_icons.layers.getByName("Textbox Reference"),
+            ),
+        );
+    },
+    enable_frame_layers: function () {
+        var background = app.activeDocument.layers.getByName("Background");
+        background.layers.getByName(this.layout.background).visible = true;
     },
 });
 
