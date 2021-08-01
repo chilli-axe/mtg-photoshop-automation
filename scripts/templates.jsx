@@ -167,7 +167,7 @@ var ChilliBaseTemplate = Class({
             app.activeDocument.layers.getByName("Colour Indicator").layers.getByName(this.layout.pinlines).visible = true;
         }
         this.text_layers = this.text_layers.concat([
-            new TextField(
+            new BasicFormattedTextField(
                 layer = mana_cost,
                 text_contents = this.layout.mana_cost,
                 text_colour = rgb_black(),

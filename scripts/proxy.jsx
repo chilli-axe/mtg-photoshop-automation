@@ -51,17 +51,32 @@ function retrieve_card_name_and_artist(file) {
     }
 }
 
-function call_python(cardname, filepath) {
+function call_python(card_name, file_path) {
     /**
      * Calls the Python script which queries Scryfall for card info and saves the resulting JSON dump to disk in \scripts.
+     * Returns the parsed JSON result if the Python call was successful, or raises an error if it wasn't.
      */
-    if ($.os.search(/windows/i) != -1) {
-        // Windows
-        app.system("python \"" + filepath + "\\scripts\\get_card_info.py\" \"" + cardname + "\"");
-    } else {
+
+    // default to Windows command
+    var python_command = "python \"" + file_path + "\\scripts\\get_card_info.py\" \"" + card_name + "\"";
+    if ($.os.search(/windows/i) === -1) {
         // macOS
-        app.system("/usr/local/bin/python3 " + filepath + "/scripts/get_card_info.py \"" + cardname + "\" >> " + filepath + "/scripts/debug.log 2>&1");
+        python_command = "python " + file_path + "/scripts/get_card_info.py \"" + card_name + "\" >> " + file_path + "/scripts/debug.log 2>&1";
     }
+    app.system(python_command);
+
+    var json_file = new File(file_path + json_file_path);
+    json_file.open('r');
+    var json_string = json_file.read();
+    json_file.close();
+    if (json_string === "") {
+        throw new Error(
+            "\n\ncard.json does not exist - the system failed to successfully run get_card_info.py.\nThe attempted Python call was made with the " +
+            "following command:\n\n" + python_command + "\n\nYou may need to edit this command in proxy.jsx depending on your computer's configuration. " +
+            "Try running the command from the command line as that may help you debug the issue"
+        );
+    }
+    return JSON.parse(JSON.parse(json_string));
 }
 
 function select_template(layout, file, file_path) {
@@ -91,14 +106,6 @@ function select_template(layout, file, file_path) {
     return new cls(layout, file, file_path);
 }
 
-function read_json(file_path) {
-    var json_file = new File(file_path + "/scripts/card.json");
-    json_file.open('r');
-    var json_string = json_file.read();
-    json_file.close();
-    return JSON.parse(JSON.parse(json_string));
-}
-
 function proxy_new(file) {
     // TODO: specify the desired template for a card in the filename?
     var file_path = File($.fileName).parent.parent.fsName;
@@ -114,9 +121,7 @@ function proxy_new(file) {
         };
         var template = new BasicLandTemplate(layout, file, file_path);
     } else {
-        call_python(card_name, file_path);
-
-        var scryfall = read_json(file_path);
+        var scryfall = call_python(card_name, file_path);
         var layout_name = scryfall.layout;
 
         // instantiate layout obj (unpacks scryfall json and stores relevant parts in obj properties)
