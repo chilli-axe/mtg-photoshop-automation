@@ -275,3 +275,26 @@ function get_text_layer_colour(layer) {
     }
     return text_layer_colour;
 }
+
+function create_new_layer(layer_name) {
+    /**
+     * Creates a new layer below the currently active layer. The layer will be visible.
+     */
+    if (layer_name === undefined) {
+        layername = "Layer";
+    }
+
+    // create new layer at top of layers
+    var active_layer = app.activeDocument.activeLayer;
+    var layer = app.activeDocument.artLayers.add();
+
+    // name it & set blend mode to normal
+    layer.name = layer_name;
+    layer.blendMode = BlendMode.NORMAL;
+    layer.visible = true;
+
+    // Move the layer below
+    layer.moveAfter(active_layer);
+
+    return layer;
+}
