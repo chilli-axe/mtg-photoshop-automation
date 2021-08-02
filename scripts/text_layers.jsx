@@ -270,18 +270,20 @@ var FormattedTextArea = Class({
     execute: function () {
         this.super();
 
-        // resize the text until it fits into the reference layer
-        scale_text_to_fit_reference(this.layer, this.reference_layer);
+        if (this.text_contents !== "") {
+            // resize the text until it fits into the reference layer
+            scale_text_to_fit_reference(this.layer, this.reference_layer);
 
-        // rasterise and centre vertically
-        vertically_align_text(this.layer, this.reference_layer);
+            // rasterise and centre vertically
+            vertically_align_text(this.layer, this.reference_layer);
 
-        if (this.is_centred) {
-            // ensure the layer is centred horizontally as well
-            app.activeDocument.selection.selectAll();
-            app.activeDocument.activeLayer = this.layer;
-            align_horizontal();
-            clear_selection();
+            if (this.is_centred) {
+                // ensure the layer is centred horizontally as well
+                app.activeDocument.selection.selectAll();
+                app.activeDocument.activeLayer = this.layer;
+                align_horizontal();
+                clear_selection();
+            }
         }
     }
 });

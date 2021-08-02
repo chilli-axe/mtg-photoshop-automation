@@ -1,6 +1,22 @@
 // TODO: consistency between camelcase and snakecase
 
-var json_file_path = "\\scripts\\card.json";
+var json_file_path = "/scripts/card.json";
+
+// Card classes - finer grained than Scryfall layouts
+var normal_class = "normal";
+var transform_front_class = "transform_front";
+var transform_back_class = "transform_back";
+var ixalan_class = "ixalan";
+var mdfc_front_class = "mdfc_front";
+var mdfc_back_class = "mdfc_back";
+var mutate_class = "mutate";
+var adventure_class = "adventure";
+var miracle_class = "miracle";
+var planeswalker_class = "planeswalker";
+var snow_class = "snow";
+var basic_class = "basic";
+var planar_class = "planar";
+
 
 // Layer names
 var LayerNames = {

@@ -728,6 +728,8 @@ var PlaneswalkerTemplate = Class({
     constructor: function (layout, file, file_path) {
         this.super(layout, file, file_path);
 
+        exit_early = true;
+
         this.art_reference = app.activeDocument.layers.getByName("Planeswalker Art Frame");
         if (this.layout.is_colourless) this.art_reference = app.activeDocument.layers.getByName("Full Art Frame");
 

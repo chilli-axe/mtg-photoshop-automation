@@ -246,15 +246,19 @@ function save_and_close(file_name, file_path) {
 function strip_reminder_text(oracle_text) {
     /**
      * Strip out any reminder text that a card's oracle text has (reminder text in parentheses).
+     * If this would empty the string, instead return the original string.
      */
 
+    var oracle_text_stripped = oracle_text;
     var parentheses_regex = /\(.*?\)/;
-    oracle_text = oracle_text.replace(parentheses_regex, "");
+    oracle_text_stripped = oracle_text_stripped.replace(parentheses_regex, "");
 
     // ensure we didn't add any double whitespace by doing that
     var whitespace_regex = / +/g;
-    oracle_text = oracle_text.replace(whitespace_regex, " ");
-
+    oracle_text_stripped = oracle_text_stripped.replace(whitespace_regex, " ");
+    if (oracle_text_stripped !== "") {
+        return oracle_text_stripped;
+    }
     return oracle_text;
 }
 
@@ -297,4 +301,25 @@ function create_new_layer(layer_name) {
     layer.moveAfter(active_layer);
 
     return layer;
+}
+
+function array_index(array, thing) {
+    /**
+     * Get the index of thing in array, since Extendscript doesn't come with this.
+     */
+
+    for (var i=0; i<array.length; i++) {
+        if (array[i] === thing) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+function in_array(array, thing) {
+    /**
+     * Returns true if thing in array.
+     */
+
+    return array_index(array, thing) >= 0;
 }

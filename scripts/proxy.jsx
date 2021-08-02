@@ -2,34 +2,13 @@
 #include "layouts.jsx";
 #include "templates.jsx";
 #include "constants.jsx";
-#include "..\\settings.jsx";
-
-// Settings
-// Switch from the default template by uncommenting a line here
-// Make sure you know what you're doing when you force the script to use a specific template
-var chosenTemplate = "";
-// var chosenTemplate = "znrexp";
-// var chosenTemplate = "masterpiece";
-// var chosenTemplate = "stargazing";
-// var chosenTemplate = "womensday";
-// var chosenTemplate = "universesbeyond";
-// var chosenTemplate = "normal-promo";
-// var chosenTemplate = "basic-theros";
-// var chosenTemplate = "basic-unstable";
-// var chosenTemplate = "pw-textonly";
-
-// Toggle between these two lines to use the normal frame or box topper frame
-var extended = "";
-// var extended = "-extended";
-
-// Toggle breakpoint to manually edit image before rasterising text & saving image
-var breakpoint = false;
-// var breakpoint = true;
+#include "../settings.jsx";
 
 function retrieve_card_name_and_artist(file) {
     /**
      * Retrieve card name and (if specified) artist from the input file.
      */
+
     var filename = decodeURI(file.name);
     var filename_no_ext = filename.slice(0, filename.lastIndexOf("."));
 
@@ -61,7 +40,7 @@ function call_python(card_name, file_path) {
     var python_command = "python \"" + file_path + "\\scripts\\get_card_info.py\" \"" + card_name + "\"";
     if ($.os.search(/windows/i) === -1) {
         // macOS
-        python_command = "python " + file_path + "/scripts/get_card_info.py \"" + card_name + "\" >> " + file_path + "/scripts/debug.log 2>&1";
+        python_command = "/usr/local/bin/python3 \"" + file_path + "/scripts/get_card_info.py\" \"" + card_name + "\" >> " + file_path + "/scripts/debug.log 2>&1";
     }
     app.system(python_command);
 
@@ -79,31 +58,71 @@ function call_python(card_name, file_path) {
     return JSON.parse(JSON.parse(json_string));
 }
 
-function select_template(layout, file, file_path) {
+function select_template (layout, file, file_path) {
     /**
      * Instantiate a template object based on the card layout and user settings.
      */
 
-    var cls;
-    if (layout.scryfall.layout === "adventure") {
-        cls = AdventureTemplate;
-    } else if (layout.type_line.indexOf("Planeswalker") >= 0) {
-        cls = PlaneswalkerTemplate;
-    }
-    else if (layout.type_line.indexOf("Snow") >= 0) {  // frame_effects doesn't contain "snow" for pre-KHM snow cards
-        cls = SnowTemplate;
-    }
-    else if (layout.keywords.indexOf("Mutate") >= 0) {
-        cls = MutateTemplate;
-    } else if (layout.frame_effects.indexOf("miracle") >= 0) {
-        cls = MiracleTemplate;
-    } else {
-        cls = NormalTemplate;
-    }
+    // Map card classes to template classes
+    // (have to insert one at a time - otherwise the key will be the variable name)
+    var class_template_map = {};
+    class_template_map[normal_class] = {
+        default_: NormalTemplate,
+        other: [
+            NormalExtendedTemplate,
+            WomensDayTemplate,
+            StargazingTemplate,
+            MasterpieceTemplate,
+            ExpeditionTemplate,
+        ],
+    };
+    class_template_map[transform_front_class] = {};
+    class_template_map[transform_back_class] = {};
+    class_template_map[ixalan_class] = {
+        default_: IxalanTemplate,
+        other: [],
+    };
+    class_template_map[mdfc_front_class] = {};
+    class_template_map[mdfc_back_class] = {};
+    class_template_map[mutate_class] = {
+        default_: MutateTemplate,
+        other: [],
+    };
+    class_template_map[adventure_class] = {
+        default_: AdventureTemplate,
+        other: [],
+    };
+    class_template_map[miracle_class] = {
+        default_: MiracleTemplate,
+        other: [],
+    };
+    class_template_map[planeswalker_class] = {
+        default_: PlaneswalkerTemplate,
+        other: [
+            PlaneswalkerExtendedTemplate,
+        ],
+    };
+    class_template_map[snow_class] = {
+        default_: SnowTemplate,
+        other: [],
+    };
+    class_template_map[basic_class] = {
+        default_: BasicLandTemplate,
+        other: [
+            BasicLandTherosTemplate,
+            BasicLandUnstableTemplate,
+        ],
+    };
+    class_template_map[planar_class] = {};
 
-    // TODO
-
-    return new cls(layout, file, file_path);
+    var template_class = class_template_map[layout.card_class];
+    var template = template_class.default_;
+    if (specified_template !== null && in_array(template_class.other, specified_template)) {
+        // a template was specified and it's allowed to be used for this card class
+        template = specified_template;
+    }
+    
+    return new template(layout, file, file_path);
 }
 
 function proxy_new(file) {
@@ -142,6 +161,9 @@ function proxy_new(file) {
 
     // execute the template - insert text fields, set visibility of layers, etc. - and save to disk
     var file_name = template.execute();
+    if (exit_early) {
+        throw new Error("Exiting...");
+    }
     save_and_close(file_name, file_path);
 }
 

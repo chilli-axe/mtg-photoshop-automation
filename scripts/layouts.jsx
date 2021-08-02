@@ -26,6 +26,7 @@ var BaseLayout = Class({
         this.card_name_raw = card_name;
 
         this.unpack_scryfall();
+        this.set_card_class();
 
         var ret = select_frame_layers(this.mana_cost, this.type_line, this.oracle_text, this.colour_identity);
 
@@ -52,6 +53,26 @@ var BaseLayout = Class({
         this.frame_effects = "";
         if (this.scryfall.frame_effects !== undefined) {
             this.frame_effects = this.scryfall.frame_effects.toString();  // TODO: ES doesn't have an array method for indexOf so I'm converting to str for now
+        }
+    },
+    set_card_class: function () {
+        /**
+         * Set the card's class (finer grained than layout). Used when selecting a template.
+         */
+
+        this.card_class = normal_class;
+        if (this.scryfall.layout === "adventure") {
+            this.card_class = adventure_class;
+        } else if (this.type_line.indexOf("Planeswalker") >= 0) {
+            this.card_class = planeswalker_class;
+        }
+        else if (this.type_line.indexOf("Snow") >= 0) {  // frame_effects doesn't contain "snow" for pre-KHM snow cards
+            this.card_class = snow_class;
+        }
+        else if (this.keywords.indexOf("Mutate") >= 0) {
+            this.card_class = mutate_class;
+        } else if (this.frame_effects.indexOf("miracle") >= 0) {
+            this.card_class = miracle_class;
         }
     }
 })
@@ -81,6 +102,7 @@ var TransformLayout = Class({
         // TODO: determine which face the card we're dealing with belongs to
 
         this.face = determine_card_face(this.scryfall, this.card_name_raw);
+        this.other_face = -1 * (this.face - 1);
 
         this.name = this.scryfall.card_faces[this.face].name;
         this.mana_cost = this.scryfall.card_faces[this.face].mana_cost;
@@ -91,10 +113,11 @@ var TransformLayout = Class({
             this.flavour_text = this.scryfall.card_faces[this.face].flavor_text;
         }
         this.power = this.scryfall.card_faces[this.face].power;
+        this.other_face_power = this.scryfall.card_faces[this.other_face].power;
         this.toughness = this.scryfall.card_faces[this.face].toughness;
+        this.other_face_toughness = this.scryfall.card_faces[this.other_face].toughness;
         this.colour_indicator = this.scryfall.card_faces[this.face].color_indicator;  // comes as an array from scryfall
-
-        // TODO: frame effects for icon in top-left
+        this.transform_icon = this.scryfall.frame_effects[0];  // TODO: safe to assume the first frame effect will be the transform icon?
 
         this.super();
     },
@@ -122,7 +145,7 @@ var MeldLayout = Class({
         this.toughness = this.scryfall.card_faces[this.face].toughness;
         this.colour_indicator = this.scryfall.card_faces[this.face].color_indicator;  // comes as an array from scryfall
 
-        // TODO: top and bottom colours, left and right text
+        
 
         this.super();
     }
