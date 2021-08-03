@@ -113,7 +113,10 @@ function select_template(layout, file, file_path) {
             BasicLandUnstableTemplate,
         ],
     };
-    class_template_map[planar_class] = {};
+    class_template_map[planar_class] = {
+        default_: PlanarTemplate,
+        other: [],
+    };
 
     var template_class = class_template_map[layout.card_class];
     var template = template_class.default_;

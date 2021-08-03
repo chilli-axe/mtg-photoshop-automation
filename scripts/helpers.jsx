@@ -132,9 +132,9 @@ function frame_layer(layer, reference_layer) {
     clear_selection();
 }
 
-function enable_active_layer_mask() {
+function set_active_layer_mask(visible) {
     /**
-     * Enables the active layer's layer mask.
+     * Set the visibility of the active layer's layer mask.
      */
 
     var idsetd = charIDToTypeID("setd");
@@ -149,10 +149,26 @@ function enable_active_layer_mask() {
     var idT = charIDToTypeID("T   ");
     var desc3079 = new ActionDescriptor();
     var idUsrM = charIDToTypeID("UsrM");
-    desc3079.putBoolean(idUsrM, true);
+    desc3079.putBoolean(idUsrM, visible);
     var idLyr = charIDToTypeID("Lyr ");
     desc3078.putObject(idT, idLyr, desc3079);
     executeAction(idsetd, desc3078, DialogModes.NO);
+}
+
+function enable_active_layer_mask() {
+    /**
+     * Enables the active layer's layer mask.
+     */
+
+    set_active_layer_mask(true);
+}
+
+function disable_active_layer_mask() {
+    /**
+     * Enables the active layer's layer mask.
+     */
+
+    set_active_layer_mask(false);
 }
 
 function apply_stroke(stroke_weight, stroke_colour) {
@@ -322,4 +338,43 @@ function in_array(array, thing) {
      */
 
     return array_index(array, thing) >= 0;
+}
+
+function replace_text(layer, replace_this, replace_with) {
+    /**
+     * Replace all instances of `replace_this` in the specified layer with `replace_with`.
+     */
+
+    app.activeDocument.activeLayer = layer;
+    var idreplace = stringIDToTypeID("replace");
+    var desc22 = new ActionDescriptor();
+    idnull = charIDToTypeID("null");
+    var ref3 = new ActionReference();
+    var idPrpr = charIDToTypeID("Prpr");
+    idreplace = stringIDToTypeID("replace");
+    ref3.putProperty(idPrpr, idreplace);
+    idTxLr = charIDToTypeID("TxLr");
+    idOrdn = charIDToTypeID("Ordn");
+    var idAl = charIDToTypeID("Al  ");
+    ref3.putEnumerated(idTxLr, idOrdn, idAl);
+    desc22.putReference(idnull, ref3);
+    var idUsng = charIDToTypeID("Usng");
+    var desc23 = new ActionDescriptor();
+    var idfind = stringIDToTypeID("find");
+    desc23.putString(idfind, replace_this);
+    idreplace = stringIDToTypeID("replace");
+    desc23.putString(idreplace, replace_with);
+    var idcheckAll = stringIDToTypeID("checkAll");
+    desc23.putBoolean(idcheckAll, true);
+    var idFwd = charIDToTypeID("Fwd ");
+    desc23.putBoolean(idFwd, true);
+    var idcaseSensitive = stringIDToTypeID("caseSensitive");
+    desc23.putBoolean(idcaseSensitive, false);
+    var idwholeWord = stringIDToTypeID("wholeWord");
+    desc23.putBoolean(idwholeWord, false);
+    var idignoreAccents = stringIDToTypeID("ignoreAccents");
+    desc23.putBoolean(idignoreAccents, true);
+    var idfindReplace = stringIDToTypeID("findReplace");
+    desc22.putObject(idUsng, idfindReplace, desc23);
+    executeAction(idreplace, desc22, DialogModes.NO);
 }

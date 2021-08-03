@@ -1,5 +1,6 @@
 #include "es-class.js";
 #include "frame_logic.jsx";
+#include "constants.jsx";
 
 /* Helper functions */
 
@@ -54,15 +55,16 @@ var BaseLayout = Class({
             this.frame_effects = this.scryfall.frame_effects;
         }
     },
+    get_default_class: function () {
+        throw new Error("Default card class not defined!");
+    },
     set_card_class: function () {
         /**
          * Set the card's class (finer grained than layout). Used when selecting a template.
          */
 
-        this.card_class = normal_class;
-        if (this.scryfall.layout === "adventure") {
-            this.card_class = adventure_class;
-        } else if (this.type_line.indexOf("Planeswalker") >= 0) {
+        this.card_class = this.get_default_class();
+        if (this.type_line.indexOf("Planeswalker") >= 0) {
             this.card_class = planeswalker_class;
         }
         else if (this.type_line.indexOf("Snow") >= 0) {  // frame_effects doesn't contain "snow" for pre-KHM snow cards
@@ -92,7 +94,10 @@ var NormalLayout = Class({
         this.colour_indicator = this.scryfall.color_indicator;  // comes as an array from scryfall
 
         this.super();
-    }
+    },
+    get_default_class: function () {
+        return normal_class;
+    },
 });
 
 var TransformLayout = Class({
@@ -119,6 +124,9 @@ var TransformLayout = Class({
         this.transform_icon = this.scryfall.frame_effects[0];  // TODO: safe to assume the first frame effect will be the transform icon?
 
         this.super();
+    },
+    get_default_class: function () {
+        return transform_front_class;
     },
 
 });
@@ -147,7 +155,10 @@ var MeldLayout = Class({
 
 
         this.super();
-    }
+    },
+    get_default_class: function () {
+        return transform_back_class;
+    },
 });
 
 var ModalDoubleFacedLayout = Class({
@@ -160,7 +171,10 @@ var ModalDoubleFacedLayout = Class({
         // TODO: save scryfall json fields as properties
 
         this.super();
-    }
+    },
+    get_default_class: function () {
+        return mdfc_front_class;
+    },
 });
 
 var AdventureLayout = Class({
@@ -188,16 +202,28 @@ var AdventureLayout = Class({
         this.artist = this.scryfall.artist;
 
         this.super();
-    }
+    },
+    get_default_class: function () {
+        return adventure_class;
+    },
 });
 
 var PlanarLayout = Class({
-    constructor_: function () {
-        this.scryfall = scryfall;
+    extends_: BaseLayout,
+    unpack_scryfall: function () {
+        this.name = this.scryfall.name;
+        this.mana_cost = "";
+        this.type_line = this.scryfall.type_line;
+        this.oracle_text = this.scryfall.oracle_text;
         this.rarity = this.scryfall.rarity;
         this.artist = this.scryfall.artist;
         // TODO: save scryfall json fields as properties
-    }
+
+        this.super();
+    },
+    get_default_class: function () {
+        return planar_class;
+    },
 });
 
 var layout_map = {

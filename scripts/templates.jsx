@@ -839,7 +839,81 @@ var PlaneswalkerExtendedTemplate = Class({
     enable_background: function () { },
 });
 
-/* Basic land templates */
+/* Misc. templates */
+
+var PlanarTemplate = Class({
+    extends_: BaseTemplate,
+    template_file_name: function () {
+        return "planar";
+    },
+    constructor: function (layout, file, file_path) {
+        this.super(layout, file, file_path);
+        exit_early = true;
+
+        var docref = app.activeDocument;
+        this.art_reference = docref.layers.getByName("Art Frame");
+        // artist
+        replace_text(docref.layers.getByName("Legal").layers.getByName("Artist"), "Artist", this.layout.artist);
+
+        // card name, type line, expansion symbol
+        var text_and_icons = docref.layers.getByName("Text and Icons");
+        var name = text_and_icons.layers.getByName("Card Name");
+        var type_line = text_and_icons.layers.getByName("Typeline");
+        var expansion_symbol = text_and_icons.layers.getByName("Expansion Symbol");
+
+        // note: overwriting this.text_layers because the paintbrush symbol is part of the artist text layer, so we inserted the
+        // artist name separately earlier with replace_text(), and the artist usually comes for free with this.text_layers.
+        this.text_layers = [
+            new TextField(
+                layer = name,
+                text_contents = this.layout.name,
+                text_colour = get_text_layer_colour(name),
+            ),
+            new ScaledTextField(
+                layer = type_line,
+                text_contents = this.layout.type_line,
+                text_colour = get_text_layer_colour(type_line),
+                reference_layer = expansion_symbol,
+            )
+        ];
+
+        var static_ability = text_and_icons.layers.getByName("Static Ability");
+        var chaos_ability = text_and_icons.layers.getByName("Chaos Ability");
+
+        if (this.layout.type_line === "Phenomenon") {
+            // phenomenon card - insert oracle text into static ability layer and disable chaos ability & layer mask on textbox
+            this.text_layers.push(
+                new BasicFormattedTextField(
+                    layer = static_ability,
+                    text_contents = this.layout.oracle_text,
+                    text_colour = get_text_layer_colour(static_ability),
+                )
+            );
+            var textbox = docref.layers.getByName("Textbox");
+            docref.activeLayer = textbox;
+            disable_active_layer_mask();
+            text_and_icons.layers.getByName("Chaos Symbol").visible = false;
+            chaos_ability.visible = false;
+        } else {
+            // plane card - split oracle text on last line break, insert everything before it into static ability layer and the rest
+            // into chaos ability layer
+            var linebreak_index = this.layout.oracle_text.lastIndexOf("\n");
+            this.text_layers = this.text_layers.concat([
+                new BasicFormattedTextField(
+                    layer = static_ability,
+                    text_contents = this.layout.oracle_text.slice(0, linebreak_index),
+                    text_colour = get_text_layer_colour(static_ability),
+                ),
+                new BasicFormattedTextField(
+                    layer = chaos_ability,
+                    text_contents = this.layout.oracle_text.slice(linebreak_index + 1),
+                    text_colour = get_text_layer_colour(chaos_ability),
+                ),
+            ]);
+        }
+    },
+    enable_frame_layers: function () { },
+});
 
 var BasicLandTemplate = Class({
     /**
