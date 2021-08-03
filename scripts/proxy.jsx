@@ -37,7 +37,7 @@ function call_python(card_name, file_path) {
      */
 
     // default to Windows command
-    var python_command = "python \"" + file_path + "\\scripts\\get_card_info.py\" \"" + card_name + "\"";
+    var python_command = "python \"" + file_path + "/scripts/get_card_info.py\" \"" + card_name + "\"";
     if ($.os.search(/windows/i) === -1) {
         // macOS
         python_command = "/usr/local/bin/python3 \"" + file_path + "/scripts/get_card_info.py\" \"" + card_name + "\" >> " + file_path + "/scripts/debug.log 2>&1";
@@ -58,7 +58,7 @@ function call_python(card_name, file_path) {
     return JSON.parse(JSON.parse(json_string));
 }
 
-function select_template (layout, file, file_path) {
+function select_template(layout, file, file_path) {
     /**
      * Instantiate a template object based on the card layout and user settings.
      */
@@ -121,7 +121,7 @@ function select_template (layout, file, file_path) {
         // a template was specified and it's allowed to be used for this card class
         template = specified_template;
     }
-    
+
     return new template(layout, file, file_path);
 }
 
@@ -133,7 +133,7 @@ function proxy_new(file) {
     var card_name = ret.card_name;
     var artist = ret.artist;
 
-    if (BasicLandNames.toString().indexOf(card_name) >= 0) {
+    if (in_array(BasicLandNames, card_name)) {
         var layout = {
             artist: artist,
             name: card_name,
@@ -154,8 +154,6 @@ function proxy_new(file) {
         if (artist !== "") {
             layout.artist = artist;
         }
-
-        // TODO: support manually specifying the template
         var template = select_template(layout, file, file_path);
     }
 

@@ -80,8 +80,17 @@ var BaseTemplate = Class({
          * Opens the template's PSD file in Photoshop.
          */
 
-        var template_file = new File(file_path + "/templates/" + this.template_file_name() + ".psd");
-        app.open(template_file);
+        var template_path = file_path + "/templates/" + this.template_file_name() + ".psd"
+        var template_file = new File(template_path);
+        try {
+            app.open(template_file);
+        } catch (err) {
+            throw new Error(
+                "\n\nFailed to open the template for this card at the following directory:\n\n"
+                + template_path
+                + "\n\nCheck your templates folder and try again"
+            );
+        }
         // TODO: if that's the file that's currently open, reset instead of opening? idk 
     },
     enable_frame_layers: function () {

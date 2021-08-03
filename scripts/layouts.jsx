@@ -9,8 +9,7 @@ function determine_card_face(scryfall, card_name) {
     } else if (scryfall.card_faces[1].name == card_name) {
         return Faces.BACK;
     }
-    // TODO: error
-    alert("Shit broke")
+    throw new Error("Shit broke")
 }
 
 /* Class definitions */
@@ -48,11 +47,11 @@ var BaseLayout = Class({
         this.colour_identity = this.scryfall.color_identity;
         this.keywords = "";
         if (this.scryfall.keywords !== undefined) {
-            this.keywords = this.scryfall.keywords.toString();
+            this.keywords = this.scryfall.keywords;
         }
         this.frame_effects = "";
         if (this.scryfall.frame_effects !== undefined) {
-            this.frame_effects = this.scryfall.frame_effects.toString();  // TODO: ES doesn't have an array method for indexOf so I'm converting to str for now
+            this.frame_effects = this.scryfall.frame_effects;
         }
     },
     set_card_class: function () {
@@ -69,9 +68,9 @@ var BaseLayout = Class({
         else if (this.type_line.indexOf("Snow") >= 0) {  // frame_effects doesn't contain "snow" for pre-KHM snow cards
             this.card_class = snow_class;
         }
-        else if (this.keywords.indexOf("Mutate") >= 0) {
+        else if (in_array(this.keywords, "Mutate")) {
             this.card_class = mutate_class;
-        } else if (this.frame_effects.indexOf("miracle") >= 0) {
+        } else if (in_array(this.frame_effects, "miracle")) {
             this.card_class = miracle_class;
         }
     }
@@ -145,7 +144,7 @@ var MeldLayout = Class({
         this.toughness = this.scryfall.card_faces[this.face].toughness;
         this.colour_indicator = this.scryfall.card_faces[this.face].color_indicator;  // comes as an array from scryfall
 
-        
+
 
         this.super();
     }

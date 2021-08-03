@@ -308,7 +308,7 @@ function array_index(array, thing) {
      * Get the index of thing in array, since Extendscript doesn't come with this.
      */
 
-    for (var i=0; i<array.length; i++) {
+    for (var i = 0; i < array.length; i++) {
         if (array[i] === thing) {
             return i;
         }
