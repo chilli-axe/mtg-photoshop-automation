@@ -80,6 +80,7 @@ var LayerNames = {
     EXPANSION_SYMBOL: "Expansion Symbol",
     COLOUR_INDICATOR: "Colour Indicator",
     POWER_TOUGHNESS: "Power / Toughness",
+    FLIPSIDE_POWER_TOUGHNESS: "Flipside Power / Toughness",
     RULES_TEXT_NONCREATURE: "Rules Text - Noncreature",
     RULES_TEXT_CREATURE: "Rules Text - Creature",
     RULES_TEXT_ADVENTURE: "Rules Text - Adventure",

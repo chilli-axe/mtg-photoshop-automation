@@ -76,7 +76,10 @@ function select_template(layout, file, file_path) {
             ExpeditionTemplate,
         ],
     };
-    class_template_map[transform_front_class] = {};
+    class_template_map[transform_front_class] = {
+        default_: TransformFrontTemplate,
+        other: [],
+    };
     class_template_map[transform_back_class] = {
         default_: TransformBackTemplate,
         other: [],

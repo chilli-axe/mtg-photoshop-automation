@@ -667,10 +667,13 @@ var TransformBackTemplate = Class({
     template_file_name: function () {
         return "tf-back";
     },
+    dfc_layer_group: function () {
+        return LayerNames.TF_BACK;
+    },
     constructor: function (layout, file, file_path) {
         this.super(layout, file, file_path);
         // set transform icon
-        var transform_group = app.activeDocument.layers.getByName(LayerNames.TEXT_AND_ICONS).layers.getByName(LayerNames.TF_BACK);
+        var transform_group = app.activeDocument.layers.getByName(LayerNames.TEXT_AND_ICONS).layers.getByName(this.dfc_layer_group());
         transform_group.layers.getByName(this.layout.transform_icon).visible = true;
     },
     basic_text_layers: function (text_and_icons) {
@@ -693,7 +696,37 @@ var TransformBackTemplate = Class({
         }
 
         this.super(text_and_icons);
-    }
+    },
+});
+
+var TransformFrontTemplate = Class({
+    /**
+     * Template for the front faces of transform cards.
+     */
+
+    extends_: TransformBackTemplate,
+    template_file_name: function () {
+        return "tf-front";
+    },
+    dfc_layer_group: function () {
+        return LayerNames.TF_FRONT;
+    },
+    // TODO: select between the four possible rules text layers
+    constructor: function (layout, file, file_path) {
+        this.super(layout, file, file_path);
+
+        // if creature on back face, set flipside power/toughness
+        if (this.layout.other_face_power !== undefined && this.layout.other_face_toughness !== undefined) {
+            flipside_power_toughness = app.activeDocument.layers.getByName(LayerNames.TEXT_AND_ICONS).layers.getByName(LayerNames.FLIPSIDE_POWER_TOUGHNESS);
+            this.text_layers.push(
+                new TextField(
+                    layer = flipside_power_toughness,
+                    text_contents = this.layout.other_face_power.toString() + "/" + this.layout.other_face_toughness.toString(),
+                    text_colour = get_text_layer_colour(flipside_power_toughness),
+                )
+            );
+        };
+    },
 });
 
 var MutateTemplate = Class({
