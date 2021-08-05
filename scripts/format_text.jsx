@@ -204,6 +204,9 @@ function format_text(input_string, italics_strings, flavour_index, is_centred) {
      * @param {boolean} is_centred Whether or not the input text should be centre-justified
      */
 
+    // record the layer's justification before modifying the layer in case it's reset along the way
+    var layer_justification = app.activeDocument.activeLayer;
+
     // TODO: check that the active layer is a text layer, and raise an issue if not
     if (flavour_index > 0) {
         var quote_index = input_string.indexOf("\r", flavour_index + 3);
@@ -463,6 +466,9 @@ function format_text(input_string, italics_strings, flavour_index, is_centred) {
     idTxLr = charIDToTypeID("TxLr");
     desc119.putObject(idT, idTxLr, primary_action_descriptor);
     executeAction(idsetd, desc119, DialogModes.NO);
+
+    // Reset layer's justification
+    app.activeDocument.activeLayer.justification = layer_justification;
 }
 
 function generate_italics(card_text) {

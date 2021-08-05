@@ -10,7 +10,7 @@ function determine_card_face(scryfall, card_name) {
     } else if (scryfall.card_faces[1].name == card_name) {
         return Faces.BACK;
     }
-    throw new Error("Shit broke")
+    throw new Error("Shit broke");
 }
 
 /* Class definitions */
@@ -64,6 +64,9 @@ var BaseLayout = Class({
          */
 
         this.card_class = this.get_default_class();
+        if (this.get_default_class() === transform_front_class && this.face === Faces.BACK) {
+            this.card_class = transform_back_class;
+        }
         if (this.type_line.indexOf("Planeswalker") >= 0) {
             this.card_class = planeswalker_class;
         }

@@ -321,12 +321,14 @@ function create_new_layer(layer_name) {
 
 function array_index(array, thing) {
     /**
-     * Get the index of thing in array, since Extendscript doesn't come with this.
+     * Get the first index of thing in array, since Extendscript doesn't come with this.
      */
-
-    for (var i = 0; i < array.length; i++) {
-        if (array[i] === thing) {
-            return i;
+    
+    if (array !== null && array !== undefined) {
+        for (var i = 0; i < array.length; i++) {
+            if (array[i] === thing) {
+                return i;
+            }
         }
     }
     return -1;
