@@ -50,10 +50,10 @@ var BaseTemplate = Class({
         this.load_template(file_path);
 
         this.art_layer = app.activeDocument.layers.getByName(default_layer);
-        this.legal = app.activeDocument.layers.getByName("Legal");
+        this.legal = app.activeDocument.layers.getByName(LayerNames.LEGAL);
         this.text_layers = [
             new TextField(
-                layer = this.legal.layers.getByName("Artist"),
+                layer = this.legal.layers.getByName(LayerNames.ARTIST),
                 text_contents = this.layout.artist,
                 text_colour = rgb_white(),
             ),
@@ -158,23 +158,43 @@ var ChilliBaseTemplate = Class({
          * (scaled to not overlap with the expansion symbol).
          */
 
-        var name = text_and_icons.layers.getByName("Card Name");
-        if (this.name_shifted) {
-            name.visible = false;
-            name = text_and_icons.layers.getByName("Card Name Shift");
-            name.visible = true;
-        }
-        var mana_cost = text_and_icons.layers.getByName("Mana Cost");
-        var expansion_symbol = text_and_icons.layers.getByName("Expansion Symbol");
-        var type_line = text_and_icons.layers.getByName("Typeline");
-        if (this.typeline_shifted) {
-            type_line.visible = false;
-            type_line = text_and_icons.layers.getByName("Typeline Shift");
-            type_line.visible = true;
+        // shift name and type line if necessary (hiding the unused layer)
+        var name = text_and_icons.layers.getByName(LayerNames.NAME);
+        var name_selected = name;
+        try {
+            // handle errors for templates where name_shift does not exist
+            var name_shift = text_and_icons.layers.getByName(LayerNames.NAME_SHIFT);
+            if (this.name_shifted) {
+                name_selected = name_shift;
+                name.visible = false;
+                name_shift.visible = true;
+            } else {
+                name_shift.visible = false;
+                name.visible = true;
+            }
+        } catch (err) { }
 
-            // enable colour indicator dot
-            app.activeDocument.layers.getByName("Colour Indicator").layers.getByName(this.layout.pinlines).visible = true;
-        }
+        var type_line = text_and_icons.layers.getByName(LayerNames.TYPE_LINE);
+        var type_line_selected = type_line;
+        try {
+            // handle errors for templates where type_line_shift does not exist
+            var type_line_shift = text_and_icons.layers.getByName(LayerNames.TYPE_LINE_SHIFT);
+            if (this.type_line_shifted) {
+                type_line_selected = type_line_shift;
+                type_line.visible = false;
+                type_line_shift.visible = true;
+
+                // enable colour indicator dot
+                app.activeDocument.layers.getByName(LayerNames.COLOUR_INDICATOR).layers.getByName(this.layout.pinlines).visible = true;
+            } else {
+                type_line_shift.visible = false;
+                type_line.visible = true;
+            }
+        } catch (err) { }
+
+        var mana_cost = text_and_icons.layers.getByName(LayerNames.MANA_COST);
+        var expansion_symbol = text_and_icons.layers.getByName(LayerNames.EXPANSION_SYMBOL);
+
         this.text_layers = this.text_layers.concat([
             new BasicFormattedTextField(
                 layer = mana_cost,
@@ -182,9 +202,9 @@ var ChilliBaseTemplate = Class({
                 text_colour = rgb_black(),
             ),
             new ScaledTextField(
-                layer = name,
+                layer = name_selected,
                 text_contents = this.layout.name,
-                text_colour = get_text_layer_colour(name),
+                text_colour = get_text_layer_colour(name_selected),
                 reference_layer = mana_cost,
             ),
             new ExpansionSymbolField(
@@ -193,9 +213,9 @@ var ChilliBaseTemplate = Class({
                 rarity = this.layout.rarity,
             ),
             new ScaledTextField(
-                layer = type_line,
+                layer = type_line_selected,
                 text_contents = this.layout.type_line,
-                text_colour = get_text_layer_colour(type_line),
+                text_colour = get_text_layer_colour(type_line_selected),
                 reference_layer = expansion_symbol,
             ),
         ]);
@@ -210,9 +230,9 @@ var ChilliBaseTemplate = Class({
         enable_active_layer_mask();
         docref.activeLayer = pinlines;
         enable_active_layer_mask();
-        docref.activeLayer = docref.layers.getByName("Shadows");
+        docref.activeLayer = docref.layers.getByName(LayerNames.SHADOWS);
         enable_active_layer_mask();
-        docref.layers.getByName("Hollow Crown Shadow").visible = true;
+        docref.layers.getByName(LayerNames.HOLLOW_CROWN_SHADOW).visible = true;
     },
 
 })
@@ -236,13 +256,13 @@ var NormalTemplate = Class({
         // centre the rules text if the card has no flavour text, text is all on one line, and that line is fairly short
         var is_centred = this.layout.flavour_text.length <= 1 && this.layout.oracle_text.length <= 70 && this.layout.oracle_text.indexOf("\r") < 0;
 
-        var noncreature_signature = this.legal.layers.getByName("Noncreature MPC Autofill");
-        var creature_signature = this.legal.layers.getByName("Creature MPC Autofill");
+        var noncreature_signature = this.legal.layers.getByName(LayerNames.NONCREATURE_SIGNATURE);
+        var creature_signature = this.legal.layers.getByName(LayerNames.CREATURE_SIGNATURE);
 
-        var power_toughness = text_and_icons.layers.getByName("Power / Toughness");
+        var power_toughness = text_and_icons.layers.getByName(LayerNames.POWER_TOUGHNESS);
         if (this.is_creature) {
             // creature card - set up creature layer for rules text and insert power & toughness
-            var rules_text = text_and_icons.layers.getByName("Rules Text - Creature");
+            var rules_text = text_and_icons.layers.getByName(LayerNames.RULES_TEXT_CREATURE);
             this.text_layers = this.text_layers.concat([
                 new TextField(
                     layer = power_toughness,
@@ -254,10 +274,10 @@ var NormalTemplate = Class({
                     text_contents = this.layout.oracle_text,
                     text_colour = get_text_layer_colour(rules_text),
                     flavour_text = this.layout.flavour_text,
-                    reference_layer = text_and_icons.layers.getByName("Textbox Reference"),
                     is_centred = is_centred,
-                    pt_reference_layer = text_and_icons.layers.getByName("PT Adjustment Reference"),
-                    pt_top_reference_layer = text_and_icons.layers.getByName("PT Top Reference"),
+                    reference_layer = text_and_icons.layers.getByName(LayerNames.TEXTBOX_REFERENCE),
+                    pt_reference_layer = text_and_icons.layers.getByName(LayerNames.PT_REFERENCE),
+                    pt_top_reference_layer = text_and_icons.layers.getByName(LayerNames.PT_TOP_REFERENCE),
                 ),
             ]);
 
@@ -265,7 +285,7 @@ var NormalTemplate = Class({
             creature_signature.visible = true;
         } else {
             // noncreature card - use the normal rules text layer and disable the power/toughness layer
-            var rules_text = text_and_icons.layers.getByName("Rules Text - Noncreature");
+            var rules_text = text_and_icons.layers.getByName(LayerNames.RULES_TEXT_NONCREATURE);
             this.text_layers.push(
                 new FormattedTextArea(
                     layer = rules_text,
@@ -273,7 +293,7 @@ var NormalTemplate = Class({
                     text_colour = get_text_layer_colour(rules_text),
                     flavour_text = this.layout.flavour_text,
                     is_centred = is_centred,
-                    reference_layer = text_and_icons.layers.getByName("Textbox Reference"),
+                    reference_layer = text_and_icons.layers.getByName(LayerNames.TEXTBOX_REFERENCE),
                 ),
             );
 
@@ -285,18 +305,18 @@ var NormalTemplate = Class({
 
         var docref = app.activeDocument;
 
-        this.art_reference = docref.layers.getByName("Art Frame");
-        if (this.layout.is_colourless) this.art_reference = docref.layers.getByName("Full Art Frame");
+        this.art_reference = docref.layers.getByName(LayerNames.ART_FRAME);
+        if (this.layout.is_colourless) this.art_reference = docref.layers.getByName(LayerNames.FULL_ART_FRAME);
 
         this.is_creature = this.layout.power !== undefined && this.layout.toughness !== undefined;
         this.is_legendary = this.layout.type_line.indexOf("Legendary") >= 0;
         this.is_land = this.layout.type_line.indexOf("Land") >= 0;
-        this.is_companion = this.layout.frame_effects.indexOf("companion") >= 0;
+        this.is_companion = in_array(this.layout.frame_effects, "companion");
 
-        this.name_shifted = false;  // override and set this to true for transform cards
-        this.typeline_shifted = this.layout.colour_indicator !== null && this.layout.colour_indicator !== undefined;
+        this.name_shifted = this.layout.transform_icon !== null && this.layout.transform_icon !== undefined;
+        this.type_line_shifted = this.layout.colour_indicator !== null && this.layout.colour_indicator !== undefined;
 
-        var text_and_icons = docref.layers.getByName("Text and Icons");
+        var text_and_icons = docref.layers.getByName(LayerNames.TEXT_AND_ICONS);
         this.basic_text_layers(text_and_icons);
         this.rules_text_and_pt_layers(text_and_icons);
     },
@@ -304,39 +324,39 @@ var NormalTemplate = Class({
         var docref = app.activeDocument;
 
         // twins and pt box
-        var twins = docref.layers.getByName("Name & Title Boxes");
+        var twins = docref.layers.getByName(LayerNames.TWINS);
         twins.layers.getByName(this.layout.twins).visible = true;
         if (this.is_creature) {
-            var pt_box = docref.layers.getByName("PT Box");
+            var pt_box = docref.layers.getByName(LayerNames.PT_BOX);
             pt_box.layers.getByName(this.layout.twins).visible = true;
         }
 
         // pinlines
-        var pinlines = docref.layers.getByName("Pinlines & Textbox");
+        var pinlines = docref.layers.getByName(LayerNames.PINLINES_TEXTBOX);
         if (this.is_land) {
-            pinlines = docref.layers.getByName("Land Pinlines & Textbox");
+            pinlines = docref.layers.getByName(LayerNames.LAND_PINLINES_TEXTBOX);
         }
         pinlines.layers.getByName(this.layout.pinlines).visible = true;
 
         // background
-        var background = docref.layers.getByName("Background");
+        var background = docref.layers.getByName(LayerNames.BACKGROUND);
         if (this.layout.is_nyx) {
-            background = docref.layers.getByName("Nyx");
+            background = docref.layers.getByName(LayerNames.NYX);
         }
         background.layers.getByName(this.layout.background).visible = true;
 
         if (this.is_legendary) {
             // legendary crown
-            var crown = docref.layers.getByName("Legendary Crown");
+            var crown = docref.layers.getByName(LayerNames.LEGENDARY_CROWN);
             crown.layers.getByName(this.layout.pinlines).visible = true;
-            border = docref.layers.getByName("Border");
-            border.layers.getByName("Normal Border").visible = false;
-            border.layers.getByName("Legendary Border").visible = true;
+            border = docref.layers.getByName(LayerNames.BORDER);
+            border.layers.getByName(LayerNames.NORMAL_BORDER).visible = false;
+            border.layers.getByName(LayerNames.LEGENDARY_BORDER).visible = true;
         }
 
         if (this.is_companion) {
             // enable companion texture
-            var companion = docref.layers.getByName("Companion");
+            var companion = docref.layers.getByName(LayerNames.COMPANION);
             companion.layers.getByName(this.layout.pinlines).visible = true;
         }
 
@@ -391,23 +411,23 @@ var WomensDayTemplate = Class({
         var docref = app.activeDocument;
 
         // twins and pt box
-        var twins = docref.layers.getByName("Name & Title Boxes");
+        var twins = docref.layers.getByName(LayerNames.TWINS);
         twins.layers.getByName(this.layout.twins).visible = true;
         if (this.is_creature) {
-            var pt_box = docref.layers.getByName("PT Box");
+            var pt_box = docref.layers.getByName(LayerNames.PT_BOX);
             pt_box.layers.getByName(this.layout.twins).visible = true;
         }
 
         // pinlines
-        var pinlines = docref.layers.getByName("Pinlines & Textbox");
+        var pinlines = docref.layers.getByName(LayerNames.PINLINES_TEXTBOX);
         if (this.is_land) {
-            pinlines = docref.layers.getByName("Land Pinlines & Textbox");
+            pinlines = docref.layers.getByName(LayerNames.LAND_PINLINES_TEXTBOX);
         }
         pinlines.layers.getByName(this.layout.pinlines).visible = true;
 
         if (this.is_legendary) {
             // legendary crown
-            var crown = docref.layers.getByName("Legendary Crown");
+            var crown = docref.layers.getByName(LayerNames.LEGENDARY_CROWN);
             crown.layers.getByName(this.layout.pinlines).visible = true;
             docref.activeLayer = pinlines;
             enable_active_layer_mask();
@@ -459,8 +479,8 @@ var MasterpieceTemplate = Class({
         this.super();
         if (this.is_legendary) {
             // always enable hollow crown for legendary cards in this template
-            var crown = app.activeDocument.layers.getByName("Legendary Crown");
-            var pinlines = app.activeDocument.layers.getByName("Pinlines & Textbox");
+            var crown = app.activeDocument.layers.getByName(LayerNames.LEGENDARY_CROWN);
+            var pinlines = app.activeDocument.layers.getByName(LayerNames.PINLINES_TEXTBOX);
             this.enable_hollow_crown(crown, pinlines);
         }
     }
@@ -485,9 +505,9 @@ var ExpeditionTemplate = Class({
         this.super(layout, file, file_path);
     },
     basic_text_layers: function (text_and_icons) {
-        var name = text_and_icons.layers.getByName("Card Name");
-        var expansion_symbol = text_and_icons.layers.getByName("Expansion Symbol");
-        var type_line = text_and_icons.layers.getByName("Typeline");
+        var name = text_and_icons.layers.getByName(LayerNames.NAME);
+        var expansion_symbol = text_and_icons.layers.getByName(LayerNames.EXPANSION_SYMBOL);
+        var type_line = text_and_icons.layers.getByName(LayerNames.TYPE_LINE);
         this.text_layers = this.text_layers.concat([
             new TextField(
                 layer = name,
@@ -509,7 +529,7 @@ var ExpeditionTemplate = Class({
     },
     rules_text_and_pt_layers: function (text_and_icons) {
         // overriding this because the expedition template doesn't have power/toughness layers
-        var rules_text = text_and_icons.layers.getByName("Rules Text - Noncreature")
+        var rules_text = text_and_icons.layers.getByName(LayerNames.RULES_TEXT_NONCREATURE)
         this.text_layers.push(
             new FormattedTextArea(
                 layer = rules_text,
@@ -517,7 +537,7 @@ var ExpeditionTemplate = Class({
                 text_colour = get_text_layer_colour(rules_text),
                 flavour_text = this.layout.flavour_text,
                 is_centred = false,
-                reference_layer = text_and_icons.layers.getByName("Textbox Reference"),
+                reference_layer = text_and_icons.layers.getByName(LayerNames.TEXTBOX_REFERENCE),
             ),
         );
     },
@@ -525,22 +545,22 @@ var ExpeditionTemplate = Class({
         var docref = app.activeDocument;
 
         // twins and pt box
-        var twins = docref.layers.getByName("Name & Title Boxes");
+        var twins = docref.layers.getByName(LayerNames.TWINS);
         twins.layers.getByName(this.layout.twins).visible = true;
 
         // pinlines
-        var pinlines = docref.layers.getByName("Land Pinlines & Textbox");
+        var pinlines = docref.layers.getByName(LayerNames.LAND_PINLINES_TEXTBOX);
         pinlines.layers.getByName(this.layout.pinlines).visible = true;
 
         if (this.is_legendary) {
             // legendary crown
-            var crown = docref.layers.getByName("Legendary Crown");
+            var crown = docref.layers.getByName(LayerNames.LEGENDARY_CROWN);
             crown.layers.getByName(this.layout.pinlines).visible = true;
             docref.activeLayer = pinlines;
             enable_active_layer_mask();
-            border = docref.layers.getByName("Border");
-            border.layers.getByName("Normal Border").visible = false;
-            border.layers.getByName("Legendary Border").visible = true;
+            border = docref.layers.getByName(LayerNames.BORDER);
+            border.layers.getByName(LayerNames.NORMAL_BORDER).visible = false;
+            border.layers.getByName(LayerNames.LEGENDARY_BORDER).visible = true;
         }
     },
 });
@@ -556,9 +576,9 @@ var IxalanTemplate = Class({
     },
     basic_text_layers: function (text_and_icons) {
         // typeline doesn't scale down with expansion symbol, and no mana cost layer
-        var name = text_and_icons.layers.getByName("Card Name");
-        var expansion_symbol = text_and_icons.layers.getByName("Expansion Symbol");
-        var type_line = text_and_icons.layers.getByName("Typeline");
+        var name = text_and_icons.layers.getByName(LayerNames.NAME);
+        var expansion_symbol = text_and_icons.layers.getByName(LayerNames.EXPANSION_SYMBOL);
+        var type_line = text_and_icons.layers.getByName(LayerNames.TYPE_LINE);
         this.text_layers = this.text_layers.concat([
             new TextField(
                 layer = name,
@@ -579,7 +599,7 @@ var IxalanTemplate = Class({
     },
     rules_text_and_pt_layers: function (text_and_icons) {
         // overriding this because the ixalan template doesn't have power/toughness layers
-        var rules_text = text_and_icons.layers.getByName("Rules Text - Noncreature");
+        var rules_text = text_and_icons.layers.getByName(LayerNames.RULES_TEXT_NONCREATURE);
         this.text_layers.push(
             new FormattedTextArea(
                 layer = rules_text,
@@ -587,12 +607,12 @@ var IxalanTemplate = Class({
                 text_colour = get_text_layer_colour(rules_text),
                 flavour_text = this.layout.flavour_text,
                 is_centred = false,
-                reference_layer = text_and_icons.layers.getByName("Textbox Reference"),
+                reference_layer = text_and_icons.layers.getByName(LayerNames.TEXTBOX_REFERENCE),
             ),
         );
     },
     enable_frame_layers: function () {
-        var background = app.activeDocument.layers.getByName("Background");
+        var background = app.activeDocument.layers.getByName(LayerNames.BACKGROUND);
         background.layers.getByName(this.layout.background).visible = true;
     },
 });
@@ -621,7 +641,7 @@ var MiracleTemplate = new Class({
     },
     rules_text_and_pt_layers: function (text_and_icons) {
         // overriding this because the miracle template doesn't have power/toughness layers
-        var rules_text = text_and_icons.layers.getByName("Rules Text - Noncreature")
+        var rules_text = text_and_icons.layers.getByName(LayerNames.RULES_TEXT_NONCREATURE)
         this.text_layers.push(
             new FormattedTextArea(
                 layer = rules_text,
@@ -629,7 +649,7 @@ var MiracleTemplate = new Class({
                 text_colour = get_text_layer_colour(rules_text),
                 flavour_text = this.layout.flavour_text,
                 is_centred = false,
-                reference_layer = text_and_icons.layers.getByName("Textbox Reference"),
+                reference_layer = text_and_icons.layers.getByName(LayerNames.TEXTBOX_REFERENCE),
             ),
         );
     },
@@ -637,6 +657,44 @@ var MiracleTemplate = new Class({
 
 
 /* Templates similar to NormalTemplate with new features */
+
+var TransformBackTemplate = Class({
+    /**
+     * Template for the back faces of transform cards.
+     */
+
+    extends_: NormalTemplate,
+    template_file_name: function () {
+        return "tf-back";
+    },
+    constructor: function (layout, file, file_path) {
+        this.super(layout, file, file_path);
+        // set transform icon
+        var transform_group = app.activeDocument.layers.getByName(LayerNames.TEXT_AND_ICONS).layers.getByName(LayerNames.TF_BACK);
+        transform_group.layers.getByName(this.layout.transform_icon).visible = true;
+    },
+    basic_text_layers: function (text_and_icons) {
+        // if this is an eldrazi card, set the colour of the rules text, type line, and power/toughness to black
+        if (this.layout.transform_icon === LayerNames.MOON_ELDRAZI_DFC) {
+
+            var name = text_and_icons.layers.getByName(LayerNames.NAME);
+            if (this.name_shifted) {
+                name = text_and_icons.layers.getByName(LayerNames.NAME_SHIFT);
+            }
+            var type_line = text_and_icons.layers.getByName(LayerNames.TYPE_LINE);
+            if (this.type_line_shifted) {
+                type_line = text_and_icons.layers.getByName(LayerNames.TYPE_LINE_SHIFT);
+            }
+            var power_toughness = text_and_icons.layers.getByName(LayerNames.POWER_TOUGHNESS);
+
+            name.textItem.color = rgb_black();
+            type_line.textItem.color = rgb_black();
+            power_toughness.textItem.color = rgb_black();
+        }
+
+        this.super(text_and_icons);
+    }
+});
 
 var MutateTemplate = Class({
     /**
@@ -658,8 +716,8 @@ var MutateTemplate = Class({
         this.super(layout, file, file_path);
 
         var docref = app.activeDocument;
-        var text_and_icons = docref.layers.getByName("Text and Icons");
-        var mutate = text_and_icons.layers.getByName("Mutate");
+        var text_and_icons = docref.layers.getByName(LayerNames.TEXT_AND_ICONS);
+        var mutate = text_and_icons.layers.getByName(LayerNames.MUTATE);
         this.text_layers.push(
             new FormattedTextArea(
                 layer = mutate,
@@ -667,7 +725,7 @@ var MutateTemplate = Class({
                 text_colour = get_text_layer_colour(mutate),
                 flavour_text = this.layout.flavour_text,
                 is_centred = false,
-                reference_layer = text_and_icons.layers.getByName("Mutate Reference"),
+                reference_layer = text_and_icons.layers.getByName(LayerNames.MUTATE_REFERENCE),
             )
         );
     }
@@ -689,11 +747,11 @@ var AdventureTemplate = Class({
 
         // add adventure name, mana cost, type line, and rules text fields to this.text_layers
         var docref = app.activeDocument;
-        var text_and_icons = docref.layers.getByName("Text and Icons");
-        var name = text_and_icons.layers.getByName("Card Name - Adventure");
-        var mana_cost = text_and_icons.layers.getByName("Mana Cost - Adventure");
-        var rules_text = text_and_icons.layers.getByName("Rules Text - Adventure");
-        var type_line = text_and_icons.layers.getByName("Typeline - Adventure");
+        var text_and_icons = docref.layers.getByName(LayerNames.TEXT_AND_ICONS);
+        var name = text_and_icons.layers.getByName(LayerNames.NAME_ADVENTURE);
+        var mana_cost = text_and_icons.layers.getByName(LayerNames.MANA_COST_ADVENTURE);
+        var rules_text = text_and_icons.layers.getByName(LayerNames.RULES_TEXT_ADVENTURE);
+        var type_line = text_and_icons.layers.getByName(LayerNames.TYPE_LINE_ADVENTURE);
         this.text_layers = this.text_layers.concat([
             new BasicFormattedTextField(
                 layer = mana_cost,
@@ -712,7 +770,7 @@ var AdventureTemplate = Class({
                 text_colour = get_text_layer_colour(rules_text),
                 flavour_text = "",
                 is_centred = false,
-                reference_layer = text_and_icons.layers.getByName("Textbox Reference - Adventure"),
+                reference_layer = text_and_icons.layers.getByName(LayerNames.TEXTBOX_REFERENCE_ADVENTURE),
             ),
             new TextField(
                 layer = type_line,
@@ -739,8 +797,8 @@ var PlaneswalkerTemplate = Class({
 
         exit_early = true;
 
-        this.art_reference = app.activeDocument.layers.getByName("Planeswalker Art Frame");
-        if (this.layout.is_colourless) this.art_reference = app.activeDocument.layers.getByName("Full Art Frame");
+        this.art_reference = app.activeDocument.layers.getByName(LayerNames.PLANESWALKER_ART_FRAME);
+        if (this.layout.is_colourless) this.art_reference = app.activeDocument.layers.getByName(LayerNames.FULL_ART_FRAME);
 
         var ability_array = this.layout.oracle_text.split("\n");
         var num_abilities = 3;
@@ -750,20 +808,20 @@ var PlaneswalkerTemplate = Class({
         this.docref = app.activeDocument.layers.getByName("pw-" + num_abilities.toString());
         this.docref.visible = true;
 
-        var text_and_icons = this.docref.layers.getByName("Text and Icons");
+        var text_and_icons = this.docref.layers.getByName(LayerNames.TEXT_AND_ICONS);
         this.basic_text_layers(text_and_icons);
 
         // planeswalker ability layers
-        var group_names = ["First Ability", "Second Ability", "Third Ability", "Fourth Ability"];
-        var loyalty_group = this.docref.layers.getByName("Loyalty Graphics");
+        var group_names = [LayerNames.FIRST_ABILITY, LayerNames.SECOND_ABILITY, LayerNames.THIRD_ABILITY, LayerNames.FOURTH_ABILITY];
+        var loyalty_group = this.docref.layers.getByName(LayerNames.LOYALTY_GRAPHICS);
         var ability_group;
 
         for (var i = 0; i < ability_array.length; i++) {
             ability_group = loyalty_group.layers.getByName(group_names[i]);
 
             var ability_text = ability_array[i];
-            var static_text_layer = ability_group.layers.getByName("Static Text");
-            var ability_text_layer = ability_group.layers.getByName("Ability Text");
+            var static_text_layer = ability_group.layers.getByName(LayerNames.STATIC_TEXT);
+            var ability_text_layer = ability_group.layers.getByName(LayerNames.ABILITY_TEXT);
             var ability_layer = ability_text_layer;
             var colon_index = ability_text.indexOf(": ");
 
@@ -776,7 +834,7 @@ var PlaneswalkerTemplate = Class({
                 loyalty_graphic.visible = true;
                 this.text_layers.push(
                     new TextField(
-                        layer = loyalty_graphic.layers.getByName("Cost"),
+                        layer = loyalty_graphic.layers.getByName(LayerNames.COST),
                         text_contents = ability_text.slice(0, colon_index),
                         text_colour = rgb_white(),
                     )
@@ -802,7 +860,7 @@ var PlaneswalkerTemplate = Class({
         // starting loyalty
         this.text_layers.push(
             new TextField(
-                layer = loyalty_group.layers.getByName("Starting Loyalty").layers.getByName("Text"),
+                layer = loyalty_group.layers.getByName(LayerNames.STARTING_LOYALTY).layers.getByName(LayerNames.TEXT),
                 text_contents = this.layout.scryfall.loyalty,
                 text_colour = rgb_white(),
             ),
@@ -810,11 +868,11 @@ var PlaneswalkerTemplate = Class({
     },
     enable_frame_layers: function () {
         // twins and pt box
-        var twins = this.docref.layers.getByName("Name & Title Boxes");
+        var twins = this.docref.layers.getByName(LayerNames.TWINS);
         twins.layers.getByName(this.layout.twins).visible = true;
 
         // pinlines
-        var pinlines = this.docref.layers.getByName("Pinlines");
+        var pinlines = this.docref.layers.getByName(LayerNames.PINLINES);
         pinlines.layers.getByName(this.layout.pinlines).visible = true;
 
         // background
@@ -822,7 +880,7 @@ var PlaneswalkerTemplate = Class({
 
     },
     enable_background: function () {
-        var background = this.docref.layers.getByName("Background");
+        var background = this.docref.layers.getByName(LayerNames.BACKGROUND);
         background.layers.getByName(this.layout.background).visible = true;
     }
 });
@@ -851,15 +909,15 @@ var PlanarTemplate = Class({
         exit_early = true;
 
         var docref = app.activeDocument;
-        this.art_reference = docref.layers.getByName("Art Frame");
+        this.art_reference = docref.layers.getByName(LayerNames.ART_FRAME);
         // artist
-        replace_text(docref.layers.getByName("Legal").layers.getByName("Artist"), "Artist", this.layout.artist);
+        replace_text(docref.layers.getByName(LayerNames.LEGAL).layers.getByName(LayerNames.ARTIST), "Artist", this.layout.artist);
 
         // card name, type line, expansion symbol
-        var text_and_icons = docref.layers.getByName("Text and Icons");
-        var name = text_and_icons.layers.getByName("Card Name");
-        var type_line = text_and_icons.layers.getByName("Typeline");
-        var expansion_symbol = text_and_icons.layers.getByName("Expansion Symbol");
+        var text_and_icons = docref.layers.getByName(LayerNames.TEXT_AND_ICONS);
+        var name = text_and_icons.layers.getByName(LayerNames.NAME);
+        var type_line = text_and_icons.layers.getByName(LayerNames.TYPE_LINE);
+        var expansion_symbol = text_and_icons.layers.getByName(LayerNames.EXPANSION_SYMBOL);
 
         // note: overwriting this.text_layers because the paintbrush symbol is part of the artist text layer, so we inserted the
         // artist name separately earlier with replace_text(), and the artist usually comes for free with this.text_layers.
@@ -877,10 +935,10 @@ var PlanarTemplate = Class({
             )
         ];
 
-        var static_ability = text_and_icons.layers.getByName("Static Ability");
-        var chaos_ability = text_and_icons.layers.getByName("Chaos Ability");
+        var static_ability = text_and_icons.layers.getByName(LayerNames.STATIC_ABILITY);
+        var chaos_ability = text_and_icons.layers.getByName(LayerNames.CHAOS_ABILITY);
 
-        if (this.layout.type_line === "Phenomenon") {
+        if (this.layout.type_line === LayerNames.PHENOMENON) {
             // phenomenon card - insert oracle text into static ability layer and disable chaos ability & layer mask on textbox
             this.text_layers.push(
                 new BasicFormattedTextField(
@@ -889,10 +947,10 @@ var PlanarTemplate = Class({
                     text_colour = get_text_layer_colour(static_ability),
                 )
             );
-            var textbox = docref.layers.getByName("Textbox");
+            var textbox = docref.layers.getByName(LayerNames.TEXTBOX);
             docref.activeLayer = textbox;
             disable_active_layer_mask();
-            text_and_icons.layers.getByName("Chaos Symbol").visible = false;
+            text_and_icons.layers.getByName(LayerNames.CHAOS_SYMBOL).visible = false;
             chaos_ability.visible = false;
         } else {
             // plane card - split oracle text on last line break, insert everything before it into static ability layer and the rest
@@ -930,7 +988,7 @@ var BasicLandTemplate = Class({
     constructor: function (layout, file, file_path) {
         this.super(layout, file, file_path);
 
-        this.art_reference = app.activeDocument.layers.getByName("Basic Art Frame");
+        this.art_reference = app.activeDocument.layers.getByName(LayerNames.BASIC_ART_FRAME);
     },
     enable_frame_layers: function () {
         app.activeDocument.layers.getByName(this.layout.name).visible = true;

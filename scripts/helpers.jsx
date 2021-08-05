@@ -323,7 +323,7 @@ function array_index(array, thing) {
     /**
      * Get the first index of thing in array, since Extendscript doesn't come with this.
      */
-    
+
     if (array !== null && array !== undefined) {
         for (var i = 0; i < array.length; i++) {
             if (array[i] === thing) {

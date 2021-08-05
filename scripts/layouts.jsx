@@ -66,6 +66,9 @@ var BaseLayout = Class({
         this.card_class = this.get_default_class();
         if (this.get_default_class() === transform_front_class && this.face === Faces.BACK) {
             this.card_class = transform_back_class;
+            if (this.type_line.indexOf("Land") >= 0) {
+                this.card_class = ixalan_class;
+            }
         }
         if (this.type_line.indexOf("Planeswalker") >= 0) {
             this.card_class = planeswalker_class;

@@ -40,6 +40,87 @@ var LayerNames = {
     LAND: "Land",
     GOLD: "Gold",
     VEHICLE: "Vehicle",
+
+    // frame layer group names
+    PT_BOX: "PT Box",
+    TWINS: "Name & Title Boxes",
+    LEGENDARY_CROWN: "Legendary Crown",
+    PINLINES_TEXTBOX: "Pinlines & Textbox",
+    PINLINES: "Pinlines",
+    LAND_PINLINES_TEXTBOX: "Land Pinlines & Textbox",
+    COMPANION: "Companion",
+    BACKGROUND: "Background",
+    NYX: "Nyx",
+
+    // borders
+    BORDER: "Border",
+    NORMAL_BORDER: "Normal Border",
+    LEGENDARY_BORDER: "Legendary Border",
+
+    // shadows
+    SHADOWS: "Shadows",
+    HOLLOW_CROWN_SHADOW: "Hollow Crown Shadow",
+
+    // legal
+    LEGAL: "Legal",
+    ARTIST: "Artist",
+    NONCREATURE_SIGNATURE: "Noncreature MPC Autofill",
+    CREATURE_SIGNATURE: "Creature MPC Autofill",
+
+    // text and icons
+    TEXT_AND_ICONS: "Text and Icons",
+    NAME: "Card Name",
+    NAME_SHIFT: "Card Name Shift",
+    NAME_ADVENTURE: "Card Name - Adventure",
+    TYPE_LINE: "Typeline",
+    TYPE_LINE_SHIFT: "Typeline Shift",
+    TYPE_LINE_ADVENTURE: "Typeline - Adventure",
+    MANA_COST: "Mana Cost",
+    MANA_COST_ADVENTURE: "Mana Cost - Adventure",
+    EXPANSION_SYMBOL: "Expansion Symbol",
+    COLOUR_INDICATOR: "Colour Indicator",
+    POWER_TOUGHNESS: "Power / Toughness",
+    RULES_TEXT_NONCREATURE: "Rules Text - Noncreature",
+    RULES_TEXT_CREATURE: "Rules Text - Creature",
+    RULES_TEXT_ADVENTURE: "Rules Text - Adventure",
+    MUTATE: "Mutate",
+
+    // planar text and icons
+    STATIC_ABILITY: "Static Ability",
+    CHAOS_ABILITY: "Chaos Ability",
+    CHAOS_SYMBOL: "Chaos Symbol",
+    PHENOMENON: "Phenomenon",
+    TEXTBOX: "Textbox",
+
+    // textbox references
+    TEXTBOX_REFERENCE: "Textbox Reference",
+    TEXTBOX_REFERENCE_ADVENTURE: "Textbox Reference - Adventure",
+    MUTATE_REFERENCE: "Mutate Reference",
+    PT_REFERENCE: "PT Adjustment Reference",
+    PT_TOP_REFERENCE: "PT Top Reference",
+
+    // planeswalker
+    FIRST_ABILITY: "First Ability",
+    SECOND_ABILITY: "Second Ability",
+    THIRD_ABILITY: "Third Ability",
+    FOURTH_ABILITY: "Fourth Ability",
+    STARTING_LOYALTY: "Starting Loyalty",
+    LOYALTY_GRAPHICS: "Loyalty Graphics",
+    STATIC_TEXT: "Static Text",
+    ABILITY_TEXT: "Ability Text",
+    TEXT: "Text",
+    COST: "Cost",
+
+    // art frames
+    ART_FRAME: "Art Frame",
+    FULL_ART_FRAME: "Full Art Frame",
+    BASIC_ART_FRAME: "Basic Art Frame",
+    PLANESWALKER_ART_FRAME: "Planeswalker Art Frame",
+
+    // transform
+    TF_FRONT: "tf-front",
+    TF_BACK: "tf-back",
+    MOON_ELDRAZI_DFC: "mooneldrazidfc",
 };
 
 var default_layer = "Layer 1";

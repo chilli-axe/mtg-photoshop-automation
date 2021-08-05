@@ -270,7 +270,7 @@ var FormattedTextArea = Class({
     execute: function () {
         this.super();
 
-        if (this.text_contents !== "") {
+        if (this.text_contents !== "" || this.flavour_text !== "") {
             // resize the text until it fits into the reference layer
             scale_text_to_fit_reference(this.layer, this.reference_layer);
 
@@ -296,7 +296,7 @@ var CreatureFormattedTextArea = Class({
      */
 
     extends_: FormattedTextArea,
-    constructor: function (layer, text_contents, text_colour, flavour_text, reference_layer, is_centred, pt_reference_layer, pt_top_reference_layer) {
+    constructor: function (layer, text_contents, text_colour, flavour_text, is_centred, reference_layer, pt_reference_layer, pt_top_reference_layer) {
         this.super(layer, text_contents, text_colour, flavour_text, is_centred, reference_layer);
         this.pt_reference_layer = pt_reference_layer;
         this.pt_top_reference_layer = pt_top_reference_layer;

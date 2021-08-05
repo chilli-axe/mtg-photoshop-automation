@@ -77,7 +77,10 @@ function select_template(layout, file, file_path) {
         ],
     };
     class_template_map[transform_front_class] = {};
-    class_template_map[transform_back_class] = {};
+    class_template_map[transform_back_class] = {
+        default_: TransformBackTemplate,
+        other: [],
+    };
     class_template_map[ixalan_class] = {
         default_: IxalanTemplate,
         other: [],
