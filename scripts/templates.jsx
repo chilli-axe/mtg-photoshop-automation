@@ -711,12 +711,12 @@ var TransformFrontTemplate = Class({
     dfc_layer_group: function () {
         return LayerNames.TF_FRONT;
     },
-    // TODO: select between the four possible rules text layers
     constructor: function (layout, file, file_path) {
+        this.other_face_is_creature = layout.other_face_power !== undefined && layout.other_face_toughness !== undefined;
         this.super(layout, file, file_path);
 
         // if creature on back face, set flipside power/toughness
-        if (this.layout.other_face_power !== undefined && this.layout.other_face_toughness !== undefined) {
+        if (this.other_face_is_creature) {
             flipside_power_toughness = app.activeDocument.layers.getByName(LayerNames.TEXT_AND_ICONS).layers.getByName(LayerNames.FLIPSIDE_POWER_TOUGHNESS);
             this.text_layers.push(
                 new TextField(
@@ -726,6 +726,62 @@ var TransformFrontTemplate = Class({
                 )
             );
         };
+    },
+    rules_text_and_pt_layers: function (text_and_icons) {
+        // overriding to select one of the four rules text layers
+
+        // centre the rules text if the card has no flavour text, text is all on one line, and that line is fairly short
+        var is_centred = this.layout.flavour_text.length <= 1 && this.layout.oracle_text.length <= 70 && this.layout.oracle_text.indexOf("\r") < 0;
+
+        var noncreature_signature = this.legal.layers.getByName(LayerNames.NONCREATURE_SIGNATURE);
+        var creature_signature = this.legal.layers.getByName(LayerNames.CREATURE_SIGNATURE);
+
+        var power_toughness = text_and_icons.layers.getByName(LayerNames.POWER_TOUGHNESS);
+        if (this.is_creature) {
+            // creature card - set up creature layer for rules text and insert power & toughness
+            var rules_text = text_and_icons.layers.getByName(LayerNames.RULES_TEXT_CREATURE);
+            if (this.other_face_is_creature) {
+                rules_text = text_and_icons.layers.getByName(LayerNames.RULES_TEXT_CREATURE_FLIP);
+            }
+            this.text_layers = this.text_layers.concat([
+                new TextField(
+                    layer = power_toughness,
+                    text_contents = this.layout.power.toString() + "/" + this.layout.toughness.toString(),
+                    text_colour = get_text_layer_colour(power_toughness),
+                ),
+                new CreatureFormattedTextArea(
+                    layer = rules_text,
+                    text_contents = this.layout.oracle_text,
+                    text_colour = get_text_layer_colour(rules_text),
+                    flavour_text = this.layout.flavour_text,
+                    is_centred = is_centred,
+                    reference_layer = text_and_icons.layers.getByName(LayerNames.TEXTBOX_REFERENCE),
+                    pt_reference_layer = text_and_icons.layers.getByName(LayerNames.PT_REFERENCE),
+                    pt_top_reference_layer = text_and_icons.layers.getByName(LayerNames.PT_TOP_REFERENCE),
+                ),
+            ]);
+
+            noncreature_signature.visible = false;
+            creature_signature.visible = true;
+        } else {
+            // noncreature card - use the normal rules text layer and disable the power/toughness layer
+            var rules_text = text_and_icons.layers.getByName(LayerNames.RULES_TEXT_NONCREATURE);
+            if (this.other_face_is_creature) {
+                rules_text = text_and_icons.layers.getByName(LayerNames.RULES_TEXT_NONCREATURE_FLIP);
+            }
+            this.text_layers.push(
+                new FormattedTextArea(
+                    layer = rules_text,
+                    text_contents = this.layout.oracle_text,
+                    text_colour = get_text_layer_colour(rules_text),
+                    flavour_text = this.layout.flavour_text,
+                    is_centred = is_centred,
+                    reference_layer = text_and_icons.layers.getByName(LayerNames.TEXTBOX_REFERENCE),
+                ),
+            );
+
+            power_toughness.visible = false;
+        }
     },
 });
 

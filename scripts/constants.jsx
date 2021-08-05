@@ -82,7 +82,9 @@ var LayerNames = {
     POWER_TOUGHNESS: "Power / Toughness",
     FLIPSIDE_POWER_TOUGHNESS: "Flipside Power / Toughness",
     RULES_TEXT_NONCREATURE: "Rules Text - Noncreature",
+    RULES_TEXT_NONCREATURE_FLIP: "Rules Text - Noncreature Flip",
     RULES_TEXT_CREATURE: "Rules Text - Creature",
+    RULES_TEXT_CREATURE_FLIP: "Rules Text - Creature Flip",
     RULES_TEXT_ADVENTURE: "Rules Text - Adventure",
     MUTATE: "Mutate",
 
