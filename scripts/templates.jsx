@@ -105,19 +105,7 @@ var BaseTemplate = Class({
          * Loads the specified art file into the specified layer.
          */
 
-        var prev_active_layer = app.activeDocument.activeLayer;
-
-        app.activeDocument.activeLayer = this.art_layer;
-        app.load(this.file);
-        // note context switch to art file
-        app.activeDocument.selection.selectAll();
-        app.activeDocument.selection.copy();
-        app.activeDocument.close(SaveOptions.DONOTSAVECHANGES);
-        // note context switch back to template
-        app.activeDocument.paste();
-
-        // return document to previous state
-        app.activeDocument.activeLayer = prev_active_layer;
+        paste_file(this.art_layer, this.file);
     },
     execute: function () {
         /**
@@ -234,7 +222,18 @@ var ChilliBaseTemplate = Class({
         enable_active_layer_mask();
         docref.layers.getByName(LayerNames.HOLLOW_CROWN_SHADOW).visible = true;
     },
+    paste_scryfall_scan: function (reference_layer, file_path, rotate) {
+        /**
+         * Downloads the card's scryfall scan, pastes it into the document next to the active layer, and frames it to fill
+         * the given reference layer. Can optionally rotate the layer by 90 degrees (useful for planar cards).
+         */
 
+        var layer = insert_scryfall_scan(this.layout.scryfall_scan, file_path);
+        if (rotate === true) {
+            layer.rotate(90);
+        }
+        frame_layer(layer, reference_layer);
+    }
 })
 
 var NormalTemplate = Class({
@@ -1006,6 +1005,10 @@ var PlaneswalkerTemplate = Class({
                 text_colour = rgb_white(),
             ),
         );
+
+        // paste scryfall scan
+        app.activeDocument.activeLayer = this.docref.layers.getByName(LayerNames.TEXTBOX);
+        this.paste_scryfall_scan(app.activeDocument.layers.getByName(LayerNames.SCRYFALL_SCAN_FRAME), file_path);
     },
     enable_frame_layers: function () {
         // twins and pt box
@@ -1041,7 +1044,7 @@ var PlaneswalkerExtendedTemplate = Class({
 /* Misc. templates */
 
 var PlanarTemplate = Class({
-    extends_: BaseTemplate,
+    extends_: ChilliBaseTemplate,
     template_file_name: function () {
         return "planar";
     },
@@ -1110,6 +1113,10 @@ var PlanarTemplate = Class({
                 ),
             ]);
         }
+
+        // paste scryfall scan
+        app.activeDocument.activeLayer = docref.layers.getByName(LayerNames.TEXTBOX);
+        this.paste_scryfall_scan(app.activeDocument.layers.getByName(LayerNames.SCRYFALL_SCAN_FRAME), file_path, true);
     },
     enable_frame_layers: function () { },
 });

@@ -121,9 +121,7 @@ function frame_layer(layer, reference_layer) {
 
     // Determine how much to scale the layer by such that it fits into the reference layer's bounds
     var scale_factor = 100 * Math.max(reference_dimensions.width / layer_dimensions.width, reference_dimensions.height / layer_dimensions.height);
-
     layer.resize(scale_factor, scale_factor, AnchorPosition.TOPLEFT);
-    layer.move(app.activeDocument, ElementPlacement.PLACEATEND);  // activeDocument -> app.activeDocument
 
     select_layer_pixels(reference_layer);
     app.activeDocument.activeLayer = layer;
@@ -379,4 +377,58 @@ function replace_text(layer, replace_this, replace_with) {
     var idfindReplace = stringIDToTypeID("findReplace");
     desc22.putObject(idUsng, idfindReplace, desc23);
     executeAction(idreplace, desc22, DialogModes.NO);
+}
+
+function paste_file(layer, file) {
+    /**
+     * Pastes the given file into the specified layer.
+     */
+
+    var prev_active_layer = app.activeDocument.activeLayer;
+    app.activeDocument.activeLayer = layer;
+    app.load(file);
+    // note context switch to art file
+    app.activeDocument.selection.selectAll();
+    app.activeDocument.selection.copy();
+    app.activeDocument.close(SaveOptions.DONOTSAVECHANGES);
+    // note context switch back to template
+    app.activeDocument.paste();
+
+    // return document to previous state
+    app.activeDocument.activeLayer = prev_active_layer;
+}
+
+function paste_file_into_new_layer(file) {
+    /**
+     * Wrapper for paste_file which creates a new layer for the file next to the active layer. Returns the new layer.
+     */
+
+    var new_layer = create_new_layer("New Layer");
+    paste_file(new_layer, file);
+    return new_layer;
+}
+
+function retrieve_scryfall_scan(image_url, file_path) {
+    /**
+     * Calls the Python script which queries Scryfall for full-res scan and saves the resulting jpeg to disk in \scripts.
+     * Returns a File object for the scan if the Python call was successful, or raises an error if it wasn't.
+     */
+
+    // default to Windows command
+    var python_command = "python \"" + file_path + "/scripts/get_card_scan.py\" \"" + image_url + "\"";
+    if ($.os.search(/windows/i) === -1) {
+        // macOS
+        python_command = "/usr/local/bin/python3 \"" + file_path + "/scripts/get_card_scan.py\" \"" + card_name + "\" >> " + file_path + "/scripts/debug.log 2>&1";
+    }
+    app.system(python_command);
+    return new File(file_path + image_file_path);
+}
+
+function insert_scryfall_scan(image_url, file_path) {
+    /**
+     * Downloads the specified scryfall scan and inserts it into a new layer next to the active layer. Returns the new layer.
+     */
+
+    var scryfall_scan = retrieve_scryfall_scan(image_url, file_path);
+    return paste_file_into_new_layer(scryfall_scan);
 }

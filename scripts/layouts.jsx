@@ -101,6 +101,8 @@ var NormalLayout = Class({
         this.toughness = this.scryfall.toughness;
         this.colour_indicator = this.scryfall.color_indicator;  // comes as an array from scryfall
 
+        this.scryfall_scan = this.scryfall.image_uris.large;
+
         this.super();
     },
     get_default_class: function () {
@@ -130,6 +132,8 @@ var TransformLayout = Class({
         this.other_face_toughness = this.scryfall.card_faces[this.other_face].toughness;
         this.colour_indicator = this.scryfall.card_faces[this.face].color_indicator;  // comes as an array from scryfall
         this.transform_icon = this.scryfall.frame_effects[0];  // TODO: safe to assume the first frame effect will be the transform icon?
+
+        this.scryfall_scan = this.scryfall.card_faces[this.face].image_uris.large;
 
         this.super();
     },
@@ -218,6 +222,8 @@ var ModalDoubleFacedLayout = Class({
             this.other_face_right = other_face_mana_text.split(".")[0] + ".";
         }
 
+        this.scryfall_scan = this.scryfall.card_faces[this.face].image_uris.large;
+
         this.super();
     },
     get_default_class: function () {
@@ -249,6 +255,8 @@ var AdventureLayout = Class({
         this.rarity = this.scryfall.rarity;
         this.artist = this.scryfall.artist;
 
+        this.scryfall_scan = this.scryfall.image_uris.large;
+
         this.super();
     },
     get_default_class: function () {
@@ -266,6 +274,8 @@ var PlanarLayout = Class({
         this.rarity = this.scryfall.rarity;
         this.artist = this.scryfall.artist;
         // TODO: save scryfall json fields as properties
+
+        this.scryfall_scan = this.scryfall.image_uris.large;
 
         this.super();
     },

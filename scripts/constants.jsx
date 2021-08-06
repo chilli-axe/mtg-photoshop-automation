@@ -1,6 +1,7 @@
 // TODO: consistency between camelcase and snakecase
 
 var json_file_path = "/scripts/card.json";
+var image_file_path = "/scripts/card.jpg";
 
 // Card classes - finer grained than Scryfall layouts
 var normal_class = "normal";
@@ -119,6 +120,7 @@ var LayerNames = {
     FULL_ART_FRAME: "Full Art Frame",
     BASIC_ART_FRAME: "Basic Art Frame",
     PLANESWALKER_ART_FRAME: "Planeswalker Art Frame",
+    SCRYFALL_SCAN_FRAME: "Scryfall Scan Frame",
 
     // transform
     TF_FRONT: "tf-front",
