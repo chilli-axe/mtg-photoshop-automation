@@ -10,6 +10,6 @@ for (var n = 0; n < files.length; n++) {
     var file = files[n];
     // Ensure the image can be proxied, then do it
     if (file.constructor != Folder && file.name != ".DS_Store") {
-        proxy_(file);
+        proxy(file);
     }
 }
