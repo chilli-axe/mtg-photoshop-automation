@@ -11,7 +11,7 @@ function fixColourPair(input) {
 }
 
 function select_frame_layers(mana_cost, type_line, oracle_text, colour_identity_array) {
-    // return [selectedBackground, selectedPinlines, selectedNamebox, isNyx, colourless];
+    // return [selectedBackground, selectedPinlines, selectedNamebox, colourless];
 
     const colours = ["W", "U", "B", "R", "G"];
     const basicColours = { "Plains": "W", "Island": "U", "Swamp": "B", "Mountain": "R", "Forest": "G" };
@@ -45,7 +45,6 @@ function select_frame_layers(mana_cost, type_line, oracle_text, colour_identity_
                 background: "Land",
                 pinlines: basicIdentity,
                 twins: "Land",
-                is_nyx: false,
                 is_colourless: false,
             };
         }
@@ -78,7 +77,6 @@ function select_frame_layers(mana_cost, type_line, oracle_text, colour_identity_
                         background: "Land",
                         pinlines: basicIdentity,
                         twins: basicIdentity,
-                        is_nyx: false,
                         is_colourless: false,
                     };
                 } else if (basicIdentity.length == 2) {
@@ -88,7 +86,6 @@ function select_frame_layers(mana_cost, type_line, oracle_text, colour_identity_
                         background: "Land",
                         pinlines: basicIdentity,
                         twins: "Land",
-                        is_nyx: false,
                         is_colourless: false,
                     };
                 } else if (basicIdentity.length == 3) {
@@ -97,7 +94,6 @@ function select_frame_layers(mana_cost, type_line, oracle_text, colour_identity_
                         background: "Land",
                         pinlines: "Land",
                         twins: "Land",
-                        is_nyx: false,
                         is_colourless: false,
                     };
                 } else if (line.indexOf("land") >= 0) {
@@ -108,7 +104,6 @@ function select_frame_layers(mana_cost, type_line, oracle_text, colour_identity_
                             background: "Land",
                             pinlines: "Gold",
                             twins: "Gold",
-                            is_nyx: false,
                             is_colourless: false,
                         };
                     } else {
@@ -117,7 +112,6 @@ function select_frame_layers(mana_cost, type_line, oracle_text, colour_identity_
                             background: "Land",
                             pinlines: "Land",
                             twins: "Land",
-                            is_nyx: false,
                             is_colourless: false,
                         };
                     }
@@ -139,7 +133,6 @@ function select_frame_layers(mana_cost, type_line, oracle_text, colour_identity_
                         background: "Land",
                         pinlines: "Gold",
                         twins: "Gold",
-                        is_nyx: false,
                         is_colourless: false,
                     };
                 }
@@ -181,7 +174,6 @@ function select_frame_layers(mana_cost, type_line, oracle_text, colour_identity_
             background: "Land",
             pinlines: selectedPinlines,
             twins: selectedNamebox,
-            is_nyx: false,
             is_colourless: false,
         };
     }
@@ -245,7 +237,6 @@ function select_frame_layers(mana_cost, type_line, oracle_text, colour_identity_
                 background: selectedBackground,
                 pinlines: selectedPinlines,
                 twins: selectedNamebox,
-                is_nyx: false,
                 is_colourless: true,
             };
         }
@@ -295,18 +286,11 @@ function select_frame_layers(mana_cost, type_line, oracle_text, colour_identity_
             selectedNamebox = "Gold";
         }
 
-        // Identify if the card is nyx-touched
-        var isNyx = false;
-        if (type_line.indexOf("Enchantment") >= 0 && (type_line.indexOf("Creature") >= 0 || type_line.indexOf("Artifact") >= 0)) {
-            isNyx = true;
-        }
-
         // Finally, return the selected layers
         return {
             background: selectedBackground,
             pinlines: selectedPinlines,
             twins: selectedNamebox,
-            is_nyx: isNyx,
             is_colourless: false,
         };
     }

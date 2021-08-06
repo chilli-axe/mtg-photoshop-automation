@@ -33,7 +33,7 @@ var BaseLayout = Class({
         this.twins = ret.twins;
         this.pinlines = ret.pinlines;
         this.background = ret.background;
-        this.is_nyx = ret.is_nyx;  // TODO: determine from frame_effects
+        this.is_nyx = in_array(this.frame_effects, "nyxtouched")
         this.is_colourless = ret.is_colourless;
     },
     unpack_scryfall: function () {
@@ -46,11 +46,11 @@ var BaseLayout = Class({
         this.rarity = this.scryfall.rarity;
         this.artist = this.scryfall.artist;
         this.colour_identity = this.scryfall.color_identity;
-        this.keywords = "";
+        this.keywords = [];
         if (this.scryfall.keywords !== undefined) {
             this.keywords = this.scryfall.keywords;
         }
-        this.frame_effects = "";
+        this.frame_effects = [];
         if (this.scryfall.frame_effects !== undefined) {
             this.frame_effects = this.scryfall.frame_effects;
         }
