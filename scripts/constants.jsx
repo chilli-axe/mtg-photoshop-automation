@@ -123,7 +123,15 @@ var LayerNames = {
     // transform
     TF_FRONT: "tf-front",
     TF_BACK: "tf-back",
+    MDFC_FRONT: "mdfc-front",
+    MDFC_BACK: "mdfc-back",
     MOON_ELDRAZI_DFC: "mooneldrazidfc",
+
+    // mdfc
+    TOP: "Top",
+    BOTTOM: "Bottom",
+    LEFT: "Left",
+    RIGHT: "Right",
 };
 
 var default_layer = "Layer 1";

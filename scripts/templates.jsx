@@ -565,58 +565,6 @@ var ExpeditionTemplate = Class({
     },
 });
 
-var IxalanTemplate = Class({
-    /**
-     * Template for the back faces of transforming cards from Ixalan block.
-     */
-
-    extends_: NormalTemplate,
-    template_file_name: function () {
-        return "ixalan";
-    },
-    basic_text_layers: function (text_and_icons) {
-        // typeline doesn't scale down with expansion symbol, and no mana cost layer
-        var name = text_and_icons.layers.getByName(LayerNames.NAME);
-        var expansion_symbol = text_and_icons.layers.getByName(LayerNames.EXPANSION_SYMBOL);
-        var type_line = text_and_icons.layers.getByName(LayerNames.TYPE_LINE);
-        this.text_layers = this.text_layers.concat([
-            new TextField(
-                layer = name,
-                text_contents = this.layout.name,
-                text_colour = get_text_layer_colour(name),
-            ),
-            new ExpansionSymbolField(
-                layer = expansion_symbol,
-                text_contents = expansion_symbol_character,
-                rarity = this.layout.rarity,
-            ),
-            new TextField(
-                layer = type_line,
-                text_contents = this.layout.type_line,
-                text_colour = get_text_layer_colour(type_line),
-            ),
-        ]);
-    },
-    rules_text_and_pt_layers: function (text_and_icons) {
-        // overriding this because the ixalan template doesn't have power/toughness layers
-        var rules_text = text_and_icons.layers.getByName(LayerNames.RULES_TEXT_NONCREATURE);
-        this.text_layers.push(
-            new FormattedTextArea(
-                layer = rules_text,
-                text_contents = this.layout.oracle_text,
-                text_colour = get_text_layer_colour(rules_text),
-                flavour_text = this.layout.flavour_text,
-                is_centred = false,
-                reference_layer = text_and_icons.layers.getByName(LayerNames.TEXTBOX_REFERENCE),
-            ),
-        );
-    },
-    enable_frame_layers: function () {
-        var background = app.activeDocument.layers.getByName(LayerNames.BACKGROUND);
-        background.layers.getByName(this.layout.background).visible = true;
-    },
-});
-
 var SnowTemplate = Class({
     /**
      * A snow template with textures from Kaldheim's snow cards. The layer structure of this template and NormalTemplate are identical.
@@ -656,7 +604,7 @@ var MiracleTemplate = new Class({
 });
 
 
-/* Templates similar to NormalTemplate with new features */
+/* Double-faced card templates */
 
 var TransformBackTemplate = Class({
     /**
@@ -679,7 +627,6 @@ var TransformBackTemplate = Class({
     basic_text_layers: function (text_and_icons) {
         // if this is an eldrazi card, set the colour of the rules text, type line, and power/toughness to black
         if (this.layout.transform_icon === LayerNames.MOON_ELDRAZI_DFC) {
-
             var name = text_and_icons.layers.getByName(LayerNames.NAME);
             if (this.name_shifted) {
                 name = text_and_icons.layers.getByName(LayerNames.NAME_SHIFT);
@@ -784,6 +731,111 @@ var TransformFrontTemplate = Class({
         }
     },
 });
+
+var IxalanTemplate = Class({
+    /**
+     * Template for the back faces of transforming cards from Ixalan block.
+     */
+
+    extends_: NormalTemplate,
+    template_file_name: function () {
+        return "ixalan";
+    },
+    basic_text_layers: function (text_and_icons) {
+        // typeline doesn't scale down with expansion symbol, and no mana cost layer
+        var name = text_and_icons.layers.getByName(LayerNames.NAME);
+        var expansion_symbol = text_and_icons.layers.getByName(LayerNames.EXPANSION_SYMBOL);
+        var type_line = text_and_icons.layers.getByName(LayerNames.TYPE_LINE);
+        this.text_layers = this.text_layers.concat([
+            new TextField(
+                layer = name,
+                text_contents = this.layout.name,
+                text_colour = get_text_layer_colour(name),
+            ),
+            new ExpansionSymbolField(
+                layer = expansion_symbol,
+                text_contents = expansion_symbol_character,
+                rarity = this.layout.rarity,
+            ),
+            new TextField(
+                layer = type_line,
+                text_contents = this.layout.type_line,
+                text_colour = get_text_layer_colour(type_line),
+            ),
+        ]);
+    },
+    rules_text_and_pt_layers: function (text_and_icons) {
+        // overriding this because the ixalan template doesn't have power/toughness layers
+        var rules_text = text_and_icons.layers.getByName(LayerNames.RULES_TEXT_NONCREATURE);
+        this.text_layers.push(
+            new FormattedTextArea(
+                layer = rules_text,
+                text_contents = this.layout.oracle_text,
+                text_colour = get_text_layer_colour(rules_text),
+                flavour_text = this.layout.flavour_text,
+                is_centred = false,
+                reference_layer = text_and_icons.layers.getByName(LayerNames.TEXTBOX_REFERENCE),
+            ),
+        );
+    },
+    enable_frame_layers: function () {
+        var background = app.activeDocument.layers.getByName(LayerNames.BACKGROUND);
+        background.layers.getByName(this.layout.background).visible = true;
+    },
+});
+
+var MDFCBackTemplate = Class({
+    /**
+     * Template for the back faces of modal double faced cards.
+     */
+
+    extends_: NormalTemplate,
+    template_file_name: function () {
+        return "mdfc-back";
+    },
+    dfc_layer_group: function () {
+        return LayerNames.MDFC_BACK;
+    },
+    constructor: function (layout, file, file_path) {
+        this.super(layout, file, file_path);
+        // set visibility of top & bottom mdfc elements and set text of left & right text
+        var mdfc_group = app.activeDocument.layers.getByName(LayerNames.TEXT_AND_ICONS).layers.getByName(this.dfc_layer_group());
+        mdfc_group.layers.getByName(LayerNames.TOP).layers.getByName(this.layout.twins).visible = true;
+        mdfc_group.layers.getByName(LayerNames.BOTTOM).layers.getByName(this.layout.other_face_twins).visible = true;
+        var left = mdfc_group.layers.getByName(LayerNames.LEFT);
+        var right = mdfc_group.layers.getByName(LayerNames.RIGHT);
+        this.text_layers = this.text_layers.concat([
+            new BasicFormattedTextField(
+                layer = right,
+                text_contents = this.layout.other_face_right,
+                text_colour = get_text_layer_colour(right),
+            ),
+            new ScaledTextField(
+                layer = left,
+                text_contents = this.layout.other_face_left,
+                text_colour = get_text_layer_colour(left),
+                reference_layer = right,
+            ),
+        ]);
+
+    },
+});
+
+var MDFCFrontTemplate = Class({
+    /**
+     * Template for the front faces of modal double faced cards.
+     */
+
+    extends_: MDFCBackTemplate,
+    template_file_name: function () {
+        return "mdfc-front";
+    },
+    dfc_layer_group: function () {
+        return LayerNames.MDFC_FRONT;
+    },
+});
+
+/* Templates similar to NormalTemplate with new features */
 
 var MutateTemplate = Class({
     /**

@@ -69,8 +69,10 @@ var BaseLayout = Class({
             if (this.type_line.indexOf("Land") >= 0) {
                 this.card_class = ixalan_class;
             }
+        } else if (this.get_default_class() === mdfc_front_class && this.face === Faces.BACK) {
+            this.card_class = mdfc_back_class;
         }
-        if (this.type_line.indexOf("Planeswalker") >= 0) {
+        else if (this.type_line.indexOf("Planeswalker") >= 0) {
             this.card_class = planeswalker_class;
         }
         else if (this.type_line.indexOf("Snow") >= 0) {  // frame_effects doesn't contain "snow" for pre-KHM snow cards
@@ -172,9 +174,49 @@ var ModalDoubleFacedLayout = Class({
     unpack_scryfall: function () {
         // TODO: determine which face the card we're dealing with belongs to
 
-        this.face = determine_card_face(scryfall, card_name);
+        this.face = determine_card_face(this.scryfall, this.card_name_raw);
+        this.other_face = -1 * (this.face - 1);
 
-        // TODO: save scryfall json fields as properties
+        this.name = this.scryfall.card_faces[this.face].name;
+        this.mana_cost = this.scryfall.card_faces[this.face].mana_cost;
+        this.type_line = this.scryfall.card_faces[this.face].type_line;
+        this.oracle_text = this.scryfall.card_faces[this.face].oracle_text.replace(/\u2212/g, "-");  // for planeswalkers
+        this.flavour_text = "";
+        if (this.scryfall.card_faces[this.face].flavor_text !== undefined) {
+            this.flavour_text = this.scryfall.card_faces[this.face].flavor_text;
+        }
+        this.power = this.scryfall.card_faces[this.face].power;
+        this.toughness = this.scryfall.card_faces[this.face].toughness;
+        this.colour_indicator = this.scryfall.card_faces[this.face].color_indicator;  // comes as an array from scryfall
+        this.transform_icon = "modal_dfc";  // set here so the card name is shifted
+
+        // mdfc banner things
+        this.other_face_twins = select_frame_layers(
+            this.scryfall.card_faces[this.other_face].mana_cost,
+            this.scryfall.card_faces[this.other_face].type_line,
+            this.scryfall.card_faces[this.other_face].oracle_text,
+            this.scryfall.card_faces[this.other_face].color_identity,
+        ).twins;
+        var other_face_type_line_split = this.scryfall.card_faces[this.other_face].type_line.split(" ");
+        this.other_face_left = other_face_type_line_split[other_face_type_line_split.length - 1];
+        this.other_face_right = this.scryfall.card_faces[this.other_face].mana_cost;
+        if (this.scryfall.card_faces[this.other_face].type_line.indexOf("Land") >= 0) {
+            // other face is a land - right MDFC banner text should say what colour of mana the land taps for
+            var other_face_oracle_text_split = this.scryfall.card_faces[this.other_face].oracle_text.split("\n");
+            var other_face_mana_text = this.scryfall.card_faces[this.other_face].oracle_text;
+            if (other_face_oracle_text_split.length > 1) {
+                // iterate over rules text lines until the line that adds mana is identified
+                for (var i = 0; i < other_face_oracle_text_split.length; i++) {
+                    if (other_face_oracle_text_split[i].slice(0, 3) === "{T}") {
+                        other_face_mana_text = other_face_oracle_text_split[i];
+                        break;
+                    }
+                }
+            }
+            // truncate anything in the mana text after the first sentence (e.g. "{T}: Add {G}. You lose 2 life." -> "{T}: Add {G}.")
+            // not necessary as of 06/08/21 but figured it was reasonable future proofing
+            this.other_face_right = other_face_mana_text.split(".")[0] + ".";
+        }
 
         this.super();
     },

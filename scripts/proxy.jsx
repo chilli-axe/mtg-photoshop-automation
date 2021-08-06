@@ -88,8 +88,14 @@ function select_template(layout, file, file_path) {
         default_: IxalanTemplate,
         other: [],
     };
-    class_template_map[mdfc_front_class] = {};
-    class_template_map[mdfc_back_class] = {};
+    class_template_map[mdfc_front_class] = {
+        default_: MDFCFrontTemplate,
+        other: [],
+    };
+    class_template_map[mdfc_back_class] = {
+        default_: MDFCBackTemplate,
+        other: [],
+    };
     class_template_map[mutate_class] = {
         default_: MutateTemplate,
         other: [],
