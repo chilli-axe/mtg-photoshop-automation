@@ -7,7 +7,7 @@ function borderify(file) {
 
     // File path to main working directory
     var file_path = File($.fileName).parent.parent.fsName;
-    
+
     // paste the file into the mpccrop template and frame against the Card Size layer
     app.open(new File(file_path + "/templates/MPCcrop.psd"));
     var layer = paste_file_into_new_layer(file);

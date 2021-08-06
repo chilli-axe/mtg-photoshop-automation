@@ -47,12 +47,12 @@ function select_frame_layers(mana_cost, type_line, oracle_text, colour_identity_
         }
 
         // Array of rules text lines in the card
-        var rulesLines = oracle_text.split('\n');
+        var rules_lines = oracle_text.split('\n');
         var colours_tapped = "";
 
         // Iterate over rules text lines
-        for (var i in rulesLines) {
-            var line = rulesLines[i];
+        for (var i in rules_lines) {
+            var line = rules_lines[i];
 
             // Identify if the card is a fetchland of some kind
             if (line.toLowerCase().indexOf("search your library") >= 0
@@ -241,8 +241,8 @@ function select_frame_layers(mana_cost, type_line, oracle_text, colour_identity_
         // Identify if the card is a two-colour hybrid card
         var hybrid = false;
         if (colour_identity.length == 2) {
-            for (hybridSymbol in hybrid_symbols) {
-                if (mana_cost.indexOf(hybrid_symbols[hybridSymbol]) >= 0) {
+            for (hybrid_symbol in hybrid_symbols) {
+                if (mana_cost.indexOf(hybrid_symbols[hybrid_symbol]) >= 0) {
                     // The card is two colours and has a hybrid symbol in its mana cost
                     hybrid = true; break;
                 }
