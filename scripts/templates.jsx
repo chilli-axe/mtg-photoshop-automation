@@ -253,7 +253,7 @@ var NormalTemplate = Class({
          */
 
         // centre the rules text if the card has no flavour text, text is all on one line, and that line is fairly short
-        var is_centred = this.layout.flavour_text.length <= 1 && this.layout.oracle_text.length <= 70 && this.layout.oracle_text.indexOf("\r") < 0;
+        var is_centred = this.layout.flavour_text.length <= 1 && this.layout.oracle_text.length <= 70 && this.layout.oracle_text.indexOf("\n") < 0;
 
         var noncreature_signature = this.legal.layers.getByName(LayerNames.NONCREATURE_SIGNATURE);
         var creature_signature = this.legal.layers.getByName(LayerNames.CREATURE_SIGNATURE);
@@ -677,7 +677,7 @@ var TransformFrontTemplate = Class({
         // overriding to select one of the four rules text layers
 
         // centre the rules text if the card has no flavour text, text is all on one line, and that line is fairly short
-        var is_centred = this.layout.flavour_text.length <= 1 && this.layout.oracle_text.length <= 70 && this.layout.oracle_text.indexOf("\r") < 0;
+        var is_centred = this.layout.flavour_text.length <= 1 && this.layout.oracle_text.length <= 70 && this.layout.oracle_text.indexOf("\n") < 0;
 
         var noncreature_signature = this.legal.layers.getByName(LayerNames.NONCREATURE_SIGNATURE);
         var creature_signature = this.legal.layers.getByName(LayerNames.CREATURE_SIGNATURE);

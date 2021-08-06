@@ -163,7 +163,7 @@ function enable_active_layer_mask() {
 
 function disable_active_layer_mask() {
     /**
-     * Enables the active layer's layer mask.
+     * Disables the active layer's layer mask.
      */
 
     set_active_layer_mask(false);
@@ -418,7 +418,7 @@ function retrieve_scryfall_scan(image_url, file_path) {
     var python_command = "python \"" + file_path + "/scripts/get_card_scan.py\" \"" + image_url + "\"";
     if ($.os.search(/windows/i) === -1) {
         // macOS
-        python_command = "/usr/local/bin/python3 \"" + file_path + "/scripts/get_card_scan.py\" \"" + card_name + "\" >> " + file_path + "/scripts/debug.log 2>&1";
+        python_command = "/usr/local/bin/python3 \"" + file_path + "/scripts/get_card_scan.py\" \"" + image_url + "\" >> " + file_path + "/scripts/debug.log 2>&1";
     }
     app.system(python_command);
     return new File(file_path + image_file_path);

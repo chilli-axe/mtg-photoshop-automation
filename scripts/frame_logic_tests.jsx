@@ -71,7 +71,7 @@ const test_cases = {
     // Transform cards
     "Insectile Aberration": { layout: TransformLayout, frame: [LayerNames.BLUE, LayerNames.BLUE, LayerNames.BLUE, false, false] },
     "Ravager of the Fells": { layout: TransformLayout, frame: [LayerNames.GOLD, LayerNames.RG, LayerNames.GOLD, false, false] },
-
+    "Brisela, Voice of Nightmares": { layout: MeldLayout, frame: [LayerNames.COLOURLESS, LayerNames.COLOURLESS, LayerNames.COLOURLESS, false, false] },
 
     // Tri coloured, normal frame cards
     "Esper Charm": { layout: NormalLayout, frame: [LayerNames.GOLD, LayerNames.GOLD, LayerNames.GOLD, false, false] },

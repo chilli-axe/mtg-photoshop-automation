@@ -4,10 +4,21 @@ import json
 from urllib import request, parse, error
 
 
-def save_json(card_json: bytes):
-    json_dump = json.dumps(json.loads(card_json))
-    with open(sys.path[0] + "/card.json", 'w') as f:
-        json.dump(json_dump, f)
+def add_meld_info(card_json):
+    """
+    If the current card is a meld card, it's important to retrieve information about its faces here, since it'll be
+    difficult to make another query while building the card's layout obj. For each part in all_parts, query Scryfall
+    for the full card info from that part's uri.
+    """
+
+    if card_json["layout"] == "meld":
+        for i in range(0, 3):
+            time.sleep(0.1)
+            uri = card_json["all_parts"][i]["uri"]
+            part = json.loads(request.urlopen(uri).read())
+            card_json["all_parts"][i]["info"] = part
+
+    return card_json
 
 
 if __name__ == "__main__":
@@ -34,6 +45,11 @@ if __name__ == "__main__":
         input("\nError occurred while attempting to query Scryfall. Press enter to exit.")
 
     print(" and done! Saving JSON...", end="", flush=True)
-    save_json(card)
+
+    card_json = add_meld_info(json.loads(card))
+    json_dump = json.dumps(card_json)
+    with open(sys.path[0] + "/card.json", 'w') as f:
+        json.dump(json_dump, f)
+
     print(" and done!", flush=True)
     time.sleep(0.1)

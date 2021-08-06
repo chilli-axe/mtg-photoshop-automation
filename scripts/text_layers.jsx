@@ -279,7 +279,7 @@ var FormattedTextArea = Class({
 
             if (this.is_centred) {
                 // ensure the layer is centred horizontally as well
-                app.activeDocument.selection.selectAll();
+                select_layer_pixels(this.reference_layer);
                 app.activeDocument.activeLayer = this.layer;
                 align_horizontal();
                 clear_selection();

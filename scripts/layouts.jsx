@@ -89,6 +89,8 @@ var BaseLayout = Class({
 var NormalLayout = Class({
     extends_: BaseLayout,
     unpack_scryfall: function () {
+        this.super();
+
         this.name = this.scryfall.name;
         this.mana_cost = this.scryfall.mana_cost;
         this.type_line = this.scryfall.type_line;
@@ -99,11 +101,9 @@ var NormalLayout = Class({
         }
         this.power = this.scryfall.power;
         this.toughness = this.scryfall.toughness;
-        this.colour_indicator = this.scryfall.color_indicator;  // comes as an array from scryfall
+        this.colour_indicator = this.scryfall.color_indicator;
 
         this.scryfall_scan = this.scryfall.image_uris.large;
-
-        this.super();
     },
     get_default_class: function () {
         return normal_class;
@@ -113,7 +113,7 @@ var NormalLayout = Class({
 var TransformLayout = Class({
     extends_: BaseLayout,
     unpack_scryfall: function () {
-        // TODO: determine which face the card we're dealing with belongs to
+        this.super();
 
         this.face = determine_card_face(this.scryfall, this.card_name_raw);
         this.other_face = -1 * (this.face - 1);
@@ -130,12 +130,10 @@ var TransformLayout = Class({
         this.other_face_power = this.scryfall.card_faces[this.other_face].power;
         this.toughness = this.scryfall.card_faces[this.face].toughness;
         this.other_face_toughness = this.scryfall.card_faces[this.other_face].toughness;
-        this.colour_indicator = this.scryfall.card_faces[this.face].color_indicator;  // comes as an array from scryfall
+        this.colour_indicator = this.scryfall.card_faces[this.face].color_indicator;
         this.transform_icon = this.scryfall.frame_effects[0];  // TODO: safe to assume the first frame effect will be the transform icon?
 
         this.scryfall_scan = this.scryfall.card_faces[this.face].image_uris.large;
-
-        this.super();
     },
     get_default_class: function () {
         return transform_front_class;
@@ -145,38 +143,42 @@ var TransformLayout = Class({
 
 var MeldLayout = Class({
     // can we reuse transformlayout?
-    extends_: BaseLayout,
+    extends_: NormalLayout,
     unpack_scryfall: function () {
-        // TODO: determine which face the card we're dealing with belongs to
-
-        this.face = determine_card_face(this.scryfall, this.card_name_raw);
-
-        // TODO: save scryfall json fields as properties
-        this.name = this.scryfall.card_faces[this.face].name;
-        this.mana_cost = this.scryfall.card_faces[this.face].mana_cost;
-        this.type_line = this.scryfall.card_faces[this.face].type_line;
-        this.oracle_text = this.scryfall.card_faces[this.face].oracle_text.replace(/\u2212/g, "-");  // for planeswalkers
-        this.flavour_text = "";
-        if (this.scryfall.card_faces[this.face].flavor_text !== undefined) {
-            this.flavour_text = this.scryfall.card_faces[this.face].flavor_text;
-        }
-        this.power = this.scryfall.card_faces[this.face].power;
-        this.toughness = this.scryfall.card_faces[this.face].toughness;
-        this.colour_indicator = this.scryfall.card_faces[this.face].color_indicator;  // comes as an array from scryfall
-
-
-
         this.super();
+
+        // determine if this card is a meld part or a meld result
+        this.face = Faces.FRONT;
+        var all_parts = this.scryfall.all_parts
+        var meld_result_name = "";
+        var meld_result_idx = 0;
+        for (var i = 0; i < all_parts.length; i++) {
+            if (all_parts[i].component === "meld_result") {
+                meld_result_name = all_parts[i].name;
+                meld_result_idx = i;
+                break;
+            }
+        }
+        if (this.name === meld_result_name) {
+            this.face = Faces.BACK;
+        } else {
+            // retrieve power and toughness of meld result
+            this.other_face_power = this.scryfall.all_parts[meld_result_idx].info.power;
+            this.other_face_toughness = this.scryfall.all_parts[meld_result_idx].info.toughness;
+        }
+        this.transform_icon = this.scryfall.frame_effects[0];  // TODO: safe to assume the first frame effect will be the transform icon?
+
+        this.scryfall_scan = this.scryfall.image_uris.large;
     },
     get_default_class: function () {
-        return transform_back_class;
+        return transform_front_class;
     },
 });
 
 var ModalDoubleFacedLayout = Class({
     extends_: BaseLayout,
     unpack_scryfall: function () {
-        // TODO: determine which face the card we're dealing with belongs to
+        this.super();
 
         this.face = determine_card_face(this.scryfall, this.card_name_raw);
         this.other_face = -1 * (this.face - 1);
@@ -223,8 +225,6 @@ var ModalDoubleFacedLayout = Class({
         }
 
         this.scryfall_scan = this.scryfall.card_faces[this.face].image_uris.large;
-
-        this.super();
     },
     get_default_class: function () {
         return mdfc_front_class;
@@ -234,6 +234,8 @@ var ModalDoubleFacedLayout = Class({
 var AdventureLayout = Class({
     extends_: BaseLayout,
     unpack_scryfall: function () {
+        this.super();
+
         this.name = this.scryfall.card_faces[0].name;
         this.mana_cost = this.scryfall.card_faces[0].mana_cost;
         this.type_line = this.scryfall.card_faces[0].type_line;
@@ -256,8 +258,6 @@ var AdventureLayout = Class({
         this.artist = this.scryfall.artist;
 
         this.scryfall_scan = this.scryfall.image_uris.large;
-
-        this.super();
     },
     get_default_class: function () {
         return adventure_class;
@@ -267,17 +267,16 @@ var AdventureLayout = Class({
 var PlanarLayout = Class({
     extends_: BaseLayout,
     unpack_scryfall: function () {
+        this.super();
+
         this.name = this.scryfall.name;
         this.mana_cost = "";
         this.type_line = this.scryfall.type_line;
         this.oracle_text = this.scryfall.oracle_text;
         this.rarity = this.scryfall.rarity;
         this.artist = this.scryfall.artist;
-        // TODO: save scryfall json fields as properties
 
         this.scryfall_scan = this.scryfall.image_uris.large;
-
-        this.super();
     },
     get_default_class: function () {
         return planar_class;
