@@ -211,7 +211,7 @@ function select_frame_layers(mana_cost, type_line, oracle_text, colour_identity_
         // Identify if the card is a full-art colourless card, e.g. colourless
         // Assume all non-land cards with the word "Devoid" in their rules text use the BFZ colourless frame
         var devoid = oracle_text.indexOf("Devoid") >= 0 && colour_identity.length > 0;
-        if ((colour_identity.length <= 0 && type_line.indexOf(LayerNames.ARTIFACT) < 0) || devoid) {
+        if ((colour_identity.length <= 0 && type_line.indexOf(LayerNames.ARTIFACT) < 0) || devoid || (mana_cost === "" && type_line.indexOf("Eldrazi") >= 0)) {
             // colourless-style card identified
             background = LayerNames.COLOURLESS;
             pinlines = LayerNames.COLOURLESS;

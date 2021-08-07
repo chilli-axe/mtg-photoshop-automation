@@ -71,7 +71,7 @@ const test_cases = {
     // Transform cards
     "Insectile Aberration": { layout: TransformLayout, frame: [LayerNames.BLUE, LayerNames.BLUE, LayerNames.BLUE, false, false] },
     "Ravager of the Fells": { layout: TransformLayout, frame: [LayerNames.GOLD, LayerNames.RG, LayerNames.GOLD, false, false] },
-    "Brisela, Voice of Nightmares": { layout: MeldLayout, frame: [LayerNames.COLOURLESS, LayerNames.COLOURLESS, LayerNames.COLOURLESS, false, false] },
+    "Brisela, Voice of Nightmares": { layout: MeldLayout, frame: [LayerNames.COLOURLESS, LayerNames.COLOURLESS, LayerNames.COLOURLESS, false, true] },
 
     // Tri coloured, normal frame cards
     "Esper Charm": { layout: NormalLayout, frame: [LayerNames.GOLD, LayerNames.GOLD, LayerNames.GOLD, false, false] },
@@ -249,8 +249,6 @@ function test_logic(card_name, expected_layers) {
     // Function call
     var layout = new expected_layers.layout(scryfall, card_name);
     var layers = layout_to_list(layout);
-    // var layers = select_frame_layers(scryfall.mana_cost, scryfall.type_line, scryfall.oracle_text, scryfall.colour_identity);
-    // var layers = layers_to_list(layers);
 
     // Compare against expected layers, and return true/false
     if (layers.length != expected_layers.frame.length) return [false, layers];
