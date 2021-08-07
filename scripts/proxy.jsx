@@ -149,11 +149,12 @@ function proxy(file) {
     var artist = ret.artist;
 
     if (in_array(BasicLandNames, card_name)) {
+        // manually construct layout obj for basic lands
         var layout = {
             artist: artist,
             name: card_name,
+            card_class: basic_class,
         };
-        var template = new BasicLandTemplate(layout, file, file_path);
     } else {
         var scryfall = call_python(card_name, file_path);
         var layout_name = scryfall.layout;
@@ -169,11 +170,10 @@ function proxy(file) {
         if (artist !== "") {
             layout.artist = artist;
         }
-        var template = select_template(layout, file, file_path);
     }
 
-    // execute the template - insert text fields, set visibility of layers, etc. - and save to disk
-    var file_name = template.execute();
+    // select and execute the template - insert text fields, set visibility of layers, etc. - and save to disk
+    var file_name = select_template(layout, file, file_path).execute();
     if (exit_early) {
         throw new Error("Exiting...");
     }
