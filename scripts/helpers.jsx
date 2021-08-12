@@ -28,8 +28,8 @@ function compute_layer_dimensions(layer) {
      */
 
     return {
-        width: layer.bounds[2] - layer.bounds[0],
-        height: layer.bounds[3] - layer.bounds[1]
+        width: layer.bounds[2].as("px") - layer.bounds[0].as("px"),
+        height: layer.bounds[3].as("px") - layer.bounds[1].as("px"),
     };
 }
 

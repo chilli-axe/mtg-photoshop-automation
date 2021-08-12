@@ -206,7 +206,7 @@ function format_text(input_string, italics_strings, flavour_index, is_centred) {
      */
 
     // record the layer's justification before modifying the layer in case it's reset along the way
-    var layer_justification = app.activeDocument.activeLayer;
+    var layer_justification = app.activeDocument.activeLayer.textItem.justification;
 
     // TODO: check that the active layer is a text layer, and raise an issue if not
     if (flavour_index > 0) {
@@ -469,7 +469,7 @@ function format_text(input_string, italics_strings, flavour_index, is_centred) {
     executeAction(idsetd, desc119, DialogModes.NO);
 
     // Reset layer's justification
-    app.activeDocument.activeLayer.justification = layer_justification;
+    app.activeDocument.activeLayer.textItem.justification = layer_justification;
 }
 
 function generate_italics(card_text) {

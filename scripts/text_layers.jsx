@@ -11,18 +11,18 @@ function scale_text_right_overlap(layer, reference_layer) {
      */
 
     var step_size = new UnitValue(0.2, "pt");
-    var reference_left_bound = reference_layer.bounds[0];
-    var layer_left_bound = layer.bounds[0];
-    var layer_right_bound = layer.bounds[2];
+    var reference_left_bound = reference_layer.bounds[0].as("px");
+    var layer_left_bound = layer.bounds[0].as("px");
+    var layer_right_bound = layer.bounds[2].as("px");
     // guard against the reference's left bound being left of the layer's left bound or the reference being malformed otherwise
     if (reference_left_bound < layer_left_bound || reference_left_bound === null || reference_left_bound === undefined) {
         return;
     }
     var layer_font_size = layer.textItem.size;  // returns unit value
-    while (layer_right_bound > reference_left_bound - new UnitValue(24, "px")) {  // minimum 24 px gap
+    while (layer_right_bound > reference_left_bound - 24) {  // minimum 24 px gap
         layer_font_size = layer_font_size - step_size;
         layer.textItem.size = layer_font_size;
-        layer_right_bound = layer.bounds[2];
+        layer_right_bound = layer.bounds[2].as("px");
     }
 }
 
@@ -34,21 +34,23 @@ function scale_text_to_fit_reference(layer, reference_layer) {
 
     var starting_font_size = layer.textItem.size;
     var step_size = new UnitValue(0.25, "pt");
-    var reference_dimensions = compute_layer_dimensions(reference_layer);
 
     // Reduce the reference height by 64 pixels to avoid text landing on the top/bottom bevels
-    var reference_height = reference_dimensions.height - new UnitValue(64, "px");
+    var reference_height = compute_layer_dimensions(reference_layer).height - 64;
 
     // initialise lead and font size tracker variables to the font size of the layer's text
     var font_size = starting_font_size;
     var scaled = false;
 
-    while (reference_height < compute_text_layer_dimensions(layer).height) {
+    var layer_height = compute_text_layer_dimensions(layer).height;
+
+    while (reference_height < layer_height) {
         scaled = true;
         // step down font and lead sizes by the step size, and update those sizes in the layer
         font_size = font_size - step_size;
         layer.textItem.size = font_size;
         layer.textItem.leading = font_size;
+        layer_height = compute_text_layer_dimensions(layer).height;
     }
 
     return scaled;
@@ -74,7 +76,7 @@ function vertically_nudge_creature_text(layer, reference_layer, top_reference_la
      */
 
     // if the layer needs to be nudged
-    if (layer.bounds[2] >= reference_layer.bounds[0]) {
+    if (layer.bounds[2].as("px") >= reference_layer.bounds[0].as("px")) {
         select_layer_pixels(reference_layer);
         app.activeDocument.activeLayer = layer;
 
@@ -103,11 +105,11 @@ function vertically_nudge_creature_text(layer, reference_layer, top_reference_la
 
         // determine how much the rules text overlaps the power/toughness by
         var extra_bit_layer = layer.parent.layers.getByName(extra_bit_layer_name);
-        var delta = top_reference_layer.bounds[3] - extra_bit_layer.bounds[3];
+        var delta = top_reference_layer.bounds[3].as("px") - extra_bit_layer.bounds[3].as("px");
         extra_bit_layer.visible = false;
 
-        if (delta.as("px") < 0) {
-            layer.applyOffset(0, delta, OffsetUndefinedAreas.SETTOBACKGROUND);
+        if (delta < 0) {
+            layer.applyOffset(0, new UnitValue(delta, "px"), OffsetUndefinedAreas.SETTOBACKGROUND);
         }
 
         clear_selection();
@@ -236,7 +238,7 @@ var FormattedTextField = Class({
                 // asterisks present in flavour text
                 for (var i = 0; i < flavour_text_split.length; i += 2) {
                     // add the parts of the flavour text not between asterisks to italic_text
-                    italic_text.push(flavour_text_split[i])
+                    if (flavour_text_split[i] !== "") italic_text.push(flavour_text_split[i]);
                 }
                 // reassemble flavourText without asterisks
                 this.flavour_text = flavour_text_split.join("");
