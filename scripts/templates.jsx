@@ -957,6 +957,7 @@ var PlaneswalkerTemplate = Class({
         var ability_group;
 
         for (var i = 0; i < ability_array.length; i++) {
+            if (i === 4) break;
             ability_group = loyalty_group.layers.getByName(group_names[i]);
 
             var ability_text = ability_array[i];
@@ -987,6 +988,7 @@ var PlaneswalkerTemplate = Class({
                 ability_layer = static_text_layer;
                 ability_text_layer.visible = false;
                 static_text_layer.visible = true;
+                ability_group.layers.getByName("Colon").visible = false;
             }
             this.text_layers.push(
                 new BasicFormattedTextField(

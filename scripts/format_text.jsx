@@ -1,4 +1,5 @@
 #include "constants.jsx";
+#include "helpers.jsx";
 
 /* Locating symbols and italics in the input string */
 
