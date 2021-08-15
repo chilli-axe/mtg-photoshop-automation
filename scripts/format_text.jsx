@@ -468,8 +468,9 @@ function format_text(input_string, italics_strings, flavour_index, is_centred) {
     desc119.putObject(idT, idTxLr, primary_action_descriptor);
     executeAction(idsetd, desc119, DialogModes.NO);
 
-    // Reset layer's justification
+    // Reset layer's justification and disable hypenation
     app.activeDocument.activeLayer.textItem.justification = layer_justification;
+    app.activeDocument.activeLayer.textItem.hyphenation = false;
 }
 
 function generate_italics(card_text) {

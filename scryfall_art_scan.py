@@ -54,7 +54,7 @@ if __name__ == "__main__":
     except error.HTTPError:
         input("\nError occurred while attempting to query Scryfall. Press enter to exit.")
 
-    print(" and done! Waifu2xing...", end="", flush=True)
+    print(" and done! Waifu2x'ing...", end="", flush=True)
 
     card_json = json.loads(card)
     image_url = get_card_art_url(card_name, card_json)

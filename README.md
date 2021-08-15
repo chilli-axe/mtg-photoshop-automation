@@ -20,7 +20,7 @@ Printed through http://makeplayingcards.com
   * The following fonts:
     * [Beleren Smallcaps, MPlantin and MPlantin-Italics](https://github.com/magarena/magarena/tree/master/resources/cardbuilder/fonts) and [Beleren2016](https://magic.wizards.com/sites/all/themes/wiz_mtg/fonts/Beleren/Beleren2016-Bold.ttf),
     * My custom Magic symbols font, NDPMTG,ttf, included in the repo,
-    * [Keyrune](https://andrewgioia.github.io/Keyrune/index.html) and [Mana](https://andrewgioia.github.io/Mana/), for the expansion symbol and transform symbols,
+    * [Keyrune](https://keyrune.andrewgioia.com/) and [Mana](https://mana.andrewgioia.com/), for the expansion symbol and transform symbols,
     * Relay Medium and Calibri.
   * [json2.js](https://github.com/douglascrockford/JSON-js), included but you may need to download a more recent version.
   * A standard installation of [Python 3](https://www.python.org/downloads/).
