@@ -86,6 +86,7 @@ var LayerNames = {
     COLOUR_INDICATOR: "Colour Indicator",
     POWER_TOUGHNESS: "Power / Toughness",
     FLIPSIDE_POWER_TOUGHNESS: "Flipside Power / Toughness",
+    RULES_TEXT: "Rules Text",
     RULES_TEXT_NONCREATURE: "Rules Text - Noncreature",
     RULES_TEXT_NONCREATURE_FLIP: "Rules Text - Noncreature Flip",
     RULES_TEXT_CREATURE: "Rules Text - Creature",
@@ -102,6 +103,7 @@ var LayerNames = {
 
     // textbox references
     TEXTBOX_REFERENCE: "Textbox Reference",
+    TEXTBOX_REFERENCE_LAND: "Textbox Reference Land",
     TEXTBOX_REFERENCE_ADVENTURE: "Textbox Reference - Adventure",
     MUTATE_REFERENCE: "Mutate Reference",
     PT_REFERENCE: "PT Adjustment Reference",
@@ -138,6 +140,10 @@ var LayerNames = {
     BOTTOM: "Bottom",
     LEFT: "Left",
     RIGHT: "Right",
+
+    // classic
+    NONLAND: "Nonland",
+    LAND: "Land",
 };
 
 var default_layer = "Layer 1";

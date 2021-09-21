@@ -140,6 +140,14 @@ var ChilliBaseTemplate = Class({
 
     extends_: BaseTemplate,
     // TODO: add code for transform and mdfc stuff here (since both normal and planeswalker templates need to inherit them)
+    constructor: function (layout, file, file_path) {
+        this.super(layout, file, file_path);
+
+        this.is_creature = this.layout.power !== undefined && this.layout.toughness !== undefined;
+        this.is_legendary = this.layout.type_line.indexOf("Legendary") >= 0;
+        this.is_land = this.layout.type_line.indexOf("Land") >= 0;
+        this.is_companion = in_array(this.layout.frame_effects, "companion");
+    },
     basic_text_layers: function (text_and_icons) {
         /**
          * Set up the card's mana cost, name (scaled to not overlap with mana cost), expansion symbol, and type line
@@ -307,11 +315,6 @@ var NormalTemplate = Class({
         this.art_reference = docref.layers.getByName(LayerNames.ART_FRAME);
         if (this.layout.is_colourless) this.art_reference = docref.layers.getByName(LayerNames.FULL_ART_FRAME);
 
-        this.is_creature = this.layout.power !== undefined && this.layout.toughness !== undefined;
-        this.is_legendary = this.layout.type_line.indexOf("Legendary") >= 0;
-        this.is_land = this.layout.type_line.indexOf("Land") >= 0;
-        this.is_companion = in_array(this.layout.frame_effects, "companion");
-
         this.name_shifted = this.layout.transform_icon !== null && this.layout.transform_icon !== undefined;
         this.type_line_shifted = this.layout.colour_indicator !== null && this.layout.colour_indicator !== undefined;
 
@@ -364,6 +367,79 @@ var NormalTemplate = Class({
             this.enable_hollow_crown(crown, pinlines);
         }
     },
+});
+
+/* Classic variant */
+
+var NormalClassicTemplate = Class({
+    /**
+     * A template for 7th Edition frame. Each frame is flattened into its own singular layer.
+     */
+
+    extends_: ChilliBaseTemplate,
+    template_file_name: function () {
+        return "normal-classic";
+    },
+    template_suffix: function () {
+        return "Classic";
+    },
+    constructor: function (layout, file, file_path) {
+        this.super(layout, file, file_path);
+
+        var docref = app.activeDocument;
+        this.art_reference = docref.layers.getByName(LayerNames.ART_FRAME);
+
+        // artist
+        replace_text(docref.layers.getByName(LayerNames.LEGAL).layers.getByName(LayerNames.ARTIST), "Artist", this.layout.artist);
+        this.text_layers = [];
+
+        var text_and_icons = docref.layers.getByName(LayerNames.TEXT_AND_ICONS);
+        this.basic_text_layers(text_and_icons);
+
+        // rules text
+        var is_centred = this.layout.flavour_text.length <= 1 && this.layout.oracle_text.length <= 70 && this.layout.oracle_text.indexOf("\n") < 0;
+        var reference_layer = text_and_icons.layers.getByName(LayerNames.TEXTBOX_REFERENCE);
+        if (this.is_land) {
+            reference_layer = text_and_icons.layers.getByName(LayerNames.TEXTBOX_REFERENCE_LAND);
+        }
+        var rules_text = text_and_icons.layers.getByName(LayerNames.RULES_TEXT);
+        this.text_layers.push(
+            new FormattedTextArea(
+                layer = rules_text,
+                text_contents = this.layout.oracle_text,
+                text_colour = get_text_layer_colour(rules_text),
+                flavour_text = this.layout.flavour_text,
+                is_centred = is_centred,
+                reference_layer = reference_layer,
+            ),
+        );
+
+        // pt
+        var power_toughness = text_and_icons.layers.getByName(LayerNames.POWER_TOUGHNESS);
+        if (this.is_creature) {
+            this.text_layers.push(
+                new TextField(
+                    layer = power_toughness,
+                    text_contents = this.layout.power.toString() + "/" + this.layout.toughness.toString(),
+                    text_colour = get_text_layer_colour(power_toughness),
+                ),
+            )
+        } else {
+            power_toughness.visible = false;
+        }
+    },
+    enable_frame_layers: function () {
+        var docref = app.activeDocument;
+
+        var layers = docref.layers.getByName(LayerNames.NONLAND);
+        var selected_layer = this.layout.background;
+        if (this.is_land) {
+            layers = docref.layers.getByName(LayerNames.LAND);
+            selected_layer = this.layout.pinlines;
+        }
+
+        layers.layers.getByName(selected_layer).visible = true;
+    }
 });
 
 /* Templates similar to NormalTemplate but with aesthetic differences */
@@ -973,7 +1049,7 @@ var LevelerTemplate = Class({
                 text_contents = this.layout.levels_z_plus_text,
                 text_colour = rgb_black(),
             ),
-            
+
         ]);
         exit_early = true;
     },
@@ -1016,7 +1092,7 @@ var SagaTemplate = Class({
         var saga_text_group = text_and_icons.layers.getByName("Saga");
         var stages = ["I", "II", "III", "IV"];
 
-        for (var i=0; i<this.layout.saga_lines.length; i++) {
+        for (var i = 0; i < this.layout.saga_lines.length; i++) {
             var stage = stages[i];
             var stage_group = saga_text_group.layers.getByName(stage);
             stage_group.visible = true;
@@ -1028,7 +1104,7 @@ var SagaTemplate = Class({
                 )
             );
         }
-        
+
         exit_early = true;
     },
     enable_frame_layers: function () {
@@ -1287,5 +1363,16 @@ var BasicLandUnstableTemplate = Class({
     extends_: BasicLandTemplate,
     template_file_name: function () {
         return "basic-unstable";
+    },
+});
+
+var BasicLandClassicTemplate = Class({
+    /**
+     * Basic land template for 7th Edition basics.
+     */
+
+    extends_: BasicLandTemplate,
+    template_file_name: function () {
+        return "basic-classic";
     },
 });

@@ -69,6 +69,7 @@ function select_template(layout, file, file_path) {
     class_template_map[normal_class] = {
         default_: NormalTemplate,
         other: [
+            NormalClassicTemplate,
             NormalExtendedTemplate,
             WomensDayTemplate,
             StargazingTemplate,
@@ -129,6 +130,7 @@ function select_template(layout, file, file_path) {
     class_template_map[basic_class] = {
         default_: BasicLandTemplate,
         other: [
+            BasicLandClassicTemplate,
             BasicLandTherosTemplate,
             BasicLandUnstableTemplate,
         ],

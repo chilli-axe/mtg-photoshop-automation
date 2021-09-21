@@ -1,8 +1,8 @@
 /*
 Usage:
 > Move this script to C:\Program Files\Adobe\Adobe Photoshop CC 2018\Presets\Scripts (or equivalent)
-> Hardcode the below path variable to point to the formatText file in your project directory
-> Make the text layer you're working with the active layer (if you select another layer, it might crash photoshop lmao)
+> Hardcode the below path variable to point to the format_text.jsx file in your project directory
+> Make the text layer you're working with the active layer
 > File -> Scripts -> Format Now
 */
 
