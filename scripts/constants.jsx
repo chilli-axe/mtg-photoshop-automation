@@ -12,6 +12,8 @@ var mdfc_front_class = "mdfc_front";
 var mdfc_back_class = "mdfc_back";
 var mutate_class = "mutate";
 var adventure_class = "adventure";
+var leveler_class = "leveler";
+var saga_class = "saga";
 var miracle_class = "miracle";
 var planeswalker_class = "planeswalker";
 var snow_class = "snow";
@@ -44,9 +46,11 @@ var LayerNames = {
 
     // frame layer group names
     PT_BOX: "PT Box",
+    PT_AND_LEVEL_BOXES: "PT and Level Boxes",
     TWINS: "Name & Title Boxes",
     LEGENDARY_CROWN: "Legendary Crown",
     PINLINES_TEXTBOX: "Pinlines & Textbox",
+    PINLINES_AND_SAGA_STRIPE: "Pinlines & Saga Stripe",
     PINLINES: "Pinlines",
     LAND_PINLINES_TEXTBOX: "Land Pinlines & Textbox",
     COMPANION: "Companion",
@@ -65,8 +69,8 @@ var LayerNames = {
     // legal
     LEGAL: "Legal",
     ARTIST: "Artist",
-    NONCREATURE_SIGNATURE: "Noncreature MPC Autofill",
-    CREATURE_SIGNATURE: "Creature MPC Autofill",
+    NONCREATURE_COPYRIGHT: "Noncreature WotC Copyright",
+    CREATURE_COPYRIGHT: "Creature WotC Copyright",
 
     // text and icons
     TEXT_AND_ICONS: "Text and Icons",

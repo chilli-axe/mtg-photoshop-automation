@@ -15,7 +15,7 @@ templates, and:
   turn on in your template to complete the card's frame. this.layout contains information about the card's twins colour (name and title 
   boxes), pinlines and textbox colour(s), and background colour(s), so you'll be mainly using this. You also know if the card is colourless
   (as in full-art like Eldrazi cards) and whether or not the card is nyx-touched (uses the nyx background).
-You should also modify the function select_template() in proxy.jsx to point to your template class(es).
+You should also modify the function select_template() in render.jsx to point to your template class(es).
 
 var Template = Class({
     extends_: BaseTemplate,
@@ -255,8 +255,8 @@ var NormalTemplate = Class({
         // centre the rules text if the card has no flavour text, text is all on one line, and that line is fairly short
         var is_centred = this.layout.flavour_text.length <= 1 && this.layout.oracle_text.length <= 70 && this.layout.oracle_text.indexOf("\n") < 0;
 
-        var noncreature_signature = this.legal.layers.getByName(LayerNames.NONCREATURE_SIGNATURE);
-        var creature_signature = this.legal.layers.getByName(LayerNames.CREATURE_SIGNATURE);
+        var noncreature_copyright = this.legal.layers.getByName(LayerNames.NONCREATURE_COPYRIGHT);
+        var creature_copyright = this.legal.layers.getByName(LayerNames.CREATURE_COPYRIGHT);
 
         var power_toughness = text_and_icons.layers.getByName(LayerNames.POWER_TOUGHNESS);
         if (this.is_creature) {
@@ -280,8 +280,8 @@ var NormalTemplate = Class({
                 ),
             ]);
 
-            noncreature_signature.visible = false;
-            creature_signature.visible = true;
+            noncreature_copyright.visible = false;
+            creature_copyright.visible = true;
         } else {
             // noncreature card - use the normal rules text layer and disable the power/toughness layer
             var rules_text = text_and_icons.layers.getByName(LayerNames.RULES_TEXT_NONCREATURE);
@@ -679,8 +679,8 @@ var TransformFrontTemplate = Class({
         // centre the rules text if the card has no flavour text, text is all on one line, and that line is fairly short
         var is_centred = this.layout.flavour_text.length <= 1 && this.layout.oracle_text.length <= 70 && this.layout.oracle_text.indexOf("\n") < 0;
 
-        var noncreature_signature = this.legal.layers.getByName(LayerNames.NONCREATURE_SIGNATURE);
-        var creature_signature = this.legal.layers.getByName(LayerNames.CREATURE_SIGNATURE);
+        var noncreature_copyright = this.legal.layers.getByName(LayerNames.NONCREATURE_COPYRIGHT);
+        var creature_copyright = this.legal.layers.getByName(LayerNames.CREATURE_COPYRIGHT);
 
         var power_toughness = text_and_icons.layers.getByName(LayerNames.POWER_TOUGHNESS);
         if (this.is_creature) {
@@ -707,8 +707,8 @@ var TransformFrontTemplate = Class({
                 ),
             ]);
 
-            noncreature_signature.visible = false;
-            creature_signature.visible = true;
+            noncreature_copyright.visible = false;
+            creature_copyright.visible = true;
         } else {
             // noncreature card - use the normal rules text layer and disable the power/toughness layer
             var rules_text = text_and_icons.layers.getByName(LayerNames.RULES_TEXT_NONCREATURE);
@@ -919,6 +919,129 @@ var AdventureTemplate = Class({
             ),
         ]);
     }
+});
+
+var LevelerTemplate = Class({
+    /**
+     * Leveler template. No layers are scaled or positioned vertically so manual intervention is required.
+     */
+
+    extends_: NormalTemplate,
+    template_file_name: function () {
+        return "leveler";
+    },
+    rules_text_and_pt_layers: function (text_and_icons) {
+        var leveler_text_group = text_and_icons.layers.getByName("Leveler Text");
+        this.text_layers = this.text_layers.concat([
+            new BasicFormattedTextField(
+                layer = leveler_text_group.layers.getByName("Rules Text - Level Up"),
+                text_contents = this.layout.level_up_text,
+                text_colour = rgb_black(),
+            ),
+            new TextField(
+                layer = leveler_text_group.layers.getByName("Top Power / Toughness"),
+                text_contents = this.layout.power.toString() + "/" + this.layout.toughness.toString(),
+                text_colour = rgb_black(),
+            ),
+            new TextField(
+                layer = leveler_text_group.layers.getByName("Middle Level"),
+                text_contents = this.layout.middle_level,
+                text_colour = rgb_black(),
+            ),
+            new TextField(
+                layer = leveler_text_group.layers.getByName("Middle Power / Toughness"),
+                text_contents = this.layout.middle_power_toughness,
+                text_colour = rgb_black(),
+            ),
+            new BasicFormattedTextField(
+                layer = leveler_text_group.layers.getByName("Rules Text - Levels X-Y"),
+                text_contents = this.layout.levels_x_y_text,
+                text_colour = rgb_black(),
+            ),
+            new TextField(
+                layer = leveler_text_group.layers.getByName("Bottom Level"),
+                text_contents = this.layout.bottom_level,
+                text_colour = rgb_black(),
+            ),
+            new TextField(
+                layer = leveler_text_group.layers.getByName("Bottom Power / Toughness"),
+                text_contents = this.layout.bottom_power_toughness,
+                text_colour = rgb_black(),
+            ),
+            new BasicFormattedTextField(
+                layer = leveler_text_group.layers.getByName("Rules Text - Levels Z+"),
+                text_contents = this.layout.levels_z_plus_text,
+                text_colour = rgb_black(),
+            ),
+            
+        ]);
+        exit_early = true;
+    },
+    enable_frame_layers: function () {
+        var docref = app.activeDocument;
+
+        // twins and pt box
+        var twins = docref.layers.getByName(LayerNames.TWINS);
+        twins.layers.getByName(this.layout.twins).visible = true;
+        var pt_box = docref.layers.getByName(LayerNames.PT_AND_LEVEL_BOXES);
+        pt_box.layers.getByName(this.layout.twins).visible = true;
+
+        // pinlines
+        var pinlines = docref.layers.getByName(LayerNames.PINLINES_TEXTBOX);
+        pinlines.layers.getByName(this.layout.pinlines).visible = true;
+
+        // background
+        var background = docref.layers.getByName(LayerNames.BACKGROUND);
+        background.layers.getByName(this.layout.background).visible = true;
+    },
+});
+
+var SagaTemplate = Class({
+    /**
+     * Saga template. No layers are scaled or positioned vertically so manual intervention is required.
+     */
+
+    extends_: NormalTemplate,
+    template_file_name: function () {
+        return "saga";
+    },
+    constructor: function (layout, file, file_path) {
+        this.super(layout, file, file_path);
+
+        // paste scryfall scan
+        app.activeDocument.activeLayer = app.activeDocument.layers.getByName(LayerNames.TWINS);
+        this.paste_scryfall_scan(app.activeDocument.layers.getByName(LayerNames.SCRYFALL_SCAN_FRAME), file_path);
+    },
+    rules_text_and_pt_layers: function (text_and_icons) {
+        var saga_text_group = text_and_icons.layers.getByName("Saga");
+        var stages = ["I", "II", "III", "IV"];
+
+        for (var i=0; i<this.layout.saga_lines.length; i++) {
+            var stage = stages[i];
+            var stage_group = saga_text_group.layers.getByName(stage);
+            stage_group.visible = true;
+            this.text_layers.push(
+                new BasicFormattedTextField(
+                    layer = stage_group.layers.getByName("Text"),
+                    text_contents = this.layout.saga_lines[i],
+                    text_colour = rgb_black(),
+                )
+            );
+        }
+        
+        exit_early = true;
+    },
+    enable_frame_layers: function () {
+        var docref = app.activeDocument;
+        var twins = docref.layers.getByName(LayerNames.TWINS);
+        twins.layers.getByName(this.layout.twins).visible = true;
+        var pinlines = docref.layers.getByName(LayerNames.PINLINES_AND_SAGA_STRIPE);
+        pinlines.layers.getByName(this.layout.pinlines).visible = true;
+        var textbox = docref.layers.getByName(LayerNames.TEXTBOX);
+        textbox.layers.getByName(this.layout.background).visible = true;
+        var background = docref.layers.getByName(LayerNames.BACKGROUND);
+        background.layers.getByName(this.layout.background).visible = true;
+    },
 });
 
 /* Planeswalker templates */

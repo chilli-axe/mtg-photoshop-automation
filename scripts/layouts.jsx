@@ -264,6 +264,44 @@ var AdventureLayout = Class({
     },
 });
 
+var LevelerLayout = Class({
+    extends_: NormalLayout,
+    unpack_scryfall: function () {
+        this.super();
+
+        // unpack oracle text into: level text, levels x-y text, levels z+ text, middle level, 
+        // middle level power/toughness, bottom level, and bottom level power/toughness
+        var leveler_regex = /^([^]*)\nLEVEL (\d*-\d*)\n(\d*\/\d*)\n([^]*)\n?LEVEL (\d*\+)\n(\d*\/\d*)\n([^]*)?$/;
+        var leveler_match = this.oracle_text.match(leveler_regex);
+        this.level_up_text = leveler_match[1];
+        this.middle_level = leveler_match[2];
+        this.middle_power_toughness = leveler_match[3];
+        this.levels_x_y_text = leveler_match[4];
+        this.bottom_level = leveler_match[5];
+        this.bottom_power_toughness = leveler_match[6];
+        this.levels_z_plus_text = leveler_match[7];
+    },
+    get_default_class: function () {
+        return leveler_class;
+    }
+});
+
+var SagaLayout = Class({
+    extends_: NormalLayout,
+    unpack_scryfall: function () {
+        this.super();
+
+        // // unpack oracle text into saga lines
+        this.saga_lines = this.oracle_text.split("\n").slice(1);
+        for (var i = 0; i < this.saga_lines.length; i++) {
+            this.saga_lines[i] = this.saga_lines[i].split(" \u2014 ")[1];
+        }
+    },
+    get_default_class: function () {
+        return saga_class;
+    }
+});
+
 var PlanarLayout = Class({
     extends_: BaseLayout,
     unpack_scryfall: function () {
@@ -289,5 +327,7 @@ var layout_map = {
     "meld": MeldLayout,
     "modal_dfc": ModalDoubleFacedLayout,
     "adventure": AdventureLayout,
+    "leveler": LevelerLayout,
+    "saga": SagaLayout,
     "planar": PlanarLayout,
 }

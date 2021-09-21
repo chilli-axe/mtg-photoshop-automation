@@ -51,7 +51,7 @@ function call_python(card_name, file_path) {
     if (json_string === "") {
         throw new Error(
             "\n\ncard.json does not exist - the system failed to successfully run get_card_info.py.\nThe attempted Python call was made with the " +
-            "following command:\n\n" + python_command + "\n\nYou may need to edit this command in proxy.jsx depending on your computer's configuration. " +
+            "following command:\n\n" + python_command + "\n\nYou may need to edit this command in render.jsx depending on your computer's configuration. " +
             "Try running the command from the command line as that may help you debug the issue"
         );
     }
@@ -104,6 +104,14 @@ function select_template(layout, file, file_path) {
         default_: AdventureTemplate,
         other: [],
     };
+    class_template_map[leveler_class] = {
+        default_: LevelerTemplate,
+        other: [],
+    };
+    class_template_map[saga_class] = {
+        default_: SagaTemplate,
+        other: [],
+    };
     class_template_map[miracle_class] = {
         default_: MiracleTemplate,
         other: [],
@@ -140,7 +148,7 @@ function select_template(layout, file, file_path) {
     return new template(layout, file, file_path);
 }
 
-function proxy(file) {
+function render(file) {
     // TODO: specify the desired template for a card in the filename?
     var file_path = File($.fileName).parent.parent.fsName;
 

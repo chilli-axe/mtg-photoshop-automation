@@ -1,5 +1,5 @@
 #include "json2.js";
-#include "proxy.jsx";
+#include "render.jsx";
 #include "constants.jsx";
 #include "frame_logic.jsx";
 
