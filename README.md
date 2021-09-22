@@ -7,7 +7,9 @@ Trademark and copyright Wizards of the Coast 2021. Templates for this project in
 
 # Requirements
   * A copy of Photoshop. I tested the system using CS5 and CC 2018, but other versions may work as well.
-  * [The Photoshop templates](https://drive.google.com/open?id=1CUaOPDZM84dk85Kvp6fGrqZVPDo4jQJo) (templates compatible with this project are located in the Automated Templates folder)
+  * The Photoshop templates:
+    * [Automated templates](https://drive.google.com/drive/folders/1_8szsVZ6-0Uoxr0XzLcYM6Zjcx89wqYR?usp=sharing) (compatible with this project)
+    * [Manual templates](https://drive.google.com/drive/folders/1wAH-JKPHa5cPcMcEiyE9q46WH6PEaXnj?usp=sharing) which may also be of interest
   * The following fonts:
     * [Beleren Smallcaps, MPlantin and MPlantin-Italics](https://github.com/magarena/magarena/tree/master/resources/cardbuilder/fonts) and [Beleren2016](https://magic.wizards.com/sites/all/themes/wiz_mtg/fonts/Beleren/Beleren2016-Bold.ttf),
     * My custom Magic symbols font, NDPMTG,ttf, included in the repo,
@@ -21,7 +23,7 @@ Trademark and copyright Wizards of the Coast 2021. Templates for this project in
 * Install the included font and the other fonts specified above.
 * Download the Photoshop templates, create a folder called `templates` in the working directory, and extract them into the folder.
 * Create a folder called `art` in the working directory, and another called `out`.
-* Move all of your card artwork to the `art` folder. File names should be structured like `<CARDNAME> (<ARTIST NAME>).jpg`. Artist name is optional - if ommitted, it will be retrieved from Scryfall. You can optionally specify the card's set by structuring the file name like `<CARDNAME>$<SET> (<ARTIST NAME>).jpg`.
+* Move all of your card artwork to the `art` folder. File names should be structured like `<CARDNAME> (<ARTIST NAME>).jpg`. Artist name is optional - if omitted, it will be retrieved from Scryfall. You can optionally specify the card's set by structuring the file name like `<CARDNAME>$<SET> (<ARTIST NAME>).jpg`.
 * Run the script `render_all` to render each card in the `art` folder, and store the results in the `out` folder. `render_target` does the same but for a single image.
 * Modify `settings.jsx` to change how the scripts behave - change the expansion symbol; force the system to use a particular template; or force the system to stop before saving your cards and exiting so you can adjust them manually.
 * **Optional**: Copy the files from `/scripts/utils` to the `Scripts` folder in your Photoshop installation. For me, this was `C:\Program Files\Adobe\Adobe Photoshop CC 2018\Presets\Scripts`. Modify the paths in those files to point to the corresponding files in `/scripts`. This enables the use of a few utility scripts which are handy when making renders manually.

@@ -293,6 +293,16 @@ function format_text(input_string, italics_strings, flavour_index, is_centred) {
         idLdng = charIDToTypeID("Ldng");
         idPnt = charIDToTypeID("#Pnt");
         desc126.putUnitDouble(idLdng, idPnt, layer_font_size);
+        idClr = charIDToTypeID("Clr ");
+        desc127 = new ActionDescriptor();
+        idRd = charIDToTypeID("Rd  ");
+        desc127.putDouble(idRd, text_colour.rgb.red);  // text colour.red
+        idGrn = charIDToTypeID("Grn ");
+        desc127.putDouble(idGrn, text_colour.rgb.green);  // text colour.green
+        idBl = charIDToTypeID("Bl  ");
+        desc127.putDouble(idBl, text_colour.rgb.blue);  // text colour.blue
+        idRGBC = charIDToTypeID("RGBC");
+        desc126.putObject(idClr, idRGBC, desc127);
         idTxtS = charIDToTypeID("TxtS");
         desc125.putObject(idTxtS, idTxtS, desc126);
         current_layer_ref = desc125;
