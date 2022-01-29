@@ -38,6 +38,14 @@ function locate_symbols(input_string) {
     }
 }
 
+function escape_regex(value) {
+    /**
+     * Borrowed from https://stackoverflow.com/questions/494035/how-do-you-use-a-variable-in-a-regular-expression
+     */
+
+    return value.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, "\\$&");
+}
+
 function locate_italics(input_string, italics_strings) {
     /**
      * Locate all instances of italic strings in the input string and record their start and end indices.
@@ -57,7 +65,8 @@ function locate_italics(input_string, italics_strings) {
         // replace symbols with their character representations in the italic string
         if (italics.indexOf("}") >= 0) {
             for (var symbol in symbols) {
-                italics = italics.replace(symbol, symbols[symbol]);
+                var re = new RegExp(escape_regex(symbol), "g");
+                italics = italics.replace(re, symbols[symbol]);
             }
         }
 
