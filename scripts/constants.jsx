@@ -216,6 +216,16 @@ var symbols = {
     "{B/P}": "Qp",
     "{R/P}": "Qp",
     "{G/P}": "Qp",
+    "{W/U/P}": "Qqp",
+    "{U/B/P}": "Qqp",
+    "{B/R/P}": "Qqp",
+    "{R/G/P}": "Qqp",
+    "{G/W/P}": "Qqp",
+    "{W/B/P}": "Qqp",
+    "{B/G/P}": "Qqp",
+    "{G/U/P}": "Qqp",
+    "{U/R/P}": "Qqp",
+    "{R/W/P}": "Qqp",
     "{E}": "e",
     "{T}": "ot",
     "{X}": "ox",
@@ -386,6 +396,10 @@ var ability_words = [
     "Hide",
     "Charge Them",
     "Befriend Them",
+    "Negative Energy Cone",
+    
+    // Midnight Hunt words
+    "Coven",
 ];
 
 // Card rarities
