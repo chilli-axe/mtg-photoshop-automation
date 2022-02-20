@@ -144,6 +144,18 @@ function determine_symbol_colours(symbol, symbol_length) {
             rgb_black()
         ];
     }
+    
+    // Phyrexian hybrid mana
+    var phyrexian_hybrid_regex = /^\{([W,U,B,R,G])\/([W,U,B,R,G])\/P\}$/;
+    var phyrexian_hybrid_match = symbol.match(phyrexian_hybrid_regex);
+    if (phyrexian_hybrid_match !== null) {
+        return [
+            symbol_colour_map[phyrexian_hybrid_match[2]],
+            symbol_colour_map[phyrexian_hybrid_match[1]],
+            rgb_black(),
+            rgb_black()
+        ];
+    }
 
     var normal_symbol_regex = /^\{([W,U,B,R,G])\}$/;
     var normal_symbol_match = symbol.match(normal_symbol_regex);
