@@ -152,7 +152,6 @@ function determine_symbol_colours(symbol, symbol_length) {
         return [
             symbol_colour_map[phyrexian_hybrid_match[2]],
             symbol_colour_map[phyrexian_hybrid_match[1]],
-            rgb_black(),
             rgb_black()
         ];
     }
