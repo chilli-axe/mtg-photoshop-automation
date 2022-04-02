@@ -496,6 +496,7 @@ function format_text(input_string, italics_strings, flavour_index, is_centred) {
     idsetd = charIDToTypeID("setd");
     idTxLr = charIDToTypeID("TxLr");
     desc119.putObject(idT, idTxLr, primary_action_descriptor);
+    app.refresh();
     executeAction(idsetd, desc119, DialogModes.NO);
 
     // Reset layer's justification and disable hypenation
