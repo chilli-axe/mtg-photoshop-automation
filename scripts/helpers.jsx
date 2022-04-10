@@ -46,6 +46,18 @@ function compute_text_layer_dimensions(layer) {
     return dimensions;
 }
 
+function compute_text_layer_bounds(layer) {
+    /**
+     * Return an object with the specified text layer's bounding box.
+     */
+
+    var layer_copy = layer.duplicate(activeDocument, ElementPlacement.INSIDE);
+    layer_copy.rasterize(RasterizeType.TEXTCONTENTS);
+    var layer_bounds = layer_copy.bounds;
+    layer_copy.remove();
+    return layer_bounds;
+}
+
 function select_layer_pixels(layer) {
     /**
      * Select the bounding box of a given layer.
