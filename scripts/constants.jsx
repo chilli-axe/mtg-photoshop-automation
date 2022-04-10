@@ -102,6 +102,7 @@ var LayerNames = {
     RULES_TEXT_CREATURE_FLIP: "Rules Text - Creature Flip",
     RULES_TEXT_ADVENTURE: "Rules Text - Adventure",
     MUTATE: "Mutate",
+    DIVIDER: "Divider",
 
     // planar text and icons
     STATIC_ABILITY: "Static Ability",
@@ -185,7 +186,7 @@ var font_name_ndpmtg = "NDPMTG";
 // Font spacing
 var modal_indent = 5.7;
 var line_break_lead = 2.4;
-var flavour_text_lead = 4.4;
+var flavour_text_lead = 7;  // 4.4 without flavour text divider, 7 with
 
 // Symbol colours
 var rgb_c = new SolidColor();

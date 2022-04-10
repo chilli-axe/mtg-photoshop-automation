@@ -283,6 +283,7 @@ var NormalTemplate = Class({
                     flavour_text = this.layout.flavour_text,
                     is_centred = is_centred,
                     reference_layer = text_and_icons.layers.getByName(LayerNames.TEXTBOX_REFERENCE),
+                    divider_layer = text_and_icons.layers.getByName(LayerNames.DIVIDER),
                     pt_reference_layer = text_and_icons.layers.getByName(LayerNames.PT_REFERENCE),
                     pt_top_reference_layer = text_and_icons.layers.getByName(LayerNames.PT_TOP_REFERENCE),
                 ),
@@ -301,6 +302,7 @@ var NormalTemplate = Class({
                     flavour_text = this.layout.flavour_text,
                     is_centred = is_centred,
                     reference_layer = text_and_icons.layers.getByName(LayerNames.TEXTBOX_REFERENCE),
+                    divider_layer = text_and_icons.layers.getByName(LayerNames.DIVIDER),
                 ),
             );
 
@@ -411,6 +413,7 @@ var NormalClassicTemplate = Class({
                 flavour_text = this.layout.flavour_text,
                 is_centred = is_centred,
                 reference_layer = reference_layer,
+                divider_layer = text_and_icons.layers.getByName(LayerNames.DIVIDER),
             ),
         );
 
@@ -613,6 +616,7 @@ var ExpeditionTemplate = Class({
                 flavour_text = this.layout.flavour_text,
                 is_centred = false,
                 reference_layer = text_and_icons.layers.getByName(LayerNames.TEXTBOX_REFERENCE),
+                divider_layer = text_and_icons.layers.getByName(LayerNames.DIVIDER),
             ),
         );
     },
@@ -673,6 +677,7 @@ var MiracleTemplate = new Class({
                 flavour_text = this.layout.flavour_text,
                 is_centred = false,
                 reference_layer = text_and_icons.layers.getByName(LayerNames.TEXTBOX_REFERENCE),
+                divider_layer = text_and_icons.layers.getByName(LayerNames.DIVIDER),
             ),
         );
     },
@@ -778,6 +783,7 @@ var TransformFrontTemplate = Class({
                     flavour_text = this.layout.flavour_text,
                     is_centred = is_centred,
                     reference_layer = text_and_icons.layers.getByName(LayerNames.TEXTBOX_REFERENCE),
+                    divider_layer = text_and_icons.layers.getByName(LayerNames.DIVIDER),
                     pt_reference_layer = text_and_icons.layers.getByName(LayerNames.PT_REFERENCE),
                     pt_top_reference_layer = text_and_icons.layers.getByName(LayerNames.PT_TOP_REFERENCE),
                 ),
@@ -799,6 +805,7 @@ var TransformFrontTemplate = Class({
                     flavour_text = this.layout.flavour_text,
                     is_centred = is_centred,
                     reference_layer = text_and_icons.layers.getByName(LayerNames.TEXTBOX_REFERENCE),
+                    divider_layer = text_and_icons.layers.getByName(LayerNames.DIVIDER),
                 ),
             );
 
@@ -850,6 +857,7 @@ var IxalanTemplate = Class({
                 flavour_text = this.layout.flavour_text,
                 is_centred = false,
                 reference_layer = text_and_icons.layers.getByName(LayerNames.TEXTBOX_REFERENCE),
+                divider_layer = text_and_icons.layers.getByName(LayerNames.DIVIDER),
             ),
         );
     },
@@ -942,6 +950,7 @@ var MutateTemplate = Class({
                 flavour_text = this.layout.flavour_text,
                 is_centred = false,
                 reference_layer = text_and_icons.layers.getByName(LayerNames.MUTATE_REFERENCE),
+                divider_layer = text_and_icons.layers.getByName(LayerNames.DIVIDER),
             )
         );
     }
@@ -987,6 +996,7 @@ var AdventureTemplate = Class({
                 flavour_text = "",
                 is_centred = false,
                 reference_layer = text_and_icons.layers.getByName(LayerNames.TEXTBOX_REFERENCE_ADVENTURE),
+                divider_layer = text_and_icons.layers.getByName(LayerNames.DIVIDER),
             ),
             new TextField(
                 layer = type_line,
