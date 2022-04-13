@@ -427,12 +427,8 @@ function retrieve_scryfall_scan(image_url, file_path) {
      */
 
     // default to Windows command
-    var python_command = "python \"" + file_path + "/scripts/get_card_scan.py\" \"" + image_url + "\"";
-    if ($.os.search(/windows/i) === -1) {
-        // macOS
-        python_command = "/usr/local/bin/python3 \"" + file_path + "/scripts/get_card_scan.py\" \"" + image_url + "\" >> " + file_path + "/scripts/debug.log 2>&1";
-    }
-    app.system(python_command);
+    var scryfall_scan_command = python_command + " \"" + file_path + "/scripts/get_card_scan.py\" \"" + image_url + "\"";
+    app.system(scryfall_scan_command);
     return new File(file_path + image_file_path);
 }
 
