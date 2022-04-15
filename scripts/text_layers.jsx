@@ -83,7 +83,9 @@ function vertically_nudge_creature_text(layer, reference_layer, top_reference_la
     // if the layer needs to be nudged
     if (layer.bounds[2].as("px") >= reference_layer.bounds[0].as("px")) {
         select_layer_pixels(reference_layer);
-        app.activeDocument.activeLayer = layer;
+        var rasterised_copy = layer.duplicate();
+        rasterised_copy.rasterize(RasterizeType.ENTIRELAYER);
+        app.activeDocument.activeLayer = rasterised_copy;
 
         // the copied bit of the text layer within the PT box will be inserted into a layer with this name
         var extra_bit_layer_name = "Extra Bit";
