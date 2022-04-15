@@ -46,6 +46,7 @@ var BaseTemplate = Class({
 
         this.layout = layout;
         this.file = file;
+        this.file_path = file_path;
 
         this.load_template(file_path);
 
@@ -75,12 +76,12 @@ var BaseTemplate = Class({
 
         return "";
     },
-    load_template: function (file_path) {
+    load_template: function () {
         /**
          * Opens the template's PSD file in Photoshop.
          */
 
-        var template_path = file_path + "/templates/" + this.template_file_name() + ".psd"
+        var template_path = this.file_path + "/templates/" + this.template_file_name() + ".psd"
         var template_file = new File(template_path);
         try {
             app.open(template_file);
@@ -204,9 +205,11 @@ var ChilliBaseTemplate = Class({
                 reference_layer = mana_cost,
             ),
             new ExpansionSymbolField(
-                layer = expansion_symbol,
-                text_contents = expansion_symbol_character,
+                layer_group = expansion_symbol,
+                set_code = this.layout.set_code,
                 rarity = this.layout.rarity,
+                file_path = this.file_path,
+                justification = Justification.RIGHT,
             ),
             new ScaledTextField(
                 layer = type_line_selected,
@@ -230,13 +233,13 @@ var ChilliBaseTemplate = Class({
         enable_active_layer_mask();
         docref.layers.getByName(LayerNames.HOLLOW_CROWN_SHADOW).visible = true;
     },
-    paste_scryfall_scan: function (reference_layer, file_path, rotate) {
+    paste_scryfall_scan: function (reference_layer, rotate) {
         /**
          * Downloads the card's scryfall scan, pastes it into the document next to the active layer, and frames it to fill
          * the given reference layer. Can optionally rotate the layer by 90 degrees (useful for planar cards).
          */
 
-        var layer = insert_scryfall_scan(this.layout.scryfall_scan, file_path);
+        var layer = insert_scryfall_scan(this.layout.scryfall_scan, this.file_path);
         if (rotate === true) {
             layer.rotate(90);
         }
@@ -590,9 +593,11 @@ var ExpeditionTemplate = Class({
                 text_colour = get_text_layer_colour(name),
             ),
             new ExpansionSymbolField(
-                layer = expansion_symbol,
-                text_contents = expansion_symbol_character,
+                layer_group = expansion_symbol,
+                set_code = this.scryfall.set_code,
                 rarity = this.layout.rarity,
+                file_path = this.file_path,
+                justification = Justification.RIGHT,
             ),
             new ScaledTextField(
                 layer = type_line,
@@ -828,9 +833,11 @@ var IxalanTemplate = Class({
                 text_colour = get_text_layer_colour(name),
             ),
             new ExpansionSymbolField(
-                layer = expansion_symbol,
-                text_contents = expansion_symbol_character,
+                layer_group = expansion_symbol,
+                set_code = this.scryfall.set_code,
                 rarity = this.layout.rarity,
+                file_path = this.file_path,
+                justification = Justification.CENTER,
             ),
             new TextField(
                 layer = type_line,
@@ -1086,7 +1093,7 @@ var SagaTemplate = Class({
 
         // paste scryfall scan
         app.activeDocument.activeLayer = app.activeDocument.layers.getByName(LayerNames.TWINS);
-        this.paste_scryfall_scan(app.activeDocument.layers.getByName(LayerNames.SCRYFALL_SCAN_FRAME), file_path);
+        this.paste_scryfall_scan(app.activeDocument.layers.getByName(LayerNames.SCRYFALL_SCAN_FRAME));
     },
     rules_text_and_pt_layers: function (text_and_icons) {
         var saga_text_group = text_and_icons.layers.getByName("Saga");
@@ -1209,7 +1216,7 @@ var PlaneswalkerTemplate = Class({
 
         // paste scryfall scan
         app.activeDocument.activeLayer = this.docref.layers.getByName(LayerNames.TEXTBOX);
-        this.paste_scryfall_scan(app.activeDocument.layers.getByName(LayerNames.SCRYFALL_SCAN_FRAME), file_path);
+        this.paste_scryfall_scan(app.activeDocument.layers.getByName(LayerNames.SCRYFALL_SCAN_FRAME));
     },
     enable_frame_layers: function () {
         // twins and pt box
@@ -1317,7 +1324,7 @@ var PlanarTemplate = Class({
 
         // paste scryfall scan
         app.activeDocument.activeLayer = docref.layers.getByName(LayerNames.TEXTBOX);
-        this.paste_scryfall_scan(app.activeDocument.layers.getByName(LayerNames.SCRYFALL_SCAN_FRAME), file_path, true);
+        this.paste_scryfall_scan(app.activeDocument.layers.getByName(LayerNames.SCRYFALL_SCAN_FRAME), true);
     },
     enable_frame_layers: function () { },
 });

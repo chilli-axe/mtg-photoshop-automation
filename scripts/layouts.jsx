@@ -43,6 +43,7 @@ var BaseLayout = Class({
          * At minimum, the extending class should set this.name, this.oracle_text, this.type_line, and this.mana_cost.
          */
 
+        this.set_code = this.scryfall.set;
         this.rarity = this.scryfall.rarity;
         this.artist = this.scryfall.artist;
         this.colour_identity = this.scryfall.color_identity;
