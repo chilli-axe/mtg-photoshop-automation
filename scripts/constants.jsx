@@ -180,19 +180,19 @@ var flavour_text_lead = 4.4;
 
 // Symbol colours
 var rgb_c = new SolidColor();
-rgb_c.rgb.red = 204;
-rgb_c.rgb.green = 194;
-rgb_c.rgb.blue = 193;
+rgb_c.rgb.red = 215;
+rgb_c.rgb.green = 208;
+rgb_c.rgb.blue = 205;
 
 var rgb_w = new SolidColor();
-rgb_w.rgb.red = 255;
-rgb_w.rgb.green = 251;
-rgb_w.rgb.blue = 214;
+rgb_w.rgb.red = 254;
+rgb_w.rgb.green = 253;
+rgb_w.rgb.blue = 224;
 
 var rgb_u = new SolidColor();
-rgb_u.rgb.red = 170;
-rgb_u.rgb.green = 224;
-rgb_u.rgb.blue = 250;
+rgb_u.rgb.red = 186;
+rgb_u.rgb.green = 231;
+rgb_u.rgb.blue = 252;
 
 var rgb_b = new SolidColor();
 rgb_b.rgb.red = 159;
@@ -200,14 +200,14 @@ rgb_b.rgb.green = 146;
 rgb_b.rgb.blue = 143;
 
 var rgb_r = new SolidColor();
-rgb_r.rgb.red = 249;
-rgb_r.rgb.green = 169;
-rgb_r.rgb.blue = 143;
+rgb_r.rgb.red = 250;
+rgb_r.rgb.green = 186;
+rgb_r.rgb.blue = 159;
 
 var rgb_g = new SolidColor();
-rgb_g.rgb.red = 154;
-rgb_g.rgb.green = 211;
-rgb_g.rgb.blue = 175;
+rgb_g.rgb.red = 171;
+rgb_g.rgb.green = 221;
+rgb_g.rgb.blue = 189;
 
 // NDPMTG font dictionary to translate Scryfall symbols to font character sequences
 var symbols = {
