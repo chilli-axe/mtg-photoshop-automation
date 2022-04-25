@@ -28,7 +28,7 @@ var BaseLayout = Class({
         this.unpack_scryfall();
         this.set_card_class();
 
-        var ret = select_frame_layers(this.mana_cost, this.type_line, this.oracle_text, this.colour_identity);
+        var ret = select_frame_layers(this.mana_cost, this.type_line, this.oracle_text, this.colour_identity, this.colour_indicator);
 
         this.twins = ret.twins;
         this.pinlines = ret.pinlines;
@@ -46,6 +46,7 @@ var BaseLayout = Class({
         this.rarity = this.scryfall.rarity;
         this.artist = this.scryfall.artist;
         this.colour_identity = this.scryfall.color_identity;
+        this.colour_indicator = null;
         this.keywords = [];
         if (this.scryfall.keywords !== undefined) {
             this.keywords = this.scryfall.keywords;
@@ -202,6 +203,7 @@ var ModalDoubleFacedLayout = Class({
             this.scryfall.card_faces[this.other_face].type_line,
             this.scryfall.card_faces[this.other_face].oracle_text,
             this.scryfall.card_faces[this.other_face].color_identity,
+            this.scryfall.card_faces[this.other_face].colour_indicator,
         ).twins;
         var other_face_type_line_split = this.scryfall.card_faces[this.other_face].type_line.split(" ");
         this.other_face_left = other_face_type_line_split[other_face_type_line_split.length - 1];

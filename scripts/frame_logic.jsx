@@ -9,7 +9,7 @@ function fix_colour_pair(input) {
     }
 }
 
-function select_frame_layers(mana_cost, type_line, oracle_text, colour_identity_array) {
+function select_frame_layers(mana_cost, type_line, oracle_text, colour_identity_array, colour_indicator) {
     const colours = [LayerNames.WHITE, LayerNames.BLUE, LayerNames.BLACK, LayerNames.RED, LayerNames.GREEN];
     const basic_colours = { "Plains": LayerNames.WHITE, "Island": LayerNames.BLUE, "Swamp": LayerNames.BLACK, "Mountain": LayerNames.RED, "Forest": LayerNames.GREEN };
     const hybrid_symbols = ["W/U", "U/B", "B/R", "R/G", "G/W", "W/B", "B/G", "G/U", "U/R", "R/W"];
@@ -182,12 +182,14 @@ function select_frame_layers(mana_cost, type_line, oracle_text, colour_identity_
         var colour_identity = "";
         if (mana_cost == "" || (mana_cost == "{0}" && type_line.indexOf(LayerNames.ARTIFACT) < 0)) {
             // Card with no mana cost
-            // Assume that all nonland cards with no mana cost are mono-coloured
-            if (colour_identity_array === undefined || colour_identity_array.length == 0) colour_identity = "";
-            // else colour_identity = colour_identity_array[0];
-            else {
+            // If `colour_indicator` is defined for this card, use that as the colour identity
+            // Otherwise, use `colour_identity` as the colour identity
+            if (colour_identity_array === undefined || colour_identity_array.length == 0) {
+                colour_identity = "";
+            } else if (colour_indicator !== undefined && colour_indicator !== null) {
+                colour_identity = colour_indicator.join("");
+            } else {
                 colour_identity = colour_identity_array.join("");
-                if (colour_identity.length == 2) colour_identity = fix_colour_pair(colour_identity);
             }
         } else {
             // The card has a non-empty mana cost

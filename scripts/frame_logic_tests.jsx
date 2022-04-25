@@ -68,10 +68,20 @@ const test_cases = {
     "Dominus of Fealty": { layout: NormalLayout, frame: [LayerNames.UR, LayerNames.UR, LayerNames.LAND, false, false] },
     "Nobilis of War": { layout: NormalLayout, frame: [LayerNames.RW, LayerNames.RW, LayerNames.LAND, false, false] },
 
-    // Transform cards
+    // Double faced cards
     "Insectile Aberration": { layout: TransformLayout, frame: [LayerNames.BLUE, LayerNames.BLUE, LayerNames.BLUE, false, false] },
     "Ravager of the Fells": { layout: TransformLayout, frame: [LayerNames.GOLD, LayerNames.RG, LayerNames.GOLD, false, false] },
     "Brisela, Voice of Nightmares": { layout: MeldLayout, frame: [LayerNames.COLOURLESS, LayerNames.COLOURLESS, LayerNames.COLOURLESS, false, true] },
+    "Archangel Avacyn": { layout: TransformLayout, frame: [LayerNames.WHITE, LayerNames.WHITE, LayerNames.WHITE, false, false] },
+    "Avacyn, the Purifier": { layout: TransformLayout, frame: [LayerNames.RED, LayerNames.RED, LayerNames.RED, false, false] },
+    "Curious Homunculus": {layout: TransformLayout, frame: [LayerNames.BLUE, LayerNames.BLUE, LayerNames.BLUE, false, false]},
+    "Voracious Reader": {layout: TransformLayout, frame: [LayerNames.COLOURLESS, LayerNames.COLOURLESS, LayerNames.COLOURLESS, false, true]},
+    "Barkchannel Pathway": {layout: ModalDoubleFacedLayout, frame: [LayerNames.LAND, LayerNames.GREEN, LayerNames.GREEN, false, false]},
+    "Tidechannel Pathway": {layout: ModalDoubleFacedLayout, frame: [LayerNames.LAND, LayerNames.BLUE, LayerNames.BLUE, false, false]},
+    "Blex, Vexing Pest": {layout: ModalDoubleFacedLayout, frame: [LayerNames.GREEN, LayerNames.GREEN, LayerNames.GREEN, false, false]},
+    "Search for Blex": {layout: ModalDoubleFacedLayout, frame: [LayerNames.BLACK, LayerNames.BLACK, LayerNames.BLACK, false, false]},
+    "Extus, Oriq Overlord": { layout: ModalDoubleFacedLayout, frame: [LayerNames.GOLD, LayerNames.WB, LayerNames.GOLD, false, false] },
+    "Awaken the Blood Avatar": { layout: ModalDoubleFacedLayout, frame: [LayerNames.GOLD, LayerNames.BR, LayerNames.GOLD, false, false] },
 
     // Tri coloured, normal frame cards
     "Esper Charm": { layout: NormalLayout, frame: [LayerNames.GOLD, LayerNames.GOLD, LayerNames.GOLD, false, false] },

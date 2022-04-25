@@ -22,6 +22,7 @@ def add_meld_info(card_json):
 
 
 if __name__ == "__main__":
+    time.sleep(0.1)
     card_name = sys.argv[1]
     # Use Scryfall to search for this card
     card = None
@@ -52,4 +53,3 @@ if __name__ == "__main__":
         json.dump(json_dump, f)
 
     print(" and done!", flush=True)
-    time.sleep(0.1)
