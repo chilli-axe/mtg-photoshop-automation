@@ -924,7 +924,7 @@ var MutateTemplate = Class({
         return "mutate";
     },
     constructor: function (layout, file, file_path) {
-        // split this.oracle_text between mutate text and actual text before calling this.super()
+        // split this.layout.oracle_text between mutate text and actual text before calling this.super()
         var split_rules_text = layout.oracle_text.split("\n");
         layout.mutate_text = split_rules_text[0];
         layout.oracle_text = split_rules_text.slice(1, split_rules_text.length).join("\n");
@@ -1320,6 +1320,114 @@ var PlanarTemplate = Class({
         this.paste_scryfall_scan(app.activeDocument.layers.getByName(LayerNames.SCRYFALL_SCAN_FRAME), file_path, true);
     },
     enable_frame_layers: function () { },
+});
+
+var TokenTemplate = Class({
+    /**
+     * Token template. Ensure the art file name has the correct set - on Scryfall, token sets begin with "T", 
+     * e.g. "TSTX" for STX (Strixhaven) tokens.
+     */
+
+    extends_: BaseTemplate,
+    template_file_name: function() {
+        return "token";
+    },
+    constructor: function(layout, file, file_path) {
+        this.super(layout, file, file_path);
+        var docref = app.activeDocument;
+
+        this.is_creature = this.layout.power !== undefined && this.layout.toughness !== undefined;
+        this.is_legendary = this.layout.type_line.indexOf("Legendary") >= 0;
+
+        this.art_reference = docref.layers.getByName(LayerNames.ART_FRAME);
+        var text_and_icons = docref.layers.getByName(LayerNames.TEXT_AND_ICONS);
+        var type_line_and_rules_text = docref.layers.getByName(LayerNames.TYPE_LINE_AND_RULES_TEXT);
+        var name_layer = text_and_icons.layers.getByName(LayerNames.NAME);
+        this.text_layers.push(
+            new TextField(
+                layer = name_layer,
+                text_contents = this.layout.name,
+                text_colour = name_layer.textItem.color,
+            )
+        );
+        var power_toughness_layer = text_and_icons.layers.getByName(LayerNames.POWER_TOUGHNESS);
+        var noncreature_copyright = this.legal.layers.getByName(LayerNames.NONCREATURE_COPYRIGHT);
+        var creature_copyright = this.legal.layers.getByName(LayerNames.CREATURE_COPYRIGHT);
+        if (this.is_creature) {
+            this.text_layers.push(
+                new TextField(
+                    layer = power_toughness_layer,
+                    text_contents = this.layout.power.toString() + "/" + this.layout.toughness.toString(),
+                    text_colour = rgb_white(),
+                )
+            );
+            docref.activeLayer = type_line_and_rules_text;
+            enable_active_vector_mask();
+            noncreature_copyright.visible = false;
+            creature_copyright.visible = true;
+        } else {
+            power_toughness_layer.visible = false;
+            docref.activeLayer = type_line_and_rules_text;
+            disable_active_vector_mask();
+            noncreature_copyright.visible = true;
+            creature_copyright.visible = false;
+        }
+        
+        var rules_text_group;
+        if (this.layout.oracle_text === "" & this.layout.flavour_text === "") {
+            rules_text_group = type_line_and_rules_text.layers.getByName(LayerNames.FULL_ART);
+        } else if (
+            this.layout.oracle_text.indexOf("\n") < 0 & this.layout.flavour_text.indexOf("\n") < 0
+            & (this.layout.oracle_text === "" | this.layout.flavour_text === "")
+        ) {
+            rules_text_group = type_line_and_rules_text.layers.getByName(LayerNames.ONE_LINE_RULES_TEXT);
+            this.text_layers.push(
+                new FormattedTextField(
+                    layer = rules_text_group.layers.getByName(LayerNames.RULES_TEXT),
+                    text_contents = this.layout.oracle_text,
+                    text_colour = rgb_white(),
+                    flavour_text = this.layout.flavour_text,
+                    is_centred = false,
+                )
+            );
+        } else {
+            rules_text_group = type_line_and_rules_text.layers.getByName(LayerNames.RULES_TEXT);
+            this.text_layers.push(
+                new FormattedTextArea(
+                    layer = rules_text_group.layers.getByName(LayerNames.RULES_TEXT),
+                    text_contents = this.layout.oracle_text,
+                    text_colour = rgb_white(),
+                    flavour_text = this.layout.flavour_text,
+                    is_centred = false,
+                    reference_layer = rules_text_group.layers.getByName(LayerNames.TEXTBOX_REFERENCE),
+                )
+            );
+        }
+        rules_text_group.visible = true;
+        this.text_layers.push(
+            new TextField(  // TODO: scaling to fit within frame
+                layer = rules_text_group.layers.getByName(LayerNames.TYPE_LINE),
+                text_contents = this.layout.type_line,
+                text_colour = rgb_white(),
+            )
+        );
+    },
+    enable_frame_layers: function () {
+        var docref = app.activeDocument;
+
+        var frame_group = docref.layers.getByName(LayerNames.FRAME);
+        if (this.is_legendary) {
+            frame_group = frame_group.layers.getByName(LayerNames.LEGENDARY);
+        } else {
+            frame_group = frame_group.layers.getByName(LayerNames.NON_LEGENDARY);
+        }
+        if (this.is_creature) {
+            frame_group = frame_group.layers.getByName(LayerNames.CREATURE);
+        } else {
+            frame_group = frame_group.layers.getByName(LayerNames.NON_CREATURE);
+        }
+        frame_group.layers.getByName(this.layout.pinlines).visible = true;
+    },
 });
 
 var BasicLandTemplate = Class({

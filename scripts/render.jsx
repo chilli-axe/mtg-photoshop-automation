@@ -134,6 +134,10 @@ function select_template(layout, file, file_path) {
         default_: PlanarTemplate,
         other: [],
     };
+    class_template_map[token_class] = {
+        default_: TokenTemplate,
+        other: [],
+    };
 
     var template_class = class_template_map[layout.card_class];
     var template = template_class.default_;
@@ -168,7 +172,7 @@ function render(file) {
         if (layout_name in layout_map) {
             var layout = new layout_map[layout_name](scryfall, card_name);
         } else {
-            throw new Error("Layout" + layout_name + " is not supported. Sorry!");
+            throw new Error("Layout \"" + layout_name + "\" is not supported. Sorry!");
         }
 
         // if artist specified in file name, insert the specified artist into layout obj

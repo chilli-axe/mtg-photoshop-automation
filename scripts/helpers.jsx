@@ -181,6 +181,45 @@ function disable_active_layer_mask() {
     set_active_layer_mask(false);
 }
 
+function set_active_vector_mask(visible) {
+    /**
+     * Set the visibility of the active layer's vector mask.
+     */
+
+    var idsetd = charIDToTypeID( "setd" );
+    var desc248 = new ActionDescriptor();
+    var idnull = charIDToTypeID( "null" );
+    var ref138 = new ActionReference();
+    var idLyr = charIDToTypeID( "Lyr " );
+    var idOrdn = charIDToTypeID( "Ordn" );
+    var idTrgt = charIDToTypeID( "Trgt" );
+    ref138.putEnumerated( idLyr, idOrdn, idTrgt );
+    desc248.putReference( idnull, ref138 );
+    var idT = charIDToTypeID( "T   " );
+    var desc249 = new ActionDescriptor();
+    var idvectorMaskEnabled = stringIDToTypeID( "vectorMaskEnabled" );
+    desc249.putBoolean( idvectorMaskEnabled, visible );
+    var idLyr = charIDToTypeID( "Lyr " );
+    desc248.putObject( idT, idLyr, desc249 );
+    executeAction( idsetd, desc248, DialogModes.NO );
+}
+
+function enable_active_vector_mask() {
+    /**
+     * Enables the active layer's vector mask.
+     */
+
+    set_active_vector_mask(true);
+}
+
+function disable_active_vector_mask() {
+    /**
+     * Disables the active layer's vector mask.
+     */
+
+    set_active_vector_mask(false);
+}
+
 function apply_stroke(stroke_weight, stroke_colour) {
     /**
      * Applies an outer stroke to the active layer with the specified weight and colour.

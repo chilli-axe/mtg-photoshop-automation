@@ -19,6 +19,7 @@ var planeswalker_class = "planeswalker";
 var snow_class = "snow";
 var basic_class = "basic";
 var planar_class = "planar";
+var token_class = "token";
 
 
 // Layer names
@@ -56,6 +57,14 @@ var LayerNames = {
     COMPANION: "Companion",
     BACKGROUND: "Background",
     NYX: "Nyx",
+    FRAME: "Frame",
+    LEGENDARY: "Legendary",
+    NON_LEGENDARY: "Non-Legendary",
+    CREATURE: "Creature",
+    NON_CREATURE: "Non-Creature",
+    TYPE_LINE_AND_RULES_TEXT:  "Typeline and Rules Text",
+    FULL_ART: "Full Art",
+    ONE_LINE_RULES_TEXT: "One-Line Rules Text",
 
     // borders
     BORDER: "Border",

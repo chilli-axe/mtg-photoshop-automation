@@ -35,7 +35,7 @@ Trademark and copyright Wizards of the Coast 2022. Templates for this project in
     * macOS: `/usr/local/bin/python3 ...`
 
 # Scope
-* Modern style cards, normal and extended; transform and mdfc, front and back; basic lands, normal, Theros, and Unstable styles; planeswalkers, normal and extended; mutate, adventure, miracle, and snow cards; and various flavours of fancy frames - stargazing, universes beyond, masterpiece, ZNE expedition, and womensday.
+* Modern style cards, normal and extended; transform and mdfc, front and back; basic lands, normal, Theros, and Unstable styles; planeswalkers, normal and extended; mutate, adventure, miracle, and snow cards; various flavours of fancy frames - stargazing, universes beyond, masterpiece, ZNE expedition, and womensday; planar cards, tokens, and basic lands.
 * Leveler and saga cards require manual intervention to position text layers, but are automated up until that point.
 * Planeswalkers also require manual intervention to position text layers and the ragged textbox divider, but are automated up until that point.
 * Flavour text divider is not supported, as rules text & flavour text are formatted in the same text layer, and it would be impractical to position the flavour text divider programmatically with Adobe's JavaScript library.

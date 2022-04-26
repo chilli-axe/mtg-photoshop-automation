@@ -323,6 +323,27 @@ var PlanarLayout = Class({
     },
 });
 
+var TokenLayout = Class({
+    extends_: BaseLayout,
+    unpack_scryfall: function () {
+        this.super();
+
+        this.name = this.scryfall.name;
+        this.mana_cost = this.scryfall.mana_cost;
+        this.type_line = this.scryfall.type_line;
+        this.oracle_text = this.scryfall.oracle_text;
+        this.flavour_text = "";
+        if (this.scryfall.flavor_text !== undefined) {
+            this.flavour_text = this.scryfall.flavor_text;
+        }
+        this.power = this.scryfall.power;
+        this.toughness = this.scryfall.toughness;
+    },
+    get_default_class: function () {
+        return token_class;
+    }
+});
+
 var layout_map = {
     "normal": NormalLayout,
     "transform": TransformLayout,
@@ -332,4 +353,5 @@ var layout_map = {
     "leveler": LevelerLayout,
     "saga": SagaLayout,
     "planar": PlanarLayout,
+    "token": TokenLayout,
 }
