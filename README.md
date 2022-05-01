@@ -8,14 +8,16 @@ Trademark and copyright Wizards of the Coast 2022. Templates for this project in
 # Requirements
   * A copy of Photoshop. I tested the system using CS5 and CC 2018, but other versions may work as well.
   * The Photoshop templates:
-    * [Automated templates](https://drive.google.com/drive/folders/1_8szsVZ6-0Uoxr0XzLcYM6Zjcx89wqYR?usp=sharing) (compatible with this project)
-    * [Manual templates](https://drive.google.com/drive/folders/1wAH-JKPHa5cPcMcEiyE9q46WH6PEaXnj?usp=sharing) which may also be of interest
+    * [Automated templates](https://drive.google.com/drive/folders/1_8szsVZ6-0Uoxr0XzLcYM6Zjcx89wqYR?usp=sharing), which are compatible with this project
+    * [Manual templates](https://drive.google.com/drive/folders/1wAH-JKPHa5cPcMcEiyE9q46WH6PEaXnj?usp=sharing), which may also be of interest
   * The following fonts:
-    * [Beleren Smallcaps, MPlantin and MPlantin-Italics](https://github.com/magarena/magarena/tree/master/resources/cardbuilder/fonts) and [Beleren2016](https://magic.wizards.com/sites/all/themes/wiz_mtg/fonts/Beleren/Beleren2016-Bold.ttf),
+    * [Beleren Smallcaps, MPlantin, and MPlantin-Italics](https://github.com/magarena/magarena/tree/master/resources/cardbuilder/fonts),
+    * Beleren2016:
+      * I have included a copy of the font in this repo which tweaks the asterisk symbol to match how it appears in the power / toughness of real cards,
+      * You can download the original from Wizards' website [here](https://magic.wizards.com/sites/all/themes/wiz_mtg/fonts/Beleren/Beleren2016-Bold.ttf),
     * My custom Magic symbols font `NDPMTG.ttf`, included in the repo,
     * [Keyrune](https://keyrune.andrewgioia.com/) and [Mana](https://mana.andrewgioia.com/), for the expansion symbol and transform symbols,
     * Relay Medium and Calibri.
-  * [json2.js](https://github.com/douglascrockford/JSON-js), included but you may need to download a more recent version.
   * A standard installation of [Python 3](https://www.python.org/downloads/).
 
 # Install and Usage Guide
