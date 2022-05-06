@@ -46,7 +46,7 @@ function call_python(card_name, file_path) {
     if (json_string === "") {
         throw new Error(
             "\n\ncard.json does not exist - the system failed to successfully run get_card_info.py.\nThe attempted Python call was made with the " +
-            "following command:\n\n" + python_command + "\n\nYou may need to edit this command in settings.jsx depending on your computer's configuration. " +
+            "following command:\n\n" + scryfall_info_command + "\n\nYou may need to edit this command in settings.jsx depending on your computer's configuration. " +
             "Try running the command from the command line as that may help you debug the issue"
         );
     }
