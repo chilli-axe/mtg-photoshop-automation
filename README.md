@@ -38,9 +38,9 @@ Trademark and copyright Wizards of the Coast 2022. Templates for this project in
 
 # Scope
 * Modern style cards, normal and extended; transform and mdfc, front and back; basic lands, normal, Theros, and Unstable styles; planeswalkers, normal and extended; mutate, adventure, miracle, and snow cards; various flavours of fancy frames - stargazing, universes beyond, masterpiece, ZNE expedition, and womensday; planar cards, tokens, and basic lands.
+* The flavour text divider is automatically positioned.
 * Leveler and saga cards require manual intervention to position text layers, but are automated up until that point.
 * Planeswalkers also require manual intervention to position text layers and the ragged textbox divider, but are automated up until that point.
-* Flavour text divider is not supported, as rules text & flavour text are formatted in the same text layer, and it would be impractical to position the flavour text divider programmatically with Adobe's JavaScript library.
 
 # Customisation
 The repo includes a set of helper functions and boilerplate classes which make automating any given template straight-forward. You'll need reference layers (check out my templates on google drive for examples) for artwork to be positioned against, and for any text layers that need to be positioned vertically within a textbox. Check out the comments at the top of `templates.jsx` for more info, and you can review how I've automated my templates there for reference as well. You'll also need to adjust the function `select_template()` in `render.jsx` to point to your template class(es).
