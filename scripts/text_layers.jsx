@@ -313,12 +313,16 @@ var FormattedTextArea = Class({
             var layer_bounds = compute_text_layer_bounds(this.layer);
 
             var layer_text_contents = this.layer.duplicate();
+            layer_text_contents.textItem.contents = this.text_contents;
+            layer_text_contents.textItem.spaceBefore = new UnitValue(line_break_lead, "px");
             app.activeDocument.activeLayer = layer_text_contents;
-            format_text(this.text_contents, italic_text, flavour_index, this.is_centred);
+            format_text(this.text_contents, italic_text, -1, this.is_centred);
             layer_text_contents.rasterize(RasterizeType.ENTIRELAYER);
             text_contents_bottom = layer_text_contents.bounds[3].as("px");
 
             var layer_flavour_text = this.layer.duplicate();
+            layer_flavour_text.textItem.contents = this.flavour_text;
+            layer_flavour_text.textItem.spaceBefore = new UnitValue(line_break_lead, "px");
             app.activeDocument.activeLayer = layer_flavour_text;
             format_text(this.flavour_text, italic_text, flavour_index, this.is_centred);
             layer_flavour_text.rasterize(RasterizeType.ENTIRELAYER);
