@@ -113,12 +113,13 @@ function vertically_nudge_creature_text(layer, reference_layer, top_reference_la
         // determine how much the rules text overlaps the power/toughness by
         var extra_bit_layer = layer.parent.layers.getByName(extra_bit_layer_name);
         var delta = top_reference_layer.bounds[3].as("px") - extra_bit_layer.bounds[3].as("px");
-        extra_bit_layer.visible = false;
 
         if (delta < 0) {
-            layer.applyOffset(0, new UnitValue(delta, "px"), OffsetUndefinedAreas.SETTOBACKGROUND);
+            layer.translate(0, new UnitValue(delta, "px"));
         }
 
+        rasterised_copy.remove();
+        extra_bit_layer.remove();
         clear_selection();
     }
 }
