@@ -126,11 +126,85 @@ function vertically_nudge_creature_text(layer, reference_layer, top_reference_la
 
 /* Class definitions */
 
-var TextField = Class({
-    /*
-    A generic TextField, which allows you to set a text layer's contents and text colour.
-    */
+var Field = Class({
+    /**
+     * Interface for a Field class. The system will run the `execute` functions of all Fields in `self.text_layers` when rendering a card.
+     */
 
+    constructor: function () {
+        throw new Error("This Field's constructor is not defined!");
+    },
+    execute: function () {
+        throw new Error("This Field's execute function is not defined!")
+    },
+});
+
+var ExpansionSymbolField = Class({
+    /**
+     * A Field which represents a card's expansion symbol. The expansion symbol is retrieved from Scryfall and stored on disk as SVG when the
+     * card's information is queried, then loaded into the document here. The symbol is sized and positioned according to a reference layer
+     * (typically right-justified, but centre alignment is also supported), and a 6 px outer stroke is applied. If the card is common, a white
+     * stroke is applied; otherwise, a black stroke is applied, and a clipping mask for the rarity colour is aligned to the expansion symbol
+     * and enabled.
+     */
+
+    extends_: Field,
+    constructor: function (layer_group, set_code, rarity, file_path, justification) {       
+        this.layer_group = layer_group;
+        this.set_code = set_code.toUpperCase();
+        if (use_default_expansion_symbol) {
+            this.set_code = default_icon_name;
+        }
+        this.rarity = rarity;
+        if (rarity === rarity_bonus || rarity === rarity_special) {
+            this.rarity = rarity_mythic;
+        }
+        this.file_path = file_path;
+        this.justification = justification;
+    },
+    execute: function () {
+        var expansion_symbol_file = new File(file_path + icon_directory + this.set_code + dot_svg);
+        var reference_layer = this.layer_group.layers.getByName(LayerNames.EXPANSION_REFERENCE);
+        app.activeDocument.activeLayer = reference_layer;
+        var expansion_symbol_layer = paste_file_into_new_layer(expansion_symbol_file);
+        frame_layer(expansion_symbol_layer, reference_layer);
+
+        // centre justified by default
+        if (this.justification === Justification.LEFT) {
+            select_layer_pixels(reference_layer);
+            align_left();
+            clear_selection();
+        } else if (this.justification === Justification.RIGHT) {
+            select_layer_pixels(reference_layer);
+            align_right();
+            clear_selection();
+        }
+        reference_layer.visible = false;
+
+        var stroke_weight = 6;  // pixels
+        app.activeDocument.activeLayer = this.layer_group;
+        if (this.rarity === rarity_common) {
+            apply_outer_stroke(stroke_weight, rgb_white());
+        } else {
+            var mask_layer = this.layer_group.parent.layers.getByName(this.rarity);
+            mask_layer.visible = true;
+            // ensure the gradient layer is aligned to the expansion symbol
+            apply_outer_stroke(stroke_weight, rgb_black());
+            app.activeDocument.activeLayer = mask_layer;
+            select_layer_pixels(expansion_symbol_layer);
+            align_horizontal();
+            align_vertical();
+            clear_selection();
+        }
+    }
+});
+
+var TextField = Class({
+    /**
+     * A generic TextField which allows you to set a text layer's contents and text colour.
+     */
+
+    extends_: Field,
     constructor: function (layer, text_contents, text_colour) {
         this.layer = layer;
         this.text_contents = "";
@@ -164,37 +238,6 @@ var ScaledTextField = Class({
         scale_text_right_overlap(this.layer, this.reference_layer);
     }
 });
-
-var ExpansionSymbolField = Class({
-    /**
-     * A TextField which represents a card's expansion symbol. Expansion symbol layers have a series of clipping masks (uncommon, rare, mythic),
-     * one of which will need to be enabled according to the card's rarity. A 6 px outer stroke should be applied to the layer as well, white if 
-     * the card is of common rarity and black otherwise.
-     */
-
-    extends_: TextField,
-    constructor: function (layer, text_contents, rarity) {
-        this.super(layer, text_contents, rgb_black());
-
-        this.rarity = rarity;
-        if (rarity === rarity_bonus || rarity === rarity_special) {
-            this.rarity = rarity_mythic;
-        }
-    },
-    execute: function () {
-        this.super();
-
-        var stroke_weight = 6;  // pixels
-        app.activeDocument.activeLayer = this.layer;
-        if (this.rarity === rarity_common) {
-            apply_stroke(stroke_weight, rgb_white());
-        } else {
-            var mask_layer = this.layer.parent.layers.getByName(this.rarity);
-            mask_layer.visible = true;
-            apply_stroke(stroke_weight, rgb_black());
-        }
-    }
-})
 
 var BasicFormattedTextField = Class({
     /**
@@ -263,7 +306,7 @@ var FormattedTextField = Class({
             this.layer.textItem.justification = Justification.CENTER;
         }
     }
-})
+});
 
 var FormattedTextArea = Class({
     /**
@@ -309,4 +352,4 @@ var CreatureFormattedTextArea = Class({
         // shift vertically if the text overlaps the PT box
         vertically_nudge_creature_text(this.layer, this.pt_reference_layer, this.pt_top_reference_layer);
     }
-})
+});
