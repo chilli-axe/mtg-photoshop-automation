@@ -2,6 +2,9 @@
 
 var json_file_path = "/scripts/card.json";
 var image_file_path = "/scripts/card.jpg";
+var icon_directory = "/scripts/icons/";
+var default_icon_name = "default";
+var dot_svg = ".svg";
 
 // Card classes - finer grained than Scryfall layouts
 var normal_class = "normal";
@@ -20,7 +23,6 @@ var snow_class = "snow";
 var basic_class = "basic";
 var planar_class = "planar";
 var token_class = "token";
-
 
 // Layer names
 var LayerNames = {
@@ -91,7 +93,7 @@ var LayerNames = {
     TYPE_LINE_ADVENTURE: "Typeline - Adventure",
     MANA_COST: "Mana Cost",
     MANA_COST_ADVENTURE: "Mana Cost - Adventure",
-    EXPANSION_SYMBOL: "Expansion Symbol",
+    EXPANSION_SYMBOL: "Expansion Symbol", // group name
     COLOUR_INDICATOR: "Colour Indicator",
     POWER_TOUGHNESS: "Power / Toughness",
     FLIPSIDE_POWER_TOUGHNESS: "Flipside Power / Toughness",
@@ -102,6 +104,7 @@ var LayerNames = {
     RULES_TEXT_CREATURE_FLIP: "Rules Text - Creature Flip",
     RULES_TEXT_ADVENTURE: "Rules Text - Adventure",
     MUTATE: "Mutate",
+    DIVIDER: "Divider",
 
     // planar text and icons
     STATIC_ABILITY: "Static Ability",
@@ -117,6 +120,7 @@ var LayerNames = {
     MUTATE_REFERENCE: "Mutate Reference",
     PT_REFERENCE: "PT Adjustment Reference",
     PT_TOP_REFERENCE: "PT Top Reference",
+    EXPANSION_REFERENCE: "Expansion Reference",
 
     // planeswalker
     FIRST_ABILITY: "First Ability",
@@ -185,7 +189,7 @@ var font_name_ndpmtg = "NDPMTG";
 // Font spacing
 var modal_indent = 5.7;
 var line_break_lead = 2.4;
-var flavour_text_lead = 4.4;
+var flavour_text_lead = 7;  // 4.4 without flavour text divider, 7 with
 
 // Symbol colours
 var rgb_c = new SolidColor();

@@ -1,7 +1,9 @@
 #include "scripts/templates.jsx";
 
-// Expansion symbol - characters copied from Keyrune cheatsheet
-var expansion_symbol_character = "";  // Cube
+// Expansion symbol settings - if set to true, the system will use `default.svg` as the expansion symbol for all cards.
+// If set to false, the system will use the expansion symbol that appears on the printed card. This may not look 100% correct 
+// when compared to real cards.
+var use_default_expansion_symbol = true;
 
 // Specify a template to use (if the card's layout is compatible) rather than the default template
 var specified_template = null;

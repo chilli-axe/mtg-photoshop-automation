@@ -16,7 +16,7 @@ Trademark and copyright Wizards of the Coast 2022. Templates for this project in
       * I have included a copy of the font in this repo which tweaks the asterisk symbol to match how it appears in the power / toughness of real cards,
       * You can download the original from Wizards' website [here](https://magic.wizards.com/sites/all/themes/wiz_mtg/fonts/Beleren/Beleren2016-Bold.ttf),
     * My custom Magic symbols font `NDPMTG.ttf`, included in the repo,
-    * [Keyrune](https://keyrune.andrewgioia.com/) and [Mana](https://mana.andrewgioia.com/), for the expansion symbol and transform symbols,
+    * [Mana](https://mana.andrewgioia.com/), for transform symbols,
     * Relay Medium and Calibri.
   * A standard installation of [Python 3](https://www.python.org/downloads/).
 
@@ -31,16 +31,16 @@ Trademark and copyright Wizards of the Coast 2022. Templates for this project in
 * **Optional**: Copy the files from `/scripts/utils` to the `Scripts` folder in your Photoshop installation. For me, this was `C:\Program Files\Adobe\Adobe Photoshop CC 2018\Presets\Scripts`. Modify the paths in those files to point to the corresponding files in `/scripts`. This enables the use of a few utility scripts which are handy when making renders manually.
 
 # FAQ
-* *I want to change the set symbol to something else.* Head over to https://andrewgioia.github.io/Keyrune/cheatsheet.html - you can use any of these symbols for the set symbol for your cards. Copy the text of the symbol you want on the cheatsheet, then replace the expansion symbol character in quotations at the top of the file with the character you copied.
+* *I want to customise the card's set symbol.* By default, the system draws the set symbol from `/scripts/icons/default.svg`, so if you'd like to use a different set symbol for all cards, you should replace this file with your desired one. The system also supports retrieving & using the set symbol for the card you're rendering - in `settings.jsx`, set `use_default_expansion_symbol` to `false`. The expansion symbol may not look 100% correct (as printed on real cards) due to inconsistencies in how set symbols are sized, positioned, and outlined on real cards.
 * *I'm getting an error message saying that the Python call failed and `card.json` was not created.* This is a result of the Python command not executing properly on your computer. The error message contains a copy of the command the system attempted - copy this command and try running it from the command line to diagnose the issue. You may need to adjust the Python command defined in `settings.jsx` depending on how your computer's Python installation is configured. The default commands are:
     * Windows: `python ...`
     * macOS: `/usr/local/bin/python3 ...`
 
 # Scope
 * Modern style cards, normal and extended; transform and mdfc, front and back; basic lands, normal, Theros, and Unstable styles; planeswalkers, normal and extended; mutate, adventure, miracle, and snow cards; various flavours of fancy frames - stargazing, universes beyond, masterpiece, ZNE expedition, and womensday; planar cards, tokens, and basic lands.
+* The flavour text divider is automatically positioned.
 * Leveler and saga cards require manual intervention to position text layers, but are automated up until that point.
 * Planeswalkers also require manual intervention to position text layers and the ragged textbox divider, but are automated up until that point.
-* Flavour text divider is not supported, as rules text & flavour text are formatted in the same text layer, and it would be impractical to position the flavour text divider programmatically with Adobe's JavaScript library.
 
 # Customisation
 The repo includes a set of helper functions and boilerplate classes which make automating any given template straight-forward. You'll need reference layers (check out my templates on google drive for examples) for artwork to be positioned against, and for any text layers that need to be positioned vertically within a textbox. Check out the comments at the top of `templates.jsx` for more info, and you can review how I've automated my templates there for reference as well. You'll also need to adjust the function `select_template()` in `render.jsx` to point to your template class(es).

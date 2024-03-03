@@ -101,7 +101,7 @@ function align(align_type) {
     desc.putReference(idnull, ref);
     var idUsng = charIDToTypeID("Usng");
     var idADSt = charIDToTypeID("ADSt");
-    var idAdCH = charIDToTypeID(align_type);  // align type - "AdCV" for vertical, "AdCH" for horizontal
+    var idAdCH = charIDToTypeID(align_type);
     desc.putEnumerated(idUsng, idADSt, idAdCH);
     executeAction(idAlgn, desc, DialogModes.NO);
 }
@@ -120,6 +120,38 @@ function align_horizontal() {
      */
 
     align("AdCH");
+}
+
+function align_left() {
+    /**
+     * Align the currently active layer to the left of the current selection.
+     */
+
+    align("AdLf");
+}
+
+function align_right() {
+    /**
+     * Align the currently active layer to the right of the current selection.
+     */
+
+    align("AdRg");
+}
+
+function align_top() {
+    /**
+     * Align the currently active layer to the top of the current selection.
+     */
+
+    align("AdTp");
+}
+
+function align_bottom() {
+    /**
+     * Align the currently active layer to the bottom of the current selection.
+     */
+
+    align("AdBt");
 }
 
 function frame_layer(layer, reference_layer) {
@@ -220,9 +252,9 @@ function disable_active_vector_mask() {
     set_active_vector_mask(false);
 }
 
-function apply_stroke(stroke_weight, stroke_colour) {
+function apply_stroke(stroke_weight, stroke_colour, stroke_type) {
     /**
-     * Applies an outer stroke to the active layer with the specified weight and colour.
+     * Applies a stroke to the active layer with the specified weight and colour at the specified position.
      */
 
     idsetd = charIDToTypeID("setd");
@@ -248,7 +280,7 @@ function apply_stroke(stroke_weight, stroke_colour) {
     desc610.putBoolean(idenab, true);
     var idStyl = charIDToTypeID("Styl");
     var idFStl = charIDToTypeID("FStl");
-    var idInsF = charIDToTypeID("OutF");
+    var idInsF = charIDToTypeID(stroke_type);
     desc610.putEnumerated(idStyl, idFStl, idInsF);
     idPntT = charIDToTypeID("PntT");
     var idFrFl = charIDToTypeID("FrFl");
@@ -279,6 +311,30 @@ function apply_stroke(stroke_weight, stroke_colour) {
     idLefx = charIDToTypeID("Lefx");
     desc608.putObject(idT, idLefx, desc609);
     executeAction(idsetd, desc608, DialogModes.NO);
+}
+
+function apply_outer_stroke(stroke_weight, stroke_colour) {
+    /**
+     * Applies an outer stroke to the active layer with the specified weight and colour.
+     */
+
+    apply_stroke(stroke_weight, stroke_colour, "OutF");
+}
+
+function apply_inner_stroke(stroke_weight, stroke_colour) {
+    /**
+     * Applies an inner stroke to the active layer with the specified weight and colour.
+     */
+
+    apply_stroke(stroke_weight, stroke_colour, "InsF");
+}
+
+function apply_centre_stroke(stroke_weight, stroke_colour) {
+    /**
+     * Applies a centre stroke to the active layer with the specified weight and colour.
+     */
+
+    apply_stroke(stroke_weight, stroke_colour, "CtrF");
 }
 
 function save_and_close(file_name, file_path) {

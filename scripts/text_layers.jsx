@@ -67,7 +67,7 @@ function vertically_align_text(layer, reference_layer) {
     layer_copy.rasterize(RasterizeType.TEXTCONTENTS);
     select_layer_pixels(reference_layer);
     app.activeDocument.activeLayer = layer_copy;
-    align_vertical(layer_copy);
+    align_vertical();
     clear_selection();
     var layer_dimensions = compute_text_layer_bounds(layer);
     var layer_copy_dimensions = compute_text_layer_bounds(layer_copy);
@@ -78,6 +78,7 @@ function vertically_align_text(layer, reference_layer) {
 function vertically_nudge_creature_text(layer, reference_layer, top_reference_layer) {
     /**
      * Vertically nudge a creature's text layer if it overlaps with the power/toughness box, determined by the given reference layers.
+     * Returns the amount by which the text layer was nudged.
      */
 
     // if the layer needs to be nudged
@@ -121,16 +122,92 @@ function vertically_nudge_creature_text(layer, reference_layer, top_reference_la
         rasterised_copy.remove();
         extra_bit_layer.remove();
         clear_selection();
+
+        return delta;
     }
 }
 
 /* Class definitions */
 
-var TextField = Class({
-    /*
-    A generic TextField, which allows you to set a text layer's contents and text colour.
-    */
+var Field = Class({
+    /**
+     * Interface for a Field class. The system will run the `execute` functions of all Fields in `self.text_layers` when rendering a card.
+     */
 
+    constructor: function () {
+        throw new Error("This Field's constructor is not defined!");
+    },
+    execute: function () {
+        throw new Error("This Field's execute function is not defined!")
+    },
+});
+
+var ExpansionSymbolField = Class({
+    /**
+     * A Field which represents a card's expansion symbol. The expansion symbol is retrieved from Scryfall and stored on disk as SVG when the
+     * card's information is queried, then loaded into the document here. The symbol is sized and positioned according to a reference layer
+     * (typically right-justified, but centre alignment is also supported), and a 6 px outer stroke is applied. If the card is common, a white
+     * stroke is applied; otherwise, a black stroke is applied, and a clipping mask for the rarity colour is aligned to the expansion symbol
+     * and enabled.
+     */
+
+    extends_: Field,
+    constructor: function (layer_group, set_code, rarity, file_path, justification) {       
+        this.layer_group = layer_group;
+        this.set_code = set_code.toUpperCase();
+        if (use_default_expansion_symbol) {
+            this.set_code = default_icon_name;
+        }
+        this.rarity = rarity;
+        if (rarity === rarity_bonus || rarity === rarity_special) {
+            this.rarity = rarity_mythic;
+        }
+        this.file_path = file_path;
+        this.justification = justification;
+    },
+    execute: function () {
+        var expansion_symbol_file = new File(file_path + icon_directory + this.set_code + dot_svg);
+        var reference_layer = this.layer_group.layers.getByName(LayerNames.EXPANSION_REFERENCE);
+        app.activeDocument.activeLayer = reference_layer;
+        var expansion_symbol_layer = paste_file_into_new_layer(expansion_symbol_file);
+        frame_layer(expansion_symbol_layer, reference_layer);
+
+        // centre justified by default
+        if (this.justification === Justification.LEFT) {
+            select_layer_pixels(reference_layer);
+            align_left();
+            clear_selection();
+        } else if (this.justification === Justification.RIGHT) {
+            select_layer_pixels(reference_layer);
+            align_right();
+            clear_selection();
+        }
+        reference_layer.visible = false;
+
+        var stroke_weight = 6;  // pixels
+        app.activeDocument.activeLayer = this.layer_group;
+        if (this.rarity === rarity_common) {
+            apply_outer_stroke(stroke_weight, rgb_white());
+        } else {
+            var mask_layer = this.layer_group.parent.layers.getByName(this.rarity);
+            mask_layer.visible = true;
+            // ensure the gradient layer is aligned to the expansion symbol
+            apply_outer_stroke(stroke_weight, rgb_black());
+            app.activeDocument.activeLayer = mask_layer;
+            select_layer_pixels(expansion_symbol_layer);
+            align_horizontal();
+            align_vertical();
+            clear_selection();
+        }
+    }
+});
+
+var TextField = Class({
+    /**
+     * A generic TextField which allows you to set a text layer's contents and text colour.
+     */
+
+    extends_: Field,
     constructor: function (layer, text_contents, text_colour) {
         this.layer = layer;
         this.text_contents = "";
@@ -164,37 +241,6 @@ var ScaledTextField = Class({
         scale_text_right_overlap(this.layer, this.reference_layer);
     }
 });
-
-var ExpansionSymbolField = Class({
-    /**
-     * A TextField which represents a card's expansion symbol. Expansion symbol layers have a series of clipping masks (uncommon, rare, mythic),
-     * one of which will need to be enabled according to the card's rarity. A 6 px outer stroke should be applied to the layer as well, white if 
-     * the card is of common rarity and black otherwise.
-     */
-
-    extends_: TextField,
-    constructor: function (layer, text_contents, rarity) {
-        this.super(layer, text_contents, rgb_black());
-
-        this.rarity = rarity;
-        if (rarity === rarity_bonus || rarity === rarity_special) {
-            this.rarity = rarity_mythic;
-        }
-    },
-    execute: function () {
-        this.super();
-
-        var stroke_weight = 6;  // pixels
-        app.activeDocument.activeLayer = this.layer;
-        if (this.rarity === rarity_common) {
-            apply_stroke(stroke_weight, rgb_white());
-        } else {
-            var mask_layer = this.layer.parent.layers.getByName(this.rarity);
-            mask_layer.visible = true;
-            apply_stroke(stroke_weight, rgb_black());
-        }
-    }
-})
 
 var BasicFormattedTextField = Class({
     /**
@@ -232,12 +278,15 @@ var FormattedTextField = Class({
         }
         this.is_centred = is_centred;
     },
-    execute: function () {
-        this.super();
+    determine_italics_text_and_flavour_index: function() {
+        /**
+         * Returns an array of italic text for the instance's text contents and the index at which flavour text begins.
+         * Within flavour text, any text between asterisks should not be italicised, and the asterisks should not be included
+         * in the rendered flavour text.
+         */
 
-        // generate italic text arrays from things in (parentheses), ability words, and the given flavour text
-        var italic_text = generate_italics(this.text_contents);
-        var flavour_index = -1;
+         var italic_text = generate_italics(this.text_contents);
+         var flavour_index = -1;
 
         if (this.flavour_text.length > 1) {
             // remove things between asterisks from flavour text if necessary
@@ -256,6 +305,18 @@ var FormattedTextField = Class({
             }
             flavour_index = this.text_contents.length;
         }
+        return {
+            flavour_index: flavour_index,
+            italic_text: italic_text,
+        }
+    },
+    execute: function () {
+        this.super();
+
+        // generate italic text arrays from things in (parentheses), ability words, and the given flavour text
+        var ret = this.determine_italics_text_and_flavour_index();
+        var flavour_index = ret.flavour_index;
+        var italic_text = ret.italic_text;
 
         app.activeDocument.activeLayer = this.layer;
         format_text(this.text_contents + "\r" + this.flavour_text, italic_text, flavour_index, this.is_centred);
@@ -263,19 +324,71 @@ var FormattedTextField = Class({
             this.layer.textItem.justification = Justification.CENTER;
         }
     }
-})
+});
 
 var FormattedTextArea = Class({
     /**
      * A FormattedTextField where the text is required to fit within a given area. An instance of this class will step down the font size
      * until the text fits within the reference layer's bounds (in 0.25 pt increments), then rasterise the text layer, and centre it vertically
      * with respect to the reference layer's pixels.
+     * Positions the flavour text divider after sizing the text to the given area.
      */
 
     extends_: FormattedTextField,
-    constructor: function (layer, text_contents, text_colour, flavour_text, is_centred, reference_layer) {
+    constructor: function (layer, text_contents, text_colour, flavour_text, is_centred, reference_layer, divider_layer) {
         this.super(layer, text_contents, text_colour, flavour_text, is_centred);
         this.reference_layer = reference_layer;
+        this.divider_layer = divider_layer;
+    },
+    insert_divider: function() {
+        /**
+         * Inserts the flavour text divider between rules text and flavour text. 
+         * The position of the divider is calculated by creating two copies of `this.layer`, rendering `this.text_contents` in the first copy 
+         * and `this.flavour_text` in the second copy, then finding the midpoint between the bottom of the first copy and the top of the second copy.
+         * This method is slighty imperfect because of how the shape of the text layer can affect how flavour text is positioned, but should be close enough.
+         */
+
+        if (this.flavour_text.length !== "") {
+            var ret = this.determine_italics_text_and_flavour_index();
+            var flavour_index = ret.flavour_index;
+            var italic_text = ret.italic_text;
+
+            var layer_bounds = compute_text_layer_bounds(this.layer);
+
+            var layer_text_contents = this.layer.duplicate();
+            layer_text_contents.textItem.contents = this.text_contents;
+            layer_text_contents.textItem.spaceBefore = new UnitValue(line_break_lead, "px");
+            app.activeDocument.activeLayer = layer_text_contents;
+            format_text(this.text_contents, italic_text, -1, this.is_centred);
+            layer_text_contents.rasterize(RasterizeType.ENTIRELAYER);
+            text_contents_bottom = layer_text_contents.bounds[3].as("px");
+
+            var layer_flavour_text = this.layer.duplicate();
+            layer_flavour_text.textItem.contents = this.flavour_text;
+            layer_flavour_text.textItem.spaceBefore = new UnitValue(line_break_lead, "px");
+            app.activeDocument.activeLayer = layer_flavour_text;
+            format_text(this.flavour_text, italic_text, flavour_index, this.is_centred);
+            layer_flavour_text.rasterize(RasterizeType.ENTIRELAYER);
+            layer_flavour_text.translate(0, layer_bounds[3].as("px") - layer_flavour_text.bounds[3].as("px"));
+            var flavour_text_top = layer_flavour_text.bounds[1].as("px");
+
+            var divider_y_midpoint = (text_contents_bottom + flavour_text_top) / 2;
+
+            layer_text_contents.remove();
+            layer_flavour_text.remove();
+
+            app.activeDocument.activeLayer = this.divider_layer;
+            this.divider_layer.visible = true;
+
+            app.activeDocument.selection.select([
+                [0, divider_y_midpoint - 1],
+                [1, divider_y_midpoint - 1],
+                [1, divider_y_midpoint + 1],
+                [0, divider_y_midpoint + 1]
+            ]);
+            align_vertical();
+            clear_selection();
+        }
     },
     execute: function () {
         this.super();
@@ -286,6 +399,8 @@ var FormattedTextArea = Class({
 
             // centre vertically
             vertically_align_text(this.layer, this.reference_layer);
+
+            this.insert_divider();
         }
     }
 });
@@ -298,8 +413,8 @@ var CreatureFormattedTextArea = Class({
      */
 
     extends_: FormattedTextArea,
-    constructor: function (layer, text_contents, text_colour, flavour_text, is_centred, reference_layer, pt_reference_layer, pt_top_reference_layer) {
-        this.super(layer, text_contents, text_colour, flavour_text, is_centred, reference_layer);
+    constructor: function (layer, text_contents, text_colour, flavour_text, is_centred, reference_layer, divider_layer, pt_reference_layer, pt_top_reference_layer) {
+        this.super(layer, text_contents, text_colour, flavour_text, is_centred, reference_layer, divider_layer);
         this.pt_reference_layer = pt_reference_layer;
         this.pt_top_reference_layer = pt_top_reference_layer;
     },
@@ -307,6 +422,9 @@ var CreatureFormattedTextArea = Class({
         this.super();
 
         // shift vertically if the text overlaps the PT box
-        vertically_nudge_creature_text(this.layer, this.pt_reference_layer, this.pt_top_reference_layer);
+        var delta = vertically_nudge_creature_text(this.layer, this.pt_reference_layer, this.pt_top_reference_layer);
+        if (delta < 0) {
+            this.divider_layer.translate(0, new UnitValue(delta, "px"));
+        }
     }
-})
+});
