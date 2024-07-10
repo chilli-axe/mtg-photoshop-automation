@@ -99,6 +99,7 @@ function determine_symbol_colours(symbol, symbol_length) {
         "B": rgb_c,
         "R": rgb_r,
         "G": rgb_g,
+        "C": rgb_c,
         "2": rgb_c,
     }
 
@@ -110,10 +111,11 @@ function determine_symbol_colours(symbol, symbol_length) {
         "R": rgb_r,
         "G": rgb_g,
         "2": rgb_c,
+        "C": rgb_c,
     }
 
-    if (symbol === "{E}" || symbol === "{CHAOS}") {
-        // energy or chaos symbols
+    if (symbol === "{E}" || symbol === "{CHAOS}" || symbol === "{P}") {
+        // energy, chaos, or plain phyrexian symbols
         return [rgb_black()];
     } else if (symbol === "{S}") {
         // snow symbol
@@ -129,12 +131,12 @@ function determine_symbol_colours(symbol, symbol_length) {
         return [hybrid_symbol_colour_map[phyrexian_match[1]], rgb_black()];
     }
 
-    var hybrid_regex = /^\{([2,W,U,B,R,G])\/([W,U,B,R,G])\}$/;
+    var hybrid_regex = /^\{([2,W,U,B,R,G,C])\/([W,U,B,R,G])\}$/;  // note: not supporting X/C at the moment.
     var hybrid_match = symbol.match(hybrid_regex);
     if (hybrid_match !== null) {
         var colour_map = symbol_colour_map;
-        if (hybrid_match[1] == "2") {
-            // Use the darker colour for black's symbols for 2/B hybrid symbols
+        if (hybrid_match[1] == "2" || hybrid_match[1] == "C") {
+            // Use the darker colour for black's symbols for 2/B and C/B hybrid symbols
             colour_map = hybrid_symbol_colour_map;
         }
         return [
